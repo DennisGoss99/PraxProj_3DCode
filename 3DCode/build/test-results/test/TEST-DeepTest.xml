@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="DeepTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2021-10-10T17:37:35" hostname="DESKTOP-FEB07TN" time="1.72">
+  <properties/>
+  <testcase name="advancedFuncTest()" classname="DeepTest" time="0.114"/>
+  <testcase name="simpleFuncTest()" classname="DeepTest" time="0.005"/>
+  <testcase name="recursionTest()" classname="DeepTest" time="0.031"/>
+  <testcase name="simpleTest()" classname="DeepTest" time="0.005"/>
+  <testcase name="simpleTest2()" classname="DeepTest" time="0.001"/>
+  <testcase name="primeHowManyTest()" classname="DeepTest" time="0.744"/>
+  <testcase name="ifTest()" classname="DeepTest" time="0.001"/>
+  <testcase name="moduloTest4()" classname="DeepTest" time="0.648"/>
+  <testcase name="toStringPiTest()" classname="DeepTest" time="0.012"/>
+  <testcase name="mainParameterTest()" classname="DeepTest" time="0.001"/>
+  <testcase name="variableTest()" classname="DeepTest" time="0.001"/>
+  <testcase name="advancedRecursionTest()" classname="DeepTest" time="0.006"/>
+  <testcase name="helloWeltTest()" classname="DeepTest" time="0.021"/>
+  <testcase name="mathTest()" classname="DeepTest" time="0.003"/>
+  <testcase name="shadowingTest()" classname="DeepTest" time="0.002"/>
+  <testcase name="whileLoopTest()" classname="DeepTest" time="0.002"/>
+  <testcase name="mathTest2()" classname="DeepTest" time="0.0"/>
+  <testcase name="mathTest3()" classname="DeepTest" time="0.002"/>
+  <testcase name="mathTest4()" classname="DeepTest" time="0.001"/>
+  <testcase name="simpleMainParameterTest()" classname="DeepTest" time="0.001"/>
+  <testcase name="shadowingTest2()" classname="DeepTest" time="0.001"/>
+  <testcase name="shadowingTest3()" classname="DeepTest" time="0.035"/>
+  <testcase name="shadowingTest4()" classname="DeepTest" time="0.002"/>
+  <testcase name="funcTest()" classname="DeepTest" time="0.003"/>
+  <testcase name="boolTest()" classname="DeepTest" time="0.001"/>
+  <testcase name="globalVariableTest()" classname="DeepTest" time="0.003"/>
+  <system-out><![CDATA[Hallo Welt
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

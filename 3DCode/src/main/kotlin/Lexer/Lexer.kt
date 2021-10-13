@@ -96,8 +96,6 @@ open class Lexer(input: String) {
                 else -> throw LexerUnexpectedCharException(currentLineOfCode, c)
             }
         }
-
-
     }
 
     public fun peek(): LexerToken {
@@ -136,12 +134,12 @@ open class Lexer(input: String) {
             "else" -> LexerToken.Else(currentLineOfCode)
             "while" -> LexerToken.While(currentLineOfCode)
             "return" -> LexerToken.Return(currentLineOfCode)
-            "struct" -> LexerToken.Struct(currentLineOfCode)
+            "class" -> LexerToken.Class(currentLineOfCode)
             else -> {
                 if(result[0].isLowerCase())
                     LexerToken.TypeIdent(result, currentLineOfCode)
                 else
-                    LexerToken.FunctionIdent(result, currentLineOfCode)
+                    LexerToken.UpperCaseIdent(result, currentLineOfCode)
             }
         }
     }

@@ -6,6 +6,12 @@ sealed class Declaration : ILineOfCode // Lila
         return this.javaClass.simpleName
     }
 
+    data class ClassDeclare(
+        val className: String,
+        val classBody: ClassBody,
+        override val LineOfCode: Int = -1
+    ) : Declaration()
+
     data class FunctionDeclare(
         val returnType: Type,
         val functionName: String,
@@ -16,4 +22,6 @@ sealed class Declaration : ILineOfCode // Lila
 
     data class VariableDeclaration(val type: Type, val name: String, val expression : Expression, override val LineOfCode: Int = -1
     ) : Declaration()
+
+
 }

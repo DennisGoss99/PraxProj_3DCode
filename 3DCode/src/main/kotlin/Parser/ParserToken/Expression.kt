@@ -17,6 +17,5 @@ sealed class Expression : ILineOfCode
 
     data class FunctionCall(val functionName : String, val parameterList : List<Expression>? , override val LineOfCode: Int = -1) : Expression()
 
-
     data class Value(val value: ConstantValue, override val LineOfCode: Int = -1) : Expression()
 }

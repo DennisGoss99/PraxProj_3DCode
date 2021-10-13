@@ -1,4 +1,5 @@
 import Lexer.Lexer
+import Lexer.LexerToken
 import Lexer.TestLexer
 import Parser.*
 import Parser.ParserToken.*
@@ -21,23 +22,9 @@ class ParserTest
 
     fun TestIfTreeIsAsExpected(code : String, declaration: List<Declaration>)
     {
-        if(_debugOutPut)
-        {
-            println("-----<Code>-----")
-            println(code)
-            println("----------------")
-
-        }
-
         val lexer = TestLexer(code)
         val parser = Parser(lexer)
         val parserTokenTree = parser.ParsingStart()
-
-        if(_debugOutPut)
-        {
-            println(declaration)
-            println(parserTokenTree)
-        }
 
         assertEquals(declaration.toString(), parserTokenTree.toString())
     }
@@ -326,5 +313,117 @@ class ParserTest
         val tree = CallMain(statementList, localVariables, null, Type.Float)
 
         TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun classTest(){
+        val code = """   
+            
+            class OpenGL{           
+                string §name = "";
+                
+                void A(){
+                    Println("Hallo");
+                }
+            }
+                             
+            void Main(){
+                openGL §b = OpenGL();
+            }
+            
+        """.trimIndent()
+
+        val declarations = listOf<Declaration>(
+            Declaration.ClassDeclare("OpenGL", ClassBody(
+                listOf(
+                    Declaration.FunctionDeclare(Type.Void,"A",
+                        Body(
+                            listOf<Statement>(
+                                Statement.ProcedureCall(
+                                    "Println",
+                                    listOf<Expression>(
+                                        Expression.Value(ConstantValue.String("Hallo"))
+                                    )
+                                )
+                            )
+                        ),null)),
+                listOf(
+                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                )
+            )),
+            Declaration.FunctionDeclare(
+                Type.Void,
+                "Main",
+                Body(
+                    listOf<Statement>(),
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)))
+                ),
+                null
+            )
+        )
+
+        TestIfTreeIsAsExpected(code, declarations)
+    }
+
+    @Test
+    fun class2Test(){
+        val code = """   
+            
+            class OpenGL{           
+                string §name = "";
+                
+                void A(){
+                    Println("Hallo");
+                }
+            }
+            
+            class Aaaa{           
+                string §a = "";
+                float §b = 0.0;
+            }
+                             
+            void Main(){
+                openGL §b = OpenGL();
+            }
+            
+        """.trimIndent()
+
+        val declarations = listOf<Declaration>(
+            Declaration.ClassDeclare("OpenGL", ClassBody(
+                listOf(
+                    Declaration.FunctionDeclare(Type.Void,"A",
+                        Body(
+                            listOf<Statement>(
+                                Statement.ProcedureCall(
+                                    "Println",
+                                    listOf<Expression>(
+                                        Expression.Value(ConstantValue.String("Hallo"))
+                                    )
+                                )
+                            )
+                        ),null)),
+                listOf(
+                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                )
+            )),
+            Declaration.ClassDeclare("Aaaa", ClassBody(
+                listOf(),
+                listOf(
+                    Declaration.VariableDeclaration(Type.String,"§a",Expression.Value(ConstantValue.String(""))),
+                    Declaration.VariableDeclaration(Type.Float,"§b",Expression.Value(ConstantValue.Float(0.0f)))
+                )
+            )),
+            Declaration.FunctionDeclare(
+                Type.Void,
+                "Main",
+                Body(
+                    listOf<Statement>(),
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)))
+                ),
+                null
+            )
+        )
+
+        TestIfTreeIsAsExpected(code, declarations)
     }
 }

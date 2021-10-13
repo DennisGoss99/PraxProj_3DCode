@@ -4,6 +4,6 @@ class ClassBody (val functions : List<Declaration.FunctionDeclare>, val variable
 {
     override fun toString(): String
     {
-        return "{${functionBody.toString()}},LocalVariables{${localVariables?.toString()}} "
+        return "{functions{${functions?.toString()}},LocalVariables{${variables?.toString()}}} "
     }
 }

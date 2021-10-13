@@ -613,6 +613,87 @@ class DeepTest {
     }
 
     @Test
+    fun float2Test(){
+        val code = """   
+            
+                             
+            float Main(){
+            
+                float §a = 0.0;
+                int §i = 0;
+                
+                while(§i != 10){
+                    §a = §a + (0.1 * §i);  
+                    §i = §i + 1;
+                }
+                
+                return §a;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float(4.5f) ,executeCode(code))
+
+    }
+
+    @Test
+    fun float3Test(){
+        val code = """   
+            
+                             
+            bool Main(){
+                
+                bool §c = true;
+                
+                float §a = 1.0001;
+                float §b = 1.0000;
+                
+                if(§a < §b){
+                    §c = false;
+                }
+                
+                if(§a == §b){
+                    §c = false;
+                }
+                                
+                if(§a != §b + 0.0001){
+                    §c = false;
+                }
+                    
+                return §c;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Boolean(true) ,executeCode(code))
+
+    }
+
+    @Test
+    fun float4Test(){
+        val code = """   
+            
+                             
+            int Main(){
+            
+                float §a = 0.0;
+                int §i = 0;
+                
+                while(§a < 10){
+                    §i = §i + 1;  
+                    §a = §a + 0.01;
+                }
+                
+                return §i;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(1000) ,executeCode(code))
+
+    }
+
+    @Test
     fun bugfix1Test(){
         val code = """   
             
@@ -637,6 +718,31 @@ class DeepTest {
         """.trimIndent()
 
         assertEquals(ConstantValue.Integer(30) ,executeCode(code2))
+    }
+
+    @Test
+    fun classTest(){
+        val code = """   
+            
+            class OpenGL{           
+                string name;
+            
+                void A(){
+                    Println("Hallo");
+                }
+                
+                void B(int §a){
+                    Println(ToString(§a) + "Hallo" + §name);
+                }
+            }
+                             
+            void Main(){
+                openGL §b = OpenGL();
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(30) ,executeCode(code))
     }
 
 }

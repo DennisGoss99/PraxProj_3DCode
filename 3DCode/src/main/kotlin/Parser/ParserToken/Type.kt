@@ -14,4 +14,5 @@ sealed class Type
     object Double : Type()
     object String : Type()
     object Void : Type()
+    class Custom(val name : kotlin.String) : Type()
 }

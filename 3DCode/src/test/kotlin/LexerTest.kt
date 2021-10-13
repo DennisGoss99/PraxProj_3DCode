@@ -1,10 +1,7 @@
-import Lexer.Lexer
 import Lexer.LexerToken
 import Lexer.TestLexer
 import org.junit.jupiter.api.Test
-import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class LexerTest : BaseLexerTest() {
 
@@ -243,7 +240,7 @@ class LexerTest : BaseLexerTest() {
 
         val expectedLexerTokenList = listOf<LexerToken>(
             LexerToken.TypeIdent("int"),
-            LexerToken.FunctionIdent("Hallo"),
+            LexerToken.UpperCaseIdent("Hallo"),
             LexerToken.Lparen(),
             LexerToken.TypeIdent("int"),
             LexerToken.NameIdent("a"),
@@ -276,7 +273,7 @@ class LexerTest : BaseLexerTest() {
 
         val expectedLexerTokenList = listOf<LexerToken>(
             LexerToken.TypeIdent("void"),
-            LexerToken.FunctionIdent("Hallo"),
+            LexerToken.UpperCaseIdent("Hallo"),
             LexerToken.Lparen(),
             LexerToken.TypeIdent("char[]"),
             LexerToken.NameIdent("b"),
@@ -287,55 +284,6 @@ class LexerTest : BaseLexerTest() {
             LexerToken.String_Literal("TEST"),
             LexerToken.Semicolon(),
             LexerToken.RCurlyBrace(),
-            LexerToken.EOF,
-        )
-
-        assertEqualLexerList(expectedLexerTokenList,lexer)
-
-    }
-
-    @Test
-    fun structLexerTest(){
-
-        val code = """
-            struct adresse {
-                char[50] §name;
-                char[100] §strasse;
-                int §hausnummer;
-                int §plz;
-                char[50] §stadt;
-            };
-        """.trimIndent()
-
-        val lexer = TestLexer(code);
-
-        val expectedLexerTokenList = listOf<LexerToken>(
-            LexerToken.Struct(),
-            LexerToken.TypeIdent("adresse"),
-            LexerToken.LCurlyBrace(),
-
-            LexerToken.TypeIdent("char[50]"),
-            LexerToken.NameIdent("name"),
-            LexerToken.Semicolon(),
-
-            LexerToken.TypeIdent("char[100]"),
-            LexerToken.NameIdent("strasse"),
-            LexerToken.Semicolon(),
-
-            LexerToken.TypeIdent("int"),
-            LexerToken.NameIdent("hausnummer"),
-            LexerToken.Semicolon(),
-
-            LexerToken.TypeIdent("int"),
-            LexerToken.NameIdent("plz"),
-            LexerToken.Semicolon(),
-
-            LexerToken.TypeIdent("char[50]"),
-            LexerToken.NameIdent("stadt"),
-            LexerToken.Semicolon(),
-
-            LexerToken.RCurlyBrace(),
-            LexerToken.Semicolon(),
             LexerToken.EOF,
         )
 
@@ -363,6 +311,35 @@ class LexerTest : BaseLexerTest() {
         )
 
         assertEqualLexerList(expectedLexerTokenList,lexer)
+
+    }
+
+    @Test
+    fun classTest(){
+        val code = """   
+            
+            class OpenGL{           
+                string name;
+            
+                A(){
+                    Println("Hallo");
+                }
+                
+                B(int §a){
+                    Println(ToString(§a) + "Hallo" + §name);
+                }
+            }
+                             
+            void Main(){
+                openGL §b = OpenGL();
+            }
+            
+        """.trimIndent()
+
+        val lexer = TestLexer(code);
+        do{
+            println(lexer.next())
+        }while(lexer.peek() != LexerToken.EOF)
 
     }
 

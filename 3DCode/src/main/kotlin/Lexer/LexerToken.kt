@@ -13,7 +13,7 @@ sealed class LexerToken() {
         data class Else(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class While(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class Return(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
-        data class Struct(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
+        data class Class(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
 
         // Symbols
         data class AssignEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}       // =
@@ -44,7 +44,7 @@ sealed class LexerToken() {
 
         data class NameIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
         data class TypeIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
-        data class FunctionIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
+        data class UpperCaseIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
 
         // Literals
         data class Boolean_Literal(val b: Boolean, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($b)"}
@@ -52,6 +52,8 @@ sealed class LexerToken() {
         data class Float_Literal(val f: Float, override val LineOfCode : Int = -1): LexerToken(){ override fun toString(): String = super.toString() + "($f)"}
         data class Char_Literal(val c: Char, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($c)"}
         data class String_Literal(val s: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($s)"}
+
+
 
         // Control Token
         object EOF : LexerToken(){ override fun toString(): String = super.toString()}

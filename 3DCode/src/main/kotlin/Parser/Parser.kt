@@ -29,22 +29,12 @@ class Parser(val lexer: Lexer)
 
         currentLineOfCode = token.LineOfCode
 
-        if(_debugOutPut)
-        {
-            println(token.toString())
-        }
-
         return token
     }
 
     fun ParsingStart() : List<Declaration> // Return List<Declarations>
     {
         var declarationList : List<Declaration>? = null
-
-        if(_debugOutPut)
-        {
-            println("-----<Starting Parsing>-----")
-        }
 
         try
         {
@@ -58,34 +48,21 @@ class Parser(val lexer: Lexer)
         if(lexer.peek() is LexerToken.EOF)
         {
             val token = GetTextToken()
-
-            if(_debugOutPut)
-            {
-                println("-----<Parsing OK>-----")
-            }
         }
         else
         {
-            if(_debugOutPut)
-            {
-                println("-----<Missed Tokens>-----")
-            }
 
             while(true)
             {
                 val token = GetTextToken()
 
                 if(token is LexerToken.EOF)
-                {
                     break;
-                }
             }
         }
 
         if(declarationList == null)
-        {
             throw ParserNoData()
-        }
 
         return declarationList
     }
@@ -289,13 +266,6 @@ class Parser(val lexer: Lexer)
         return name.identify
     }
 
-    private fun FuncitonParse(): Declaration.FunctionDeclare
-    {
-        val type = TypeParse()
-
-        return FuncitonParse(type)
-    }
-
     private fun FuncitonParse(type : Type): Declaration.FunctionDeclare
     {
         val currentLineOfCode = lexer.peek().LineOfCode
@@ -330,13 +300,6 @@ class Parser(val lexer: Lexer)
         }
     }
 
-    private fun CalulationParse(operator : Operator) : Expression.Operation
-    {
-        val expression = ExpressionParse()
-
-        return Expression.Operation(operator, expression, null, currentLineOfCode)
-    }
-
     private fun CalulationParse(leftExpression : Expression) : Expression.Operation
     {
         val operator = OperatorParse()
@@ -347,7 +310,7 @@ class Parser(val lexer: Lexer)
 
     private fun CalculationSort(operator: Operator, expressionA: Expression, expressionB: Expression) : Expression.Operation
     {
-        val operatorCurrentStrengh = OperatorStength(operator)
+        val operatorCurrentStrength = OperatorStength(operator)
 
         val sameBlockDepth = (expressionA.BlockDepth == expressionB.BlockDepth)// || (expressionA.BlockDepth == -1)
         val bothExpressionsAreOperator =
@@ -360,9 +323,9 @@ class Parser(val lexer: Lexer)
             val opB = expressionB as Expression.Operation
 
             val operatorB = opB.operator
-            val operatorBStrengh = OperatorStength(operatorB)
+            val operatorBStrength = OperatorStength(operatorB)
 
-            var isAHigher = operatorCurrentStrengh.first < operatorBStrengh.first;
+            var isAHigher = operatorCurrentStrength.first < operatorBStrength.first;
 
             if(isAHigher)
             {
@@ -389,15 +352,6 @@ class Parser(val lexer: Lexer)
 
     }
 
-    private fun CalulationParse() : Expression.Operation
-    {
-        val leftExpression = ExpressionParse()
-        val operator = OperatorParse()
-        val rightExpression = ExpressionParse()
-
-        return CalculationSort(operator, leftExpression, rightExpression)
-    }
-
     private fun ValueParse() : Expression.Value
     {
         val token = GetTextToken()
@@ -405,6 +359,7 @@ class Parser(val lexer: Lexer)
         val expression = when(token)
         {
             is LexerToken.Number_Literal -> { Expression.Value(ConstantValue.Integer(token.n, Type.Integer)) }
+            is LexerToken.Float_Literal -> {Expression.Value(ConstantValue.Float(token.f, Type.Float))}
             is LexerToken.Boolean_Literal -> { Expression.Value(ConstantValue.Boolean(token.b, Type.Boolean)) }
             is LexerToken.Char_Literal -> { Expression.Value(ConstantValue.Char(token.c, Type.Char)) }
             is LexerToken.String_Literal -> { Expression.Value(ConstantValue.String(token.s, Type.String)) }
@@ -464,8 +419,9 @@ class Parser(val lexer: Lexer)
     private fun UseVariableParse() : Expression.UseVariable
     {
         val name = NameParse()
-
-        return Expression.UseVariable(name, currentLineOfCode)
+        val expression = Expression.UseVariable(name, currentLineOfCode)
+        expression.BlockDepth = _currentBlockDepth
+        return expression
     }
 
     private fun BracketBlock() : Expression
@@ -526,18 +482,19 @@ class Parser(val lexer: Lexer)
             is LexerToken.String_Literal,
             is LexerToken.Char_Literal,
             is LexerToken.Boolean_Literal,
-            is LexerToken.Number_Literal ->
+            is LexerToken.Number_Literal,
+            is LexerToken.Float_Literal->
             {
-                val number = ValueParse()
+                val expressionValue = ValueParse()
                 val next = lexer.peek()
 
                 if(next is LexerToken.Rparen)
                 {
-                    number
+                    expressionValue
                 }
                 else
                 {
-                    CalulationParse(number)
+                    CalulationParse(expressionValue)
                 }
             }
             else -> throw ParserTokenUnexpected(leftBracketAgain)
@@ -596,9 +553,11 @@ class Parser(val lexer: Lexer)
             is LexerToken.Boolean_Literal,
             is LexerToken.Char_Literal,
             is LexerToken.String_Literal,
+            is LexerToken.Float_Literal,
             is LexerToken.Number_Literal -> ValueParse()
+
             is LexerToken.FunctionIdent -> FunctionCallParse()
-            is LexerToken.NameIdent -> Expression.UseVariable(NameParse(), currentLineOfCode)
+            is LexerToken.NameIdent -> UseVariableParse()//Expression.UseVariable(NameParse(), currentLineOfCode)
 
             is LexerToken.Lparen ->
             {
@@ -759,13 +718,6 @@ class Parser(val lexer: Lexer)
 
             else -> throw ParserTypeUnknown(variableType)
         }
-    }
-
-    private fun VariableDeclaration(): Declaration.VariableDeclaration
-    {
-        val type = TypeParse()
-
-        return VariableDeclaration(type)
     }
 
     private fun VariableDeclaration(type: Type): Declaration.VariableDeclaration

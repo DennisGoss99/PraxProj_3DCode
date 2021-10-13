@@ -956,4 +956,36 @@ class EvaluatorTest{
 
     }
 
+    @Test
+    fun FloatAdditionTest(){
+
+        val declarations = listOf<Declaration>(
+            Declaration.VariableDeclaration(Type.Float,"§b",Expression.Value(ConstantValue.Float(5.5f))),
+            Declaration.FunctionDeclare(
+                Type.Float,
+                "Main",
+                Body(
+                    listOf<Statement>(
+                        Statement.AssignValue(
+                            "return",
+                            Expression.Operation(
+                                Operator.Plus,
+                                Expression.UseVariable("§a"),
+                                Expression.UseVariable("§b")
+                            )
+                        )
+                    ),
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Float,"§a",Expression.Value(ConstantValue.Float(15.7f))))
+                ),
+                null
+            )
+        )
+
+
+        var evaluator = Evaluator()
+
+        assertEquals(Expression.Value(ConstantValue.Float(21.2f)),evaluator.eval(declarations,null))
+
+    }
+
 }

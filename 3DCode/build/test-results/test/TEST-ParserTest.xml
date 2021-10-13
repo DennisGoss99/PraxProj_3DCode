@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="ParserTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2021-10-10T17:37:37" hostname="DESKTOP-FEB07TN" time="0.052">
+<testsuite name="ParserTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2021-10-13T10:13:25" hostname="DESKTOP-FEB07TN" time="0.024">
   <properties/>
-  <testcase name="ReturnWithAdditionTest()" classname="ParserTest" time="0.001"/>
-  <testcase name="ReturnWithParametersTest()" classname="ParserTest" time="0.002"/>
+  <testcase name="FloatReturnWithLoopTest()" classname="ParserTest" time="0.008"/>
+  <testcase name="ReturnWithAdditionTest()" classname="ParserTest" time="0.002"/>
+  <testcase name="ReturnWithParametersTest()" classname="ParserTest" time="0.001"/>
   <testcase name="ReturnDirectTest()" classname="ParserTest" time="0.001"/>
-  <testcase name="ReturnWithDeclarationTest()" classname="ParserTest" time="0.002"/>
-  <testcase name="ReturnWithLoopTest()" classname="ParserTest" time="0.001"/>
-  <testcase name="ReturnWithFuncitonCallTest()" classname="ParserTest" time="0.0"/>
+  <testcase name="ReturnWithDeclarationTest()" classname="ParserTest" time="0.001"/>
+  <testcase name="ReturnWithLoopTest()" classname="ParserTest" time="0.002"/>
+  <testcase name="ReturnWithFuncitonCallTest()" classname="ParserTest" time="0.001"/>
   <testcase name="ReturnWithIFTest()" classname="ParserTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

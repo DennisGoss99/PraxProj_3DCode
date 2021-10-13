@@ -343,4 +343,27 @@ class LexerTest : BaseLexerTest() {
 
     }
 
+    @Test
+    fun simpleFloatLexerTest(){
+
+        val code = """
+            float §b = 5.0;
+        """.trimIndent()
+
+        val lexer = TestLexer(code);
+
+        val expectedLexerTokenList = listOf<LexerToken>(
+            LexerToken.TypeIdent("float"),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignEquals(),
+            LexerToken.Float_Literal(5.0f),
+            LexerToken.Semicolon(),
+            LexerToken.EOF,
+            LexerToken.EOF
+        )
+
+        assertEqualLexerList(expectedLexerTokenList,lexer)
+
+    }
+
 }

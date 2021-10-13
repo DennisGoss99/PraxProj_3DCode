@@ -92,7 +92,7 @@ open class Lexer(input: String) {
             '\"' -> getString()
             else -> when {
                 c.isJavaIdentifierStart() -> ident(c)
-                c.isDigit() -> number(c)
+                c.isDigit() -> digit(c)
                 else -> throw LexerUnexpectedCharException(currentLineOfCode, c)
             }
         }
@@ -106,12 +106,16 @@ open class Lexer(input: String) {
         return token
     }
 
-    private fun number(c: Char): LexerToken {
+    private fun digit(c: Char): LexerToken {
         var result = c.toString()
-        while (iterator.hasNext() && iterator.peek().isDigit()) {
+        while (iterator.hasNext() && (iterator.peek().isDigit() || iterator.peek() == '.')) {
             result += iterator.next()
         }
-        return LexerToken.Number_Literal(result.toInt(), currentLineOfCode)
+
+        return when{
+            result.contains('.') -> LexerToken.Float_Literal(result.toFloat(), currentLineOfCode)
+            else ->                      LexerToken.Number_Literal(result.toInt(), currentLineOfCode)
+        }
     }
 
     private fun identBase(c: Char): String {

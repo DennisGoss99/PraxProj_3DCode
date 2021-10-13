@@ -153,72 +153,68 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                         }
                         Operator.Minus->  {
                             val typeA = getExpressionType(expression.expressionA, localVariables)
-                            typeA as? Type.Integer ?: throw TypeCheckerOperatorTypeException(expression.LineOfCode, Operator.Minus,typeA)
+                            typeA as? Type.Integer ?: typeA as? Type.Float ?: throw TypeCheckerOperatorTypeException(expression.LineOfCode, Operator.Minus,typeA)
                         }
                         else -> throw TypeCheckerOperationException(expression.LineOfCode, "Needs more then one Argument", expression.operator)
                     }
                 }
-                else
+                else{
+                    val typeA = getExpressionType(expression.expressionA, localVariables)
+                    val typeB = getExpressionType(expression.expressionB, localVariables)
+
                     return when (expression.operator){
 
-                        Operator.And -> checkOperatorTypes<Type.Boolean>(expression.operator,expression.expressionA,expression.expressionB, localVariables)
-                        Operator.Or -> checkOperatorTypes<Type.Boolean>(expression.operator,expression.expressionA,expression.expressionB, localVariables)
+                        Operator.And -> checkOperatorTypes<Type.Boolean>(Type.Boolean,typeA,typeB,expression)
+                        Operator.Or -> checkOperatorTypes<Type.Boolean>(Type.Boolean,typeA,typeB,expression)
 
-                        Operator.Minus -> checkOperatorTypes<Type.Integer>(expression.operator, expression.expressionA, expression.expressionB, localVariables)
-                        Operator.Multiply -> checkOperatorTypes<Type.Integer>(expression.operator, expression.expressionA, expression.expressionB, localVariables)
-                        Operator.Less -> checkOperatorTypes<Type.Integer>( Type.Boolean, expression.operator,expression.expressionA,expression.expressionB, localVariables)
-                        Operator.LessEqual -> checkOperatorTypes<Type.Integer>(Type.Boolean, expression.operator,expression.expressionA,expression.expressionB, localVariables)
-                        Operator.Greater -> checkOperatorTypes<Type.Integer>(Type.Boolean, expression.operator,expression.expressionA,expression.expressionB, localVariables)
-                        Operator.GreaterEquals -> checkOperatorTypes<Type.Integer>(Type.Boolean, expression.operator,expression.expressionA,expression.expressionB, localVariables)
+                        Operator.Minus -> numberOperation(typeA, typeB, expression)
+                        Operator.Multiply -> numberOperation(typeA, typeB, expression)
+                        Operator.Less -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
+                        Operator.LessEqual -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
+                        Operator.Greater -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
+                        Operator.GreaterEquals -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
 
-                        Operator.Plus -> checkOperatorTypes(listOf(Type.Integer,Type.String),expression.operator, expression.expressionA, expression.expressionB, localVariables)
+                        Operator.Plus -> when{
+                                typeA is Type.Integer && typeB is Type.Integer -> Type.Integer
+                                typeA is Type.Integer || typeA is Type.Float && typeB is Type.Integer || typeB is Type.Float -> Type.Float
+                                typeA is Type.String && typeB is Type.String -> Type.String
+                                else -> throw TypeCheckerOperatorTypeException(expression.LineOfCode ,expression.operator, typeA, typeB)
+                        }
 
-                        Operator.DoubleEquals -> checkOperatorAllTypes(Type.Boolean,expression.operator, expression.expressionA, expression.expressionB, localVariables)
-                        Operator.NotEqual -> checkOperatorAllTypes(Type.Boolean,expression.operator, expression.expressionA, expression.expressionB, localVariables)
+                        Operator.DoubleEquals -> checkOperatorAllTypes(Type.Boolean,typeA,typeB,expression)
+                        Operator.NotEqual -> checkOperatorAllTypes(Type.Boolean,typeA,typeB,expression)
 
                         Operator.Not -> throw TypeCheckerOperationException(expression.LineOfCode, "Needs only one Argument", expression.operator)
                         Operator.Equals -> throw TypeCheckerOperationException(expression.LineOfCode, "Can't use Operator at this position", expression.operator)
                     }
+                }
             }
         }
     }
 
-    private fun <T> checkOperatorTypes(outputType : Type ,operator : Operator, expressionA: Expression, expressionB: Expression, localVariables : HashMap<String, Type>): Type {
-        val typeA = getExpressionType(expressionA, localVariables)
-        typeA as? T ?: throw TypeCheckerOperatorTypeException(expressionA.LineOfCode ,operator, typeA)
-        val typeB = getExpressionType(expressionB, localVariables)
-        typeB as? T ?: throw TypeCheckerOperatorTypeException(expressionB.LineOfCode ,operator, typeB)
+    private fun numberOperation(typeA: Type, typeB: Type, expression: Expression.Operation)
+    = when {
+        typeA is Type.Integer && typeB is Type.Integer -> Type.Integer
+        typeA is Type.Integer || typeA is Type.Float && typeB is Type.Integer || typeB is Type.Float -> Type.Float
+        else -> throw TypeCheckerOperatorTypeException(expression.LineOfCode, expression.operator, typeA, typeB)
+    }
+
+    private fun <T> checkOperatorTypes(outputType : Type ,typeA : Type, typeB : Type, expression: Expression.Operation): Type {
+        typeA as? T ?: throw TypeCheckerOperatorTypeException(expression.LineOfCode ,expression.operator, typeA)
+        typeB as? T ?: throw TypeCheckerOperatorTypeException(expression.LineOfCode ,expression.operator, typeB)
         return outputType
     }
 
-    private fun <T> checkOperatorTypes(operator : Operator, expressionA: Expression, expressionB: Expression, localVariables : HashMap<String, Type>): T {
-        val typeA = getExpressionType(expressionA, localVariables)
-        typeA as? T ?: throw TypeCheckerOperatorTypeException(expressionA.LineOfCode ,operator, typeA)
-        val typeB = getExpressionType(expressionB, localVariables)
-        typeB as? T ?: throw TypeCheckerOperatorTypeException(expressionB.LineOfCode ,operator, typeB)
-        return typeA
+    private fun <T,D> checkOperatorTypes2(outputType : Type ,typeA : Type, typeB : Type, expression: Expression.Operation): Type {
+        typeA as? T ?: typeA as? D ?: throw TypeCheckerOperatorTypeException(expression.LineOfCode ,expression.operator, typeA)
+        typeB as? T ?: typeB as? D ?: throw TypeCheckerOperatorTypeException(expression.LineOfCode ,expression.operator, typeB)
+        return outputType
     }
 
-    private fun checkOperatorAllTypes(outputType : Type ,operator : Operator, expressionA: Expression, expressionB: Expression, localVariables : HashMap<String, Type>): Type {
-        val typeA = getExpressionType(expressionA, localVariables)
-        val typeB = getExpressionType(expressionB, localVariables)
+    private fun checkOperatorAllTypes(outputType : Type ,typeA : Type, typeB : Type, expression: Expression.Operation): Type {
         if(typeA == typeB)
             return outputType
-        throw TypeCheckerOperatorTypeException(expressionA.LineOfCode ,operator, typeA, typeB)
+        throw TypeCheckerOperatorTypeException(expression.LineOfCode ,expression.operator, typeA, typeB)
     }
-
-    private fun checkOperatorTypes(validTypes : List<Type> ,operator : Operator, expressionA: Expression, expressionB: Expression, localVariables : HashMap<String, Type>): Type {
-        val typeA = getExpressionType(expressionA, localVariables)
-        val typeB = getExpressionType(expressionB, localVariables)
-
-        if(typeA == typeB)
-            if(validTypes.contains(typeA))
-                return typeA
-            else
-                throw TypeCheckerOperatorTypeException(expressionA.LineOfCode ,operator, typeA)
-        else
-            throw TypeCheckerOperatorTypeException(expressionA.LineOfCode ,operator, typeA, typeB)
-    }
-
 
 }

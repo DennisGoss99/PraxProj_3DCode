@@ -49,6 +49,7 @@ sealed class LexerToken() {
         // Literals
         data class Boolean_Literal(val b: Boolean, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($b)"}
         data class Number_Literal(val n: Int, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($n)"}
+        data class Float_Literal(val f: Float, override val LineOfCode : Int = -1): LexerToken(){ override fun toString(): String = super.toString() + "($f)"}
         data class Char_Literal(val c: Char, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($c)"}
         data class String_Literal(val s: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($s)"}
 

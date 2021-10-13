@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="EvaluatorTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2021-10-10T17:37:37" hostname="DESKTOP-FEB07TN" time="0.233">
+<testsuite name="EvaluatorTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2021-10-13T10:13:25" hostname="DESKTOP-FEB07TN" time="0.088">
   <properties/>
   <testcase name="whileTest()" classname="EvaluatorTest" time="0.001"/>
   <testcase name="simpleAdditionMainTest()" classname="EvaluatorTest" time="0.001"/>
   <testcase name="simpleIfTest()" classname="EvaluatorTest" time="0.001"/>
-  <testcase name="reassignVariableAdditionTest()" classname="EvaluatorTest" time="0.003"/>
+  <testcase name="reassignVariableAdditionTest()" classname="EvaluatorTest" time="0.0"/>
   <testcase name="mathMainTest()" classname="EvaluatorTest" time="0.001"/>
-  <testcase name="stringTest()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="stringTest()" classname="EvaluatorTest" time="0.0"/>
   <testcase name="sameVariableNameTest()" classname="EvaluatorTest" time="0.001"/>
   <testcase name="parameterFunctionTest()" classname="EvaluatorTest" time="0.001"/>
-  <testcase name="ifTest()" classname="EvaluatorTest" time="0.0"/>
-  <testcase name="simpleBlockTest()" classname="EvaluatorTest" time="0.002"/>
-  <testcase name="fibonacciLoopTest()" classname="EvaluatorTest" time="0.006"/>
-  <testcase name="fibonacciFunctionTest2()" classname="EvaluatorTest" time="0.006"/>
-  <testcase name="fibonacciFunctionTest()" classname="EvaluatorTest" time="0.007"/>
-  <testcase name="variableShadowingTest()" classname="EvaluatorTest" time="0.002"/>
-  <testcase name="advancedParameterFunctionTest()" classname="EvaluatorTest" time="0.013"/>
-  <testcase name="simpleMainTest()" classname="EvaluatorTest" time="0.009"/>
-  <testcase name="block2Test()" classname="EvaluatorTest" time="0.002"/>
-  <testcase name="blockExternalVariableTest()" classname="EvaluatorTest" time="0.003"/>
-  <testcase name="noParameterFunctionTest()" classname="EvaluatorTest" time="0.0"/>
-  <testcase name="functionExternalVariableTest()" classname="EvaluatorTest" time="0.004"/>
-  <testcase name="variableAdditionTest()" classname="EvaluatorTest" time="0.0"/>
+  <testcase name="FloatAdditionTest()" classname="EvaluatorTest" time="0.0"/>
+  <testcase name="ifTest()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="simpleBlockTest()" classname="EvaluatorTest" time="0.0"/>
+  <testcase name="fibonacciLoopTest()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="fibonacciFunctionTest2()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="fibonacciFunctionTest()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="variableShadowingTest()" classname="EvaluatorTest" time="0.0"/>
+  <testcase name="advancedParameterFunctionTest()" classname="EvaluatorTest" time="0.0"/>
+  <testcase name="simpleMainTest()" classname="EvaluatorTest" time="0.0"/>
+  <testcase name="block2Test()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="blockExternalVariableTest()" classname="EvaluatorTest" time="0.03"/>
+  <testcase name="noParameterFunctionTest()" classname="EvaluatorTest" time="0.002"/>
+  <testcase name="functionExternalVariableTest()" classname="EvaluatorTest" time="0.001"/>
+  <testcase name="variableAdditionTest()" classname="EvaluatorTest" time="0.006"/>
   <testcase name="boolTest()" classname="EvaluatorTest" time="0.001"/>
-  <testcase name="globalVariableTest()" classname="EvaluatorTest" time="0.001"/>
-  <testcase name="parameterProcedureTest()" classname="EvaluatorTest" time="0.013"/>
+  <testcase name="globalVariableTest()" classname="EvaluatorTest" time="0.003"/>
+  <testcase name="parameterProcedureTest()" classname="EvaluatorTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

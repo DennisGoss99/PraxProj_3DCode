@@ -9,20 +9,10 @@ class ParserTest
 {
     private val _debugOutPut = false
 
-    fun CallMain(statementList: List<Statement>): List<Declaration>
-    {
-        return CallMain(null, null, statementList);
-    }
-
-    fun CallMain(localVariable: List<Declaration.VariableDeclaration>?, statementList: List<Statement>): List<Declaration>
-    {
-        return CallMain(localVariable, null, statementList);
-    }
-
-    fun CallMain(localVariables: List<Declaration.VariableDeclaration>?, parameters: List<Parameter>?, statementList: List<Statement>): List<Declaration>
+    fun CallMain(statementList: List<Statement>, localVariables: List<Declaration.VariableDeclaration>? = null, parameters: List<Parameter>? = null, returnType : Type = Type.Integer): List<Declaration>
     {
         return listOf<Declaration>(Declaration.FunctionDeclare(
-            Type.Integer,
+            returnType,
             "Main",
             Body(statementList, localVariables),
             parameters
@@ -67,7 +57,7 @@ class ParserTest
             Statement.AssignValue("return", Expression.Value(ConstantValue.Integer(5)))
         )
 
-        val tree = CallMain(statementList)
+        val tree = CallMain(statementList,null, null)
 
         TestIfTreeIsAsExpected(code, tree);
     }
@@ -92,7 +82,7 @@ class ParserTest
                 ))
         )
 
-        val tree = CallMain(statementList)
+        val tree = CallMain(statementList, null, null)
 
         TestIfTreeIsAsExpected(code, tree);
     }
@@ -120,7 +110,7 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(localVariables, statementList)
+        val tree = CallMain(statementList, localVariables, null)
 
         TestIfTreeIsAsExpected(code, tree)
     }
@@ -172,7 +162,7 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(localVariables, statementList)
+        val tree = CallMain(statementList, localVariables, null)
 
         TestIfTreeIsAsExpected(code, tree)
     }
@@ -203,7 +193,7 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(null, parameters, statementList)
+        val tree = CallMain(statementList,null, parameters)
 
         TestIfTreeIsAsExpected(code, tree)
     }
@@ -235,7 +225,7 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(null, null, statementList)
+        val tree = CallMain(statementList, null, null)
 
         TestIfTreeIsAsExpected(code, tree)
     }
@@ -281,7 +271,59 @@ class ParserTest
 
         )
 
-        val tree = CallMain(localVariables, statementList)
+        val tree = CallMain(statementList, localVariables, null)
+
+        TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun FloatReturnWithLoopTest()
+    {
+        val code = """
+            float Main()
+            {
+                float §a = 1.0;
+                
+                while(§a == 14.0)
+                {
+                    §a = §a + 1.0;
+                }
+                
+                return §a;
+            }
+        """.trimIndent()
+
+        val localVariables = listOf<Declaration.VariableDeclaration>(
+            Declaration.VariableDeclaration(Type.Float, "§a", Expression.Value(ConstantValue.Float(1.0f)))
+        )
+
+        val statementList = listOf<Statement>(
+            Statement.While(
+                Expression.Operation(
+                    Operator.DoubleEquals,
+                    Expression.UseVariable("§a"),
+                    Expression.Value(ConstantValue.Float(14.0f))
+                ),
+                Body(
+                    listOf<Statement>(
+                        Statement.AssignValue(
+                            "§a",
+                            Expression.Operation(
+                                Operator.Plus,
+                                Expression.UseVariable("§a"),
+                                Expression.Value(ConstantValue.Float(1.0f))
+                            )
+                        )
+                    )
+                )
+            ),
+            Statement.AssignValue(
+                "return",
+                Expression.UseVariable("§a")
+            )
+        )
+
+        val tree = CallMain(statementList, localVariables, null, Type.Float)
 
         TestIfTreeIsAsExpected(code, tree)
     }

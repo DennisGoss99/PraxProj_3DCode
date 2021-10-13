@@ -152,27 +152,60 @@ class Evaluator {
                 if(expression.expressionB == null){
                     return when(expression.operator){
                         Operator.Not -> Expression.Value(ConstantValue.Boolean(!(evalExpression(expression.expressionA, environment).value as?  ConstantValue.Boolean ?: throw TypeMismatchRuntimeException("This type can't be negated",Type.Boolean)).value))
-                        Operator.Minus-> Expression.Value(ConstantValue.Integer(-(evalExpression(expression.expressionA, environment).value as?  ConstantValue.Integer ?: throw TypeMismatchRuntimeException("This type can't be negated",Type.Integer)).value))
+                        Operator.Minus-> negateNumber(evalExpression(expression.expressionA, environment))
                         else -> throw OperationRuntimeException("Needs more then one Argument", expression.operator)
                     }
                 }
-                else
-                    return when(expression.operator){
-                        Operator.DoubleEquals -> equalsValue(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x==y}
-                        Operator.Plus -> addValue(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment))
-                        Operator.Minus -> evalBinaryNumber(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x-y}
-                        Operator.Multiply -> evalBinaryNumber(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x*y}
-                        Operator.And -> evalBinaryBoolean(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x&&y}
-                        Operator.Or -> evalBinaryBoolean(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x||y}
+                else{
+                    val v1 = evalExpression(expression.expressionA,environment).value.value
+                    val v2 = evalExpression(expression.expressionB,environment).value.value
 
-                        Operator.NotEqual -> equalsValue(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x!=y}
-                        Operator.Less -> equalsValueNumber(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x<y}
-                        Operator.LessEqual -> equalsValueNumber(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x<=y}
-                        Operator.Greater -> equalsValueNumber(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x>y}
-                        Operator.GreaterEquals -> equalsValueNumber(evalExpression(expression.expressionA,environment),evalExpression(expression.expressionB,environment)){x,y -> x>=y}
+                    return when(expression.operator){
+                        Operator.DoubleEquals -> Expression.Value(ConstantValue.Boolean(v1 == v2))
+                        Operator.Plus -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 + v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) + numberToFloat(v2)))
+                            v1 is String && v2 is String -> Expression.Value(ConstantValue.String(v1 + v2))
+                            else -> throw Exception("Can't use add operation on [${v1::class} + ${v2::class}]")
+                        }
+                        Operator.Minus -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 - v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) - numberToFloat(v2)))
+                            else -> throw Exception("Can't use subtract operation on [${v1::class} - ${v2::class}]")
+                        }
+                        Operator.Multiply -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 * v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) * numberToFloat(v2)))
+                            else -> throw Exception("Can't use multiply operation on [${v1::class} * ${v2::class}]")
+                        }
+                        Operator.And -> evalBinaryBoolean(v1,v2){x,y -> x&&y}
+                        Operator.Or -> evalBinaryBoolean(v1,v2){x,y -> x||y}
+                        Operator.NotEqual -> Expression.Value(ConstantValue.Boolean(v1 != v2))
+                        Operator.Less -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 < v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) < numberToFloat(v2)))
+                            else -> throw Exception("Can't use less operation on [${v1::class} < ${v2::class}]")
+                        }
+                        Operator.LessEqual -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 <= v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) <= numberToFloat(v2)))
+                            else -> throw Exception("Can't use lessEqual operation on [${v1::class} <= ${v2::class}]")
+                        }
+                        Operator.Greater -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 > v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) > numberToFloat(v2)))
+                            else -> throw Exception("Can't use less operation on [${v1::class} > ${v2::class}]")
+                        }
+                        Operator.GreaterEquals -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 >= v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) >= numberToFloat(v2)))
+                            else -> throw Exception("Can't use lessEqual operation on [${v1::class} >= ${v2::class}]")
+                        }
                         Operator.Not -> throw OperationRuntimeException("Needs only one Argument", expression.operator)
                         Operator.Equals -> throw OperationRuntimeException("In this position operator isn't allowed", expression.operator)
                     }
+                }
+
             }
             is Expression.FunctionCall ->{
                 return when(expression.functionName){
@@ -197,40 +230,19 @@ class Evaluator {
         return Expression.Value(ConstantValue.String(value.value.getValueAsString()))
     }
 
-    private fun addValue(v1: Expression.Value, v2: Expression.Value): Expression.Value {
-        return when(val v1n = v1.value){
-            is ConstantValue.Integer -> {
-                val v2n = v2.value as? ConstantValue.Integer ?: throw Exception("Can't add Type '${v2.value::class} to Integer'")
-                Expression.Value(ConstantValue.Integer(v1n.value + v2n.value))
-            }
-            is ConstantValue.String -> {
-                val v2n = v2.value as? ConstantValue.String ?: throw Exception("Can't add Type '${v2.value::class} to String'")
-                Expression.Value(ConstantValue.String(v1n.value + v2n.value))
-            }
-            else -> throw Exception("Can't use add operation on [${v1.value} + ${v2.value}]")
+    private fun negateNumber(v1: Expression.Value): Expression.Value{
+        return when (val v1n = v1.value){
+            is ConstantValue.Integer -> Expression.Value(ConstantValue.Integer(-v1n.value))
+            is ConstantValue.Float -> Expression.Value(ConstantValue.Float(-v1n.value))
+                else -> throw TypeMismatchRuntimeException("This type can't be negated",v1.value.getType())
         }
     }
 
-    private fun evalBinaryNumber(v1: Expression.Value, v2: Expression.Value, f: (Int, Int) -> Int): Expression.Value {
-        val v1n = v1.value as? ConstantValue.Integer ?: throw Exception("Can't use a binary operation on $v1, it's not a number")
-        val v2n = v2.value as? ConstantValue.Integer ?: throw Exception("Can't use a binary operation on $v2, it's not a number")
-        return Expression.Value( ConstantValue.Integer(f(v1n.value, v2n.value)))
+    private fun evalBinaryBoolean(v1: Any, v2: Any, f: (Boolean, Boolean) -> Boolean): Expression.Value {
+        val v1n = v1 as? Boolean ?: throw Exception("Can't use a binary operation on $v1, it's not a boolean")
+        val v2n = v2 as? Boolean ?: throw Exception("Can't use a binary operation on $v2, it's not a boolean")
+        return Expression.Value( ConstantValue.Boolean(f(v1n, v2n)))
     }
 
-    private fun equalsValueNumber(v1: Expression.Value, v2: Expression.Value, f: (Int, Int) -> Boolean): Expression.Value {
-        val v1n = v1.value as? ConstantValue.Integer ?: throw Exception("Can't use a binary operation on $v1, it's not a number")
-        val v2n = v2.value as? ConstantValue.Integer ?: throw Exception("Can't use a binary operation on $v2, it's not a number")
-        return  Expression.Value( ConstantValue.Boolean(f(v1n.value, v2n.value)))
-    }
-
-    private fun evalBinaryBoolean(v1: Expression.Value, v2: Expression.Value, f: (Boolean, Boolean) -> Boolean): Expression.Value {
-        val v1n = v1.value as? ConstantValue.Boolean ?: throw Exception("Can't use a binary operation on $v1, it's not a boolean")
-        val v2n = v2.value as? ConstantValue.Boolean ?: throw Exception("Can't use a binary operation on $v2, it's not a boolean")
-        return Expression.Value( ConstantValue.Boolean(f(v1n.value, v2n.value)))
-    }
-
-    private fun <T> equalsValue(v1: T, v2: T, f: (T, T) -> Boolean): Expression.Value {
-        return  Expression.Value( ConstantValue.Boolean(f(v1, v2)))
-    }
-
+    private fun numberToFloat(number : Any) : Float = number as? Float ?: (number as Int).toFloat()
 }

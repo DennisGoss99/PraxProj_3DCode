@@ -597,4 +597,46 @@ class DeepTest {
 
     }
 
+    @Test
+    fun floatTest(){
+        val code = """
+            float §a = 5.56;
+                        
+            float Main(){
+                float §b = 7.34;
+                return ((§a * §b + 4) + 5.27) * §a;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float(278.44702f) ,executeCode(code))
+    }
+
+    @Test
+    fun bugfix1Test(){
+        val code = """   
+            
+                             
+            int Main(){
+                int §a = 2;
+                return §a * 13 + 4;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(30) ,executeCode(code))
+
+        val code2 = """   
+            
+                             
+            int Main(){
+                int §a = 2;
+                return 2 * 13 + 4;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(30) ,executeCode(code2))
+    }
+
 }

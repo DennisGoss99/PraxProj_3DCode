@@ -96,7 +96,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                     checkBodyTypes(functionName, statement.body, returnType, combinedVariables)
                 }
                 is Statement.ProcedureCall -> {
-                    if(statement.procedureName != "Println")
+                    if(statement.procedureName != "Println" && statement.procedureName != "Print")
                     {
                         val procedure = functionDeclarations[statement.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement.LineOfCode, statement.procedureName)
                         checkParameter(procedure, statement.parameterList?.map { getExpressionType(it, HashMap())})

@@ -154,26 +154,7 @@ class Evaluator {
                         }
                     }
                 }
-                is Statement.UseClass -> {
-                    val obj = localEnvironment.getOrDefault(statement.variableName,null) ?: globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.variableName)
-                    val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
-                    val classDef = classDeclarations[classObj.type.name.capitalize()] ?: throw Exception("Couldn't find class named: ${classObj.type.name.capitalize()}")
-
-                    when(val statement = statement.statement){
-                        is Statement.AssignValue -> {
-                            when{
-                                classObj.value.containsKey(statement.variableName) -> classObj.value[statement.variableName] = evalExpression(statement.expression, localEnvironment)
-                                else -> VariableNotFoundRuntimeException(statement.variableName)
-                            }
-                        }
-                        is Statement.ProcedureCall -> {
-                            val procedure = classDef.classBody.functions.firstOrNull{it.functionName == statement.procedureName} ?: throw FunctionNotFoundRuntimeException(statement.procedureName)
-                            evalMethod(procedure, statement.parameterList?.map { evalExpression(it,localEnvironment) }, classObj.value)
-                        }
-                        else -> throw Exception("Can't use $statement in this context")
-                    }
-
-                }
+                is Statement.UseClass -> statementUseClass(statement, localEnvironment)
                 is Statement.Block -> {
                     evalBody(statement.body,localEnvironment)?.let {
                         changeEnvironment(environment, localEnvironment, shadowMap)
@@ -184,6 +165,29 @@ class Evaluator {
 
         changeEnvironment(environment, localEnvironment, shadowMap)
         return null
+    }
+
+    private fun statementUseClass(statement : Statement.UseClass, environment: HashMap<String, Expression.Value>){
+        val obj = environment.getOrDefault(statement.variableName,null) ?: globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.variableName)
+        val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
+        val classDef = classDeclarations[classObj.type.name.capitalize()] ?: throw Exception("Couldn't find class named: ${classObj.type.name.capitalize()}")
+
+        when(val statement = statement.statement){
+            is Statement.AssignValue -> {
+                when{
+                    classObj.value.containsKey(statement.variableName) -> classObj.value[statement.variableName] = evalExpression(statement.expression, environment)
+                    else -> VariableNotFoundRuntimeException(statement.variableName)
+                }
+            }
+            is Statement.ProcedureCall -> {
+                val procedure = classDef.classBody.functions.firstOrNull{it.functionName == statement.procedureName} ?: throw FunctionNotFoundRuntimeException(statement.procedureName)
+                evalMethod(procedure, statement.parameterList?.map { evalExpression(it,environment) }, classObj.value)
+            }
+            is Statement.UseClass ->{
+                statementUseClass(statement, classObj.value)
+            }
+            else -> throw Exception("Can't use $statement in this context")
+        }
     }
 
     private fun combineEnvironments(upperEnvironment : HashMap<String, Expression.Value>,lowerEnvironment : HashMap<String, Expression.Value>) : HashMap<String, Expression.Value>{

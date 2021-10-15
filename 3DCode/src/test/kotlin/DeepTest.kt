@@ -757,30 +757,77 @@ class DeepTest {
     fun classTest(){
         val code = """   
             
-            class OpenGL{           
-                string §name = "30";
+            class OpenGL{     
+                int §GG = 69;
+                string §name = §GG.ToString();
             
-                void A(){
-                    Println("Hallo");
+                void A(string §name){
+                    string §name = §GG.ToString();
                 }
                 
-                void B(int §a){
-                    Println(ToString(§a) + "Hallo" + §name);
+                string B(int §a){
+                    string §c = (" " + §a.ToString() + " Hallo " + §name);
+                    §GG = §GG + 1;
+                    
+                    return §c;
+                }
+                
+                int C(int §a){
+                    return §a + 3;
                 }
             }
                              
             string Main(){
                 openGL §b = OpenGL();
-                string §a = §b.§name;
-                
-                §b.B(5);
-                
-                return §a; 
+                int §r = §b.C(5) + 5;
+                     
+                return §r.ToString() + " " + §b.§GG.ToString() + " " + §b.§name + §b.B(57) + " " + §b.§GG.ToString(); 
             }
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.String("30") ,withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.String("13 69 69 57 Hallo 69 70") ,withoutTypeCheckerExecuteCode(code))
+    }
+
+    @Test
+    fun class2Test(){
+        val code = """   
+            class A{
+                int §a = 0;
+            
+                void B(int §c){
+                    §a = §a + §c
+                }
+            
+                int A(int §number){
+                    return §a + 3 + §number;
+                }
+            }
+            
+            class OpenGL{     
+                a §aOBj = A();
+                
+                int §b = 4000;
+                
+                int B(int §cc){
+                    §aOBj.§a = §aOBj.§a + 10;
+                    return §aOBj.A(§cc + 10000);
+                }
+            }
+            
+            int Add10(int §value){
+                return §value + 10;
+            }
+                             
+            string Main(){
+                openGL §b = OpenGL();
+                §b.§aOBj.B(6);
+                return Add10(§b.B(100) + §b.§b);
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(14129) ,withoutTypeCheckerExecuteCode(code))
     }
 
 }

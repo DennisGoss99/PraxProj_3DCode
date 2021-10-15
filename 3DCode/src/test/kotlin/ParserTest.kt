@@ -1,8 +1,7 @@
-import Lexer.Lexer
-import Lexer.LexerToken
 import Lexer.TestLexer
 import Parser.*
 import Parser.ParserToken.*
+import Parser.ParserToken.Values.ConstantValue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -237,7 +236,8 @@ class ParserTest
 
         val localVariables = listOf<Declaration.VariableDeclaration>(
             Declaration.VariableDeclaration(Type.Integer, "§w", Expression.Value(ConstantValue.Integer(3))),
-            Declaration.VariableDeclaration(Type.Boolean, "§f", Expression.Operation(Operator.LessEqual, Expression.UseVariable("§w"), Expression.Value(ConstantValue.Integer(3))))
+            Declaration.VariableDeclaration(Type.Boolean, "§f", Expression.Operation(Operator.LessEqual, Expression.UseVariable("§w"), Expression.Value(
+                ConstantValue.Integer(3))))
         )
 
         val statementList = listOf<Statement>(
@@ -425,5 +425,86 @@ class ParserTest
         )
 
         TestIfTreeIsAsExpected(code, declarations)
+    }
+
+    @Test
+    fun class3Test() {
+        val code = """   
+            
+            class OpenGL{           
+                string §name = "";
+            
+                void A(){
+                    Println("Hallo");
+                }
+                
+                void B(int §a){
+                    Println(ToString(§a) + "Hallo" + §name);
+                }
+            }
+                             
+            void Main(){
+                openGL §b = OpenGL();
+                string §a = §b.§name;
+                
+                §b.B(5);
+            }
+            
+        """.trimIndent()
+
+        val declarations = listOf<Declaration>(
+            Declaration.ClassDeclare("OpenGL", ClassBody(
+                listOf(
+                    Declaration.FunctionDeclare(Type.Void,"A",
+                        Body(
+                            listOf<Statement>(
+                                Statement.ProcedureCall(
+                                    "Println",
+                                    listOf<Expression>(
+                                        Expression.Value(ConstantValue.String("Hallo"))
+                                    )
+                                )
+                            )
+                        ),null),
+                Declaration.FunctionDeclare(Type.Void,"B",
+                    Body(
+                        listOf<Statement>(
+                            Statement.ProcedureCall(
+                                "Println",
+                                listOf<Expression>(
+                                    Expression.Operation(Operator.Plus,
+                                        Expression.FunctionCall("ToString", listOf(Expression.UseVariable("§a"))),
+                                        Expression.Operation(Operator.Plus,
+                                            Expression.Value(ConstantValue.String("Hallo")),
+                                            Expression.UseVariable("§name")
+                                        ),
+                                    )
+                                )
+                            )
+                        )
+                    ), listOf(Parameter("§a",Type.Integer)))
+                ),
+                listOf(
+                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                )
+            )),
+            Declaration.FunctionDeclare(
+                Type.Void,
+                "Main",
+                Body(
+                    listOf<Statement>(
+                        Statement.UseClass("§b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
+                    ),
+                    listOf<Declaration.VariableDeclaration>(
+                        Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)),
+                        Declaration.VariableDeclaration(Type.String,"§a", Expression.UseDotVariable("§b",Expression.UseVariable("§name"))),
+                    )
+                ),
+                null
+            )
+        )
+
+        TestIfTreeIsAsExpected(code, declarations)
+
     }
 }

@@ -1,5 +1,8 @@
 package Parser.ParserToken
 
+import Parser.ParserToken.Values.ConstantValue
+import Parser.ParserToken.Values.IValue
+
 sealed class Expression : ILineOfCode
 {
     // Used for parser internaly
@@ -15,7 +18,11 @@ sealed class Expression : ILineOfCode
 
     data class UseVariable(val variableName : String, override val LineOfCode: Int = -1) : Expression()
 
+    data class UseDotVariable(val variableName : String, val expression: Expression, override val LineOfCode: Int = -1) : Expression()
+
     data class FunctionCall(val functionName : String, val parameterList : List<Expression>? , override val LineOfCode: Int = -1) : Expression()
 
-    data class Value(val value: ConstantValue, override val LineOfCode: Int = -1) : Expression()
+//    data class MethodCall(val methodName : String, val classType : Type.Custom, val parameterList : List<Expression>?, override val LineOfCode: Int = -1) : Expression()
+
+    data class Value(val value: IValue, override val LineOfCode: Int = -1) : Expression()
 }

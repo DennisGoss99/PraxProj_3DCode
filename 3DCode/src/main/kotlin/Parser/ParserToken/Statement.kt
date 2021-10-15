@@ -11,6 +11,8 @@ sealed class Statement : ILineOfCode // Grün
 
     data class ProcedureCall(val procedureName : String, val parameterList : List<Expression>? , override val LineOfCode: Int = -1) : Statement()
 
+    data class UseClass(val variableName : String, val statement: Statement , override val LineOfCode: Int = -1) : Statement()
+
     data class If(val condition : Expression, val ifBody : Body, val elseBody : Body?, override val LineOfCode: Int = -1) : Statement()
     data class While(val condition : Expression, val body : Body, override val LineOfCode: Int = -1) : Statement()
     data class Block(val body : Body, override val LineOfCode: Int = -1): Statement()

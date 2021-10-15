@@ -319,7 +319,7 @@ class LexerTest : BaseLexerTest() {
         val code = """   
             
             class OpenGL{           
-                string name;
+                string §name = "";
             
                 A(){
                     Println("Hallo");
@@ -337,10 +337,169 @@ class LexerTest : BaseLexerTest() {
         """.trimIndent()
 
         val lexer = TestLexer(code);
-        do{
-            println(lexer.next())
-        }while(lexer.peek() != LexerToken.EOF)
 
+        val expectedLexerTokenList = listOf<LexerToken>(
+            LexerToken.Class(),
+            LexerToken.UpperCaseIdent("OpenGL"),
+            LexerToken.LCurlyBrace(),
+            LexerToken.TypeIdent("string"),
+            LexerToken.NameIdent("name"),
+            LexerToken.AssignEquals(),
+            LexerToken.String_Literal(""),
+            LexerToken.Semicolon(),
+
+            LexerToken.UpperCaseIdent("A"),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.LCurlyBrace(),
+            LexerToken.UpperCaseIdent("Println"),
+            LexerToken.Lparen(),
+            LexerToken.String_Literal("Hallo"),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.RCurlyBrace(),
+
+            LexerToken.UpperCaseIdent("B"),
+            LexerToken.Lparen(),
+            LexerToken.TypeIdent("int"),
+            LexerToken.NameIdent("a"),
+            LexerToken.Rparen(),
+            LexerToken.LCurlyBrace(),
+            LexerToken.UpperCaseIdent("Println"),
+            LexerToken.Lparen(),
+            LexerToken.UpperCaseIdent("ToString"),
+            LexerToken.Lparen(),
+            LexerToken.NameIdent("a"),
+            LexerToken.Rparen(),
+            LexerToken.Plus(),
+            LexerToken.String_Literal("Hallo"),
+            LexerToken.Plus(),
+            LexerToken.NameIdent("name"),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.RCurlyBrace(),
+            LexerToken.RCurlyBrace(),
+
+            LexerToken.TypeIdent("void"),
+            LexerToken.UpperCaseIdent("Main"),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.LCurlyBrace(),
+            LexerToken.TypeIdent("openGL"),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignEquals(),
+            LexerToken.UpperCaseIdent("OpenGL"),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.RCurlyBrace(),
+
+            LexerToken.EOF
+        )
+
+        assertEqualLexerList(expectedLexerTokenList,lexer)
+    }
+
+    @Test
+    fun class2Test(){
+        val code = """   
+            
+            class OpenGL{           
+                string §name = "";
+            
+                A(){
+                    Println("Hallo");
+                }
+                
+                B(int §a){
+                    Println(ToString(§a) + "Hallo" + §name);
+                }
+            }
+                             
+            void Main(){
+                openGL §b = OpenGL();
+                
+                string §a = §b.§name;
+                §b.B(5);
+            }
+            
+        """.trimIndent()
+
+        val lexer = TestLexer(code);
+
+        val expectedLexerTokenList = listOf<LexerToken>(
+            LexerToken.Class(),
+            LexerToken.UpperCaseIdent("OpenGL"),
+            LexerToken.LCurlyBrace(),
+            LexerToken.TypeIdent("string"),
+            LexerToken.NameIdent("name"),
+            LexerToken.AssignEquals(),
+            LexerToken.String_Literal(""),
+            LexerToken.Semicolon(),
+
+            LexerToken.UpperCaseIdent("A"),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.LCurlyBrace(),
+            LexerToken.UpperCaseIdent("Println"),
+            LexerToken.Lparen(),
+            LexerToken.String_Literal("Hallo"),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.RCurlyBrace(),
+
+            LexerToken.UpperCaseIdent("B"),
+            LexerToken.Lparen(),
+            LexerToken.TypeIdent("int"),
+            LexerToken.NameIdent("a"),
+            LexerToken.Rparen(),
+            LexerToken.LCurlyBrace(),
+            LexerToken.UpperCaseIdent("Println"),
+            LexerToken.Lparen(),
+            LexerToken.UpperCaseIdent("ToString"),
+            LexerToken.Lparen(),
+            LexerToken.NameIdent("a"),
+            LexerToken.Rparen(),
+            LexerToken.Plus(),
+            LexerToken.String_Literal("Hallo"),
+            LexerToken.Plus(),
+            LexerToken.NameIdent("name"),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.RCurlyBrace(),
+            LexerToken.RCurlyBrace(),
+
+            LexerToken.TypeIdent("void"),
+            LexerToken.UpperCaseIdent("Main"),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.LCurlyBrace(),
+            LexerToken.TypeIdent("openGL"),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignEquals(),
+            LexerToken.UpperCaseIdent("OpenGL"),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.TypeIdent("string"),
+            LexerToken.NameIdent("a"),
+            LexerToken.AssignEquals(),
+            LexerToken.NameIdent("b"),
+            LexerToken.Dot(),
+            LexerToken.NameIdent("name"),
+            LexerToken.Semicolon(),
+            LexerToken.NameIdent("b"),
+            LexerToken.Dot(),
+            LexerToken.UpperCaseIdent("B"),
+            LexerToken.Lparen(),
+            LexerToken.Number_Literal(5),
+            LexerToken.Rparen(),
+            LexerToken.Semicolon(),
+            LexerToken.RCurlyBrace(),
+            LexerToken.EOF
+        )
+
+        assertEqualLexerList(expectedLexerTokenList,lexer)
     }
 
 }

@@ -1,17 +1,13 @@
-package Parser.ParserToken
+package Parser.ParserToken.Values
 
-sealed class ConstantValue
-{
-    abstract val value : Any
+import Parser.ParserToken.Type
+
+sealed class ConstantValue : IValue {
 
     override fun toString(): kotlin.String
     {
         return this.javaClass.simpleName
     }
-
-    abstract fun getValueAsString() : kotlin.String
-
-    abstract fun getType() : Type
 
     data class Boolean(override val value : kotlin.Boolean, val type: Type.Boolean = Type.Boolean) : ConstantValue()
     {

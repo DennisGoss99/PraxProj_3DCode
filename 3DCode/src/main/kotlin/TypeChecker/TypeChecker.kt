@@ -189,6 +189,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                     }
                 }
             }
+            is Expression.UseDotVariable -> TODO()
         }
     }
 

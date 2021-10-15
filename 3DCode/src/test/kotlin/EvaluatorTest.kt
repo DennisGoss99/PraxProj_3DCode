@@ -1,6 +1,7 @@
 import Evaluator.Evaluator
 import Evaluator.Exceptions.NotFound.VariableNotFoundRuntimeException
 import Parser.ParserToken.*
+import Parser.ParserToken.Values.ConstantValue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -95,7 +96,8 @@ class EvaluatorTest{
                 Body(
                     listOf<Statement>(
                         Statement.AssignValue("return",Expression.UseVariable("§a"))),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(15))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                        ConstantValue.Integer(15))))
                 ),
                 null
             )
@@ -127,7 +129,8 @@ class EvaluatorTest{
                             )
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(15))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                        ConstantValue.Integer(15))))
                 ),
                 null
             )
@@ -158,7 +161,8 @@ class EvaluatorTest{
                             Expression.UseVariable("§a")
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(15))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                        ConstantValue.Integer(15))))
                 ),
                 null
             )
@@ -195,7 +199,8 @@ class EvaluatorTest{
                         )
 
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(15))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                        ConstantValue.Integer(15))))
                 ),
                 null
             )
@@ -223,7 +228,8 @@ class EvaluatorTest{
                                         Expression.Value(ConstantValue.Integer(2))
                                     )
                                 ),
-                                listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(3))))
+                                listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                                    ConstantValue.Integer(3))))
                             )
                         ),
                         Statement.AssignValue(
@@ -231,7 +237,8 @@ class EvaluatorTest{
                             Expression.UseVariable("§a")
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(1))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                        ConstantValue.Integer(1))))
                 ),
                 null
             )
@@ -271,7 +278,8 @@ class EvaluatorTest{
                         )
 
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(ConstantValue.Integer(15))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"§a",Expression.Value(
+                        ConstantValue.Integer(15))))
                 ),
                 null
             )
@@ -423,7 +431,8 @@ class EvaluatorTest{
                     listOf<Statement>(
                         Statement.AssignValue(
                             "§cc",
-                            Expression.Operation(Operator.Greater, Expression.Operation(Operator.Multiply,Expression.UseVariable("§a"),Expression.Value(ConstantValue.Integer(5))), Expression.UseVariable("§b"))
+                            Expression.Operation(Operator.Greater, Expression.Operation(Operator.Multiply,Expression.UseVariable("§a"),Expression.Value(
+                                ConstantValue.Integer(5))), Expression.UseVariable("§b"))
                         ),
                         Statement.If(
                             Expression.UseVariable("§cc"),
@@ -504,7 +513,8 @@ class EvaluatorTest{
                 "Main",
                 Body(
                     listOf<Statement>(
-                        Statement.AssignValue("return",Expression.FunctionCall("A", listOf(Expression.Value(ConstantValue.Integer(5))))))
+                        Statement.AssignValue("return",Expression.FunctionCall("A", listOf(Expression.Value(
+                            ConstantValue.Integer(5))))))
                 ),
                 null
             )
@@ -548,7 +558,8 @@ class EvaluatorTest{
                                 listOf(
                                     Expression.FunctionCall(
                                         "A",
-                                        listOf(Expression.Value(ConstantValue.Integer(
+                                        listOf(Expression.Value(
+                                            ConstantValue.Integer(
                                             5
                                         )))
                                     )
@@ -611,7 +622,8 @@ class EvaluatorTest{
                 Body(
                     listOf<Statement>(
                         Statement.While(
-                            Expression.Operation(Operator.Less,Expression.UseVariable("§a"),Expression.Value(ConstantValue.Integer(100))),
+                            Expression.Operation(Operator.Less,Expression.UseVariable("§a"),Expression.Value(
+                                ConstantValue.Integer(100))),
                             Body(
                                 listOf<Statement>(
                                     Statement.AssignValue("§a",Expression.Operation(Operator.Multiply,Expression.UseVariable("§a"),Expression.UseVariable("§a")))
@@ -645,8 +657,10 @@ class EvaluatorTest{
                         Statement.If(
                             Expression.Operation(
                                 Operator.Or,
-                                Expression.Operation(Operator.DoubleEquals, Expression.UseVariable("§n"),Expression.Value(ConstantValue.Integer(0))),
-                                Expression.Operation(Operator.DoubleEquals, Expression.UseVariable("§n"),Expression.Value(ConstantValue.Integer(1))),
+                                Expression.Operation(Operator.DoubleEquals, Expression.UseVariable("§n"),Expression.Value(
+                                    ConstantValue.Integer(0))),
+                                Expression.Operation(Operator.DoubleEquals, Expression.UseVariable("§n"),Expression.Value(
+                                    ConstantValue.Integer(1))),
                             ),
                             Body(
                                 listOf<Statement>(
@@ -814,13 +828,15 @@ class EvaluatorTest{
                 Body(
                     listOf<Statement>(
                         Statement.While(
-                            Expression.Operation(Operator.Greater, Expression.UseVariable("§n"), Expression.Value(ConstantValue.Integer(0))),
+                            Expression.Operation(Operator.Greater, Expression.UseVariable("§n"), Expression.Value(
+                                ConstantValue.Integer(0))),
                             Body(
                                 listOf<Statement>(
                                     Statement.AssignValue("§f",Expression.Operation(Operator.Plus,Expression.UseVariable("§f1"),Expression.UseVariable("§f2"))),
                                     Statement.AssignValue("§f1",Expression.UseVariable("§f2")),
                                     Statement.AssignValue("§f2",Expression.UseVariable("§f")),
-                                    Statement.AssignValue("§n",Expression.Operation(Operator.Minus,Expression.UseVariable("§n"),Expression.Value(ConstantValue.Integer(1)))),
+                                    Statement.AssignValue("§n",Expression.Operation(Operator.Minus,Expression.UseVariable("§n"),Expression.Value(
+                                        ConstantValue.Integer(1)))),
                             )
                             )
                         ),
@@ -957,7 +973,7 @@ class EvaluatorTest{
     }
 
     @Test
-    fun FloatAdditionTest(){
+    fun floatAdditionTest(){
 
         val declarations = listOf<Declaration>(
             Declaration.VariableDeclaration(Type.Float,"§b",Expression.Value(ConstantValue.Float(5.5f))),
@@ -975,7 +991,8 @@ class EvaluatorTest{
                             )
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Float,"§a",Expression.Value(ConstantValue.Float(15.7f))))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Float,"§a",Expression.Value(
+                        ConstantValue.Float(15.7f))))
                 ),
                 null
             )
@@ -985,6 +1002,66 @@ class EvaluatorTest{
         var evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Float(21.2f)),evaluator.eval(declarations,null))
+
+    }
+
+    @Test
+    fun classTest(){
+        val declarations = listOf<Declaration>(
+            Declaration.ClassDeclare("OpenGL", ClassBody(
+                listOf(
+                    Declaration.FunctionDeclare(Type.Void,"A",
+                        Body(
+                            listOf<Statement>(
+                                Statement.ProcedureCall(
+                                    "Println",
+                                    listOf<Expression>(
+                                        Expression.Value(ConstantValue.String("Hallo"))
+                                    )
+                                )
+                            )
+                        ),null),
+                    Declaration.FunctionDeclare(Type.Void,"B",
+                        Body(
+                            listOf<Statement>(
+                                Statement.ProcedureCall(
+                                    "Println",
+                                    listOf<Expression>(
+                                        Expression.Operation(Operator.Plus,
+                                            Expression.FunctionCall("ToString", listOf(Expression.UseVariable("§a"))),
+                                            Expression.Operation(Operator.Plus,
+                                                Expression.Value(ConstantValue.String("Hallo")),
+                                                Expression.UseVariable("§name")
+                                            ),
+                                        )
+                                    )
+                                )
+                            )
+                        ), listOf(Parameter("§a",Type.Integer)))
+                ),
+                listOf(
+                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                )
+            )),
+            Declaration.FunctionDeclare(
+                Type.Void,
+                "Main",
+                Body(
+                    listOf<Statement>(
+                        Statement.UseClass("§b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
+                    ),
+                    listOf<Declaration.VariableDeclaration>(
+                        Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)),
+                        Declaration.VariableDeclaration(Type.String,"§a", Expression.UseDotVariable("§b",Expression.UseVariable("§name"))),
+                    )
+                ),
+                null
+            )
+        )
+
+        var evaluator = Evaluator()
+
+        evaluator.eval(declarations,null)
 
     }
 

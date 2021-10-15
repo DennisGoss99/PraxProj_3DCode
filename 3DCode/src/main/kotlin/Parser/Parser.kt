@@ -4,6 +4,8 @@ import Lexer.Lexer
 import Lexer.LexerToken
 import Parser.Exception.*
 import Parser.ParserToken.*
+import Parser.ParserToken.Values.ConstantValue
+import kotlin.concurrent.thread
 
 class Parser(val lexer: Lexer)
 {
@@ -420,6 +422,7 @@ class Parser(val lexer: Lexer)
 
         if(isRightBracked)
         {
+            FetchNextExpectedToken<LexerToken.Rparen>("')'")
             return null
         }
 
@@ -456,10 +459,24 @@ class Parser(val lexer: Lexer)
         return Expression.FunctionCall(name, parameter, currentLineOfCode)
     }
 
-    private fun UseVariableParse() : Expression.UseVariable
+    private fun UseVariableParse() : Expression
     {
         val name = NameParse()
-        val expression = Expression.UseVariable(name, currentLineOfCode)
+
+        val expression = if(lexer.peek() is LexerToken.Dot){
+            FetchNextExpectedToken<LexerToken.Dot>("'.'")
+
+            val expression = when(val nextLexerToken = lexer.peek()){
+                is LexerToken.UpperCaseIdent -> FunctionCallParse()
+                is LexerToken.NameIdent -> UseVariableParse()
+                else -> throw Exception("$name.$nextLexerToken is not supported")
+            }
+
+            Expression.UseDotVariable(name,expression)
+        }
+        else
+            Expression.UseVariable(name, currentLineOfCode)
+
         expression.BlockDepth = _currentBlockDepth
         return expression
     }
@@ -597,7 +614,7 @@ class Parser(val lexer: Lexer)
             is LexerToken.Number_Literal -> ValueParse()
 
             is LexerToken.UpperCaseIdent -> FunctionCallParse()
-            is LexerToken.NameIdent -> UseVariableParse()//Expression.UseVariable(NameParse(), currentLineOfCode)
+            is LexerToken.NameIdent -> UseVariableParse()
 
             is LexerToken.Lparen ->
             {
@@ -634,6 +651,9 @@ class Parser(val lexer: Lexer)
             is LexerToken.LessEqual,
             is LexerToken.Greater,
             is LexerToken.GreaterEqual -> {expression = CalulationParse(expression)}
+
+//            is LexerToken.TypeIdent -> {}
+//            else -> throw Exception("Can't identify LexerToken ${expectedSemicolon::class}");
         }
 
 
@@ -702,13 +722,12 @@ class Parser(val lexer: Lexer)
         return expression
     }
 
-    private fun AssignParse() : Statement.AssignValue
+    private fun AssignParse(name: String) : Statement.AssignValue
     {
-        val token = NameParse()
         val tokenEquals = FetchNextExpectedToken<LexerToken.AssignEquals>("Equals")
         val expression = ExpressionParse()
 
-        return Statement.AssignValue(token, expression, currentLineOfCode)
+        return Statement.AssignValue(name, expression, currentLineOfCode)
     }
 
     private fun ProcedureCallParse() : Statement.ProcedureCall
@@ -723,21 +742,24 @@ class Parser(val lexer: Lexer)
 
     private fun StatementParse(): Statement
     {
-        val token = lexer.peek()
-
-        val statement = when(token)
+        return when(val token = lexer.peek())
         {
             is LexerToken.If -> IfParse()
             is LexerToken.While -> WhileParse()
             is LexerToken.LCurlyBrace ->  BlockParse()
             is LexerToken.Return -> AssignmentParse()
-            is LexerToken.NameIdent -> AssignParse()
+            is LexerToken.NameIdent ->{
+                val token = NameParse()
+                if(lexer.peek() is LexerToken.Dot) {
+                    FetchNextExpectedToken<LexerToken.Dot>("'.'")
+                    Statement.UseClass(token, StatementParse())
+                }else
+                    AssignParse(token)
+            }
             is LexerToken.UpperCaseIdent -> ProcedureCallParse()
 
             else -> throw ParserStatementInvalid(token)
         }
-
-        return statement
     }
 
     private fun TypeParse(): Type

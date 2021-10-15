@@ -2,6 +2,8 @@ import Evaluator.Evaluator
 import Lexer.Lexer
 import Parser.Parser
 import Parser.ParserToken.*
+import Parser.ParserToken.Values.ConstantValue
+import Parser.ParserToken.Values.IValue
 import TypeChecker.Exceptions.TypeCheckerVariableNotFoundException
 import TypeChecker.TypeChecker
 import org.junit.jupiter.api.Test
@@ -10,7 +12,7 @@ import kotlin.test.assertFailsWith
 
 class DeepTest {
 
-    private fun executeCode(code : String, args: List<Expression.Value>? = null): ConstantValue? {
+    private fun executeCode(code : String, args: List<Expression.Value>? = null): IValue? {
 
         val parserOutput = Parser(Lexer(code)).ParsingStart()
 
@@ -20,6 +22,11 @@ class DeepTest {
 
     }
 
+    private fun withoutTypeCheckerExecuteCode(code : String, args: List<Expression.Value>? = null): IValue? {
+
+        val parserOutput = Parser(Lexer(code)).ParsingStart()
+        return Evaluator().eval(parserOutput,args)?.value
+    }
 
     @Test
     fun simpleTest(){
@@ -587,13 +594,21 @@ class DeepTest {
         
         """.trimIndent()
 
-        assertEquals(ConstantValue.String("64.00000000000000") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(1024)),Expression.Value(ConstantValue.Integer(16)))))
+        assertEquals(
+            ConstantValue.String("64.00000000000000") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(1024)),Expression.Value(
+                ConstantValue.Integer(16)))))
 
-        assertEquals(ConstantValue.String("0.33928571428571") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(19)),Expression.Value(ConstantValue.Integer(56)))))
+        assertEquals(
+            ConstantValue.String("0.33928571428571") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(19)),Expression.Value(
+                ConstantValue.Integer(56)))))
 
-        assertEquals(ConstantValue.String("22.40000000000000") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(1232)),Expression.Value(ConstantValue.Integer(55)))))
+        assertEquals(
+            ConstantValue.String("22.40000000000000") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(1232)),Expression.Value(
+                ConstantValue.Integer(55)))))
 
-        assertEquals(ConstantValue.String("183.09195402298851") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(79645)),Expression.Value(ConstantValue.Integer(435)))))
+        assertEquals(
+            ConstantValue.String("183.09195402298851") ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(79645)),Expression.Value(
+                ConstantValue.Integer(435)))))
 
     }
 
@@ -693,6 +708,7 @@ class DeepTest {
 
     }
 
+
     @Test
     fun bugfix1Test(){
         val code = """   
@@ -721,11 +737,28 @@ class DeepTest {
     }
 
     @Test
+    fun bugfix2Test(){
+        val code = """   
+            int P(){
+                return = 4;
+            }
+                             
+            int Main(){
+                int §a = P();
+                return §a;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(4) ,executeCode(code))
+    }
+
+    @Test
     fun classTest(){
         val code = """   
             
             class OpenGL{           
-                string name;
+                string §name = "30";
             
                 void A(){
                     Println("Hallo");
@@ -736,13 +769,18 @@ class DeepTest {
                 }
             }
                              
-            void Main(){
+            string Main(){
                 openGL §b = OpenGL();
+                string §a = §b.§name;
+                
+                §b.B(5);
+                
+                return §a; 
             }
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(30) ,executeCode(code))
+        assertEquals(ConstantValue.String("30") ,withoutTypeCheckerExecuteCode(code))
     }
 
 }

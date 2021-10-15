@@ -14,5 +14,11 @@ sealed class Type
     object Double : Type()
     object String : Type()
     object Void : Type()
-    class Custom(val name : kotlin.String) : Type()
+    class Custom() : Type(){
+        public var name : kotlin.String = ""
+
+        constructor(name : kotlin.String) : this() {
+            this.name = name.capitalize()
+        }
+    }
 }

@@ -28,6 +28,7 @@ open class Lexer(input: String) {
             '}' -> LexerToken.RCurlyBrace(currentLineOfCode)
             ';' -> LexerToken.Semicolon(currentLineOfCode)
             ',' -> LexerToken.Comma(currentLineOfCode)
+            '.' -> LexerToken.Dot(currentLineOfCode)
 
             '+' -> LexerToken.Plus(currentLineOfCode)
             '-' -> LexerToken.Minus(currentLineOfCode)

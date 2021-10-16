@@ -241,7 +241,10 @@ class DeepTest {
         val code = """
 
             class C{
-            
+                
+                void C(){
+                }
+                
                 int A(int §a){
                     return §a + 10;
                 }
@@ -846,6 +849,9 @@ class DeepTest {
                 int §GG = 69;
                 string §name = §GG.ToString();
             
+                void OpenGL(){
+                }
+            
                 void A(string §name){
                     string §name = §GG.ToString();
                 }
@@ -880,6 +886,9 @@ class DeepTest {
             class A{
                 int §a = 0;
             
+                void A(){
+                }
+            
                 void B(int §c){
                     §a = §a + §c
                 }
@@ -893,6 +902,9 @@ class DeepTest {
                 a §aOBj = A();
                 
                 int §b = 4000;
+                
+                void OpenGL(){
+                }
                 
                 int B(int §cc){
                     §aOBj.§a = §aOBj.§a + 10;
@@ -913,6 +925,62 @@ class DeepTest {
         """.trimIndent()
 
         assertEquals(ConstantValue.Integer(14129) ,withoutTypeCheckerExecuteCode(code))
+    }
+
+    @Test
+    fun classConstructorTest(){
+        val code = """   
+            
+            class OpenGL{     
+                string §name = "";
+            
+                void OpenGL(string §a){
+                    §name = §a
+                }
+            }
+                             
+            string Main(){
+                openGL §b = OpenGL("Hallo");
+                                     
+                return §b.§name; 
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("Hallo") ,withoutTypeCheckerExecuteCode(code))
+    }
+
+    @Test
+    fun classOverloadingConstructorTest(){
+        val code = """   
+            
+            class OpenGL{     
+                string §name = "";
+            
+                void OpenGL(string §a){
+                    §name = §a
+                }
+                
+                void OpenGL(){
+                    §name = "Test"
+                }
+                
+                void OpenGL(int §a){
+                    §name = §a.ToString()
+                }
+            }
+                             
+            string Main(){
+                openGL §b = OpenGL("Hallo");
+                openGL §c = OpenGL();
+                openGL §d = OpenGL(15);
+                                     
+                return §b.§name + §c.§name + §d.§name; 
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("HalloTest15") ,withoutTypeCheckerExecuteCode(code))
     }
 
 }

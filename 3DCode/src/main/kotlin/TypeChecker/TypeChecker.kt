@@ -1,12 +1,14 @@
 package TypeChecker
 
 import Evaluator.Exceptions.NotFound.FunctionNotFoundRuntimeException
+import Evaluator.Exceptions.NotFound.ReturnNotFoundRuntimeException
 import Evaluator.Exceptions.NotFound.VariableNotFoundRuntimeException
 import Parser.ParserToken.*
 import TypeChecker.Exceptions.*
 
 class TypeChecker(private val declarations: List<Declaration>, private val args : List<Expression.Value>? = null) {
 
+    private val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
     private val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
     private val globalVariableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
 
@@ -14,12 +16,18 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
         declarations.forEach { d ->
             when(d){
+                is Declaration.ClassDeclare -> classDeclarations[d.className] = d
                 is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
                 is Declaration.VariableDeclaration -> {
                     checkVariableDeclaration(d, HashMap())
                     globalVariableDeclarations[d.name] = d
                 }
+
             }
+        }
+
+        classDeclarations.forEach {
+            checkClassDeclaration(it.value)
         }
 
         val mainFunctionList = functionDeclarations["Main"] ?: throw FunctionNotFoundRuntimeException("Main")
@@ -42,8 +50,29 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
     }
 
+    private fun checkClassDeclaration(classDef: Declaration.ClassDeclare) {
+
+        val localVariables = classDef.classBody.variables?.let { HashMap(classDef.classBody.variables.associate { it.name to it.type}) } ?: HashMap()
+
+        classDef.classBody.variables?.forEach { v ->
+            checkVariableDeclaration(v,localVariables)
+        }
+
+        classDef.classBody.functions.forEach{
+            it.value.forEach{
+                checkMethodDeclaration(it, localVariables)
+            }
+        }
+
+    }
+
     private fun checkFunctionDeclaration(functionDeclaration : Declaration.FunctionDeclare){
         checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, functionDeclaration.parameters?.associate{it.name to it.type}?.let { HashMap(it)} ?: HashMap())
+    }
+
+    private fun checkMethodDeclaration(functionDeclaration : Declaration.FunctionDeclare, classVariables : HashMap<String, Type>){
+        val variables = combineVariables(classVariables,functionDeclaration.parameters?.associate{it.name to it.type}?.let { HashMap(it)} ?: HashMap())
+        checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, variables)
     }
 
     private fun checkParameter(functionDeclaration : Declaration.FunctionDeclare, args : List<Type>?) : Boolean{
@@ -65,8 +94,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
     private fun checkBodyTypes(functionName : String ,body: Body , returnType: Type? , upperVariables: HashMap<String, Type>?){
 
-
-        val localVariables = body.localVariables?.let { HashMap(body.localVariables?.associate { it.name to it.type}) } ?: HashMap()
+        val localVariables = body.localVariables?.let { HashMap(body.localVariables.associate { it.name to it.type}) } ?: HashMap()
 
         val combinedVariables = combineVariables(upperVariables,localVariables)
 
@@ -115,9 +143,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                     }
                 }
             }
-
         }
-
     }
 
     private fun combineVariables(upperEnvironment : HashMap<String, Type>?,lowerEnvironment : HashMap<String, Type>) : HashMap<String, Type>{
@@ -143,12 +169,23 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                         Type.String
                     }
                     else -> {
-                        val functionList = functionDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
-                        val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
-                        val function = functionList.firstOrNull { checkParameter(it, parameterTypes) }
-                            ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
 
-                        function.returnType
+                        classDeclarations[expression.functionName]?.let {
+                            val methodList = it.classBody.functions[it.className] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
+                            val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
+                            methodList.firstOrNull { checkParameter(it, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
+                            return Type.Custom(it.className)
+                        }
+
+                        functionDeclarations[expression.functionName]?.let { funcs ->
+                            val functionList = functionDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
+                            val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
+                            val function = functionList.firstOrNull { checkParameter(it, parameterTypes) }
+                                ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
+                            return function.returnType
+                        }
+
+                        throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
                     }
                 }
             }

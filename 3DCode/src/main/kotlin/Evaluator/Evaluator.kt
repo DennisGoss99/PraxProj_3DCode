@@ -257,13 +257,13 @@ class Evaluator {
                 return when(expression.functionName){
                     "ToString" -> toStringImplementation(expression.parameterList?.map { evalExpression(it,environment) } )
                     else -> {
+                        classDeclarations[expression.functionName]?.let { classDec ->
+                            return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment) })
+                        }
+
                         functionDeclarations[expression.functionName]?.let { funcs ->
                             return evalFunction(funcs, expression.functionName, expression.parameterList, environment)
                                 ?: throw ReturnNotFoundRuntimeException(expression.functionName)
-                        }
-
-                        classDeclarations[expression.functionName]?.let { classDec ->
-                            return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment) })
                         }
 
                         throw FunctionNotFoundRuntimeException(expression.functionName)

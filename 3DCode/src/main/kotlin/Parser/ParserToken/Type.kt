@@ -20,5 +20,7 @@ sealed class Type
         constructor(name : kotlin.String) : this() {
             this.name = name.capitalize()
         }
+
+        override fun equals(other: Any?): kotlin.Boolean { return if(other is Custom) other.name == this.name else false}
     }
 }

@@ -239,7 +239,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+        TypeChecker(parseCode(code2), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
     }
 
     @Test
@@ -286,6 +286,107 @@ class TypeCheckerTest {
 
 
         TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+    }
+
+    @Test
+    fun classTest(){
+
+        val code = """
+            
+            class A{
+                int §a = 1;
+                int §b = §b + §a;
+                int §c = §c + §b + §a;
+            }
+
+            void Main()
+            {
+            }
+        """.trimIndent()
+
+
+        TypeChecker(parseCode(code), null).check()
+    }
+
+    @Test
+    fun classConstructorTest(){
+
+        val code = """
+            
+            class A{
+                int §a = 1;
+                int §b = §b + §a;
+                int §c = §c + §b + §a;
+                
+                void A(){
+                    int §b = 1293 + §c;                
+                    §a = 2 + §b;
+                }
+                
+            }
+
+            void Main()
+            {
+            }
+        """.trimIndent()
+
+
+        TypeChecker(parseCode(code), null).check()
+    }
+
+    @Test
+    fun classUseTest(){
+
+        val code = """
+            
+            class A{
+                int §a = 1;
+                int §b = §b + §a;
+                int §c = §c + §b + §a;
+                
+                void A(){
+                    int §b = 1293 + §c;                
+                    §a = 2 + §b;
+                }
+                
+            }
+
+            void Main()
+            {
+                a §a = A();
+            }
+        """.trimIndent()
+
+
+        TypeChecker(parseCode(code), null).check()
+    }
+
+    @Test
+    fun classAdvancedTest(){
+
+        val code = """
+            
+            class A{
+                int §a = 1;
+                int §b = §b + §a;
+                int §c = §c + §b + §a;
+                
+                void A(){
+                    int §b = 1293 + §c;                
+                    §a = 2 + §b;
+                }
+                             
+            }
+
+            void Main()
+            {
+                a §a = A();
+                return §a.§a + §a.§b;
+            }
+        """.trimIndent()
+
+
+        TypeChecker(parseCode(code), null).check()
     }
 
 }

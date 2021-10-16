@@ -279,7 +279,7 @@ class DeepTest {
             }
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(1111), withoutTypeCheckerExecuteCode(code, listOf(Expression.Value(ConstantValue.Integer(0)))))
+        assertEquals(ConstantValue.Integer(1111), executeCode(code, listOf(Expression.Value(ConstantValue.Integer(0)))))
     }
 
     @Test
@@ -877,7 +877,7 @@ class DeepTest {
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.String("13 69 69 57 Hallo 69 70") ,withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.String("13 69 69 57 Hallo 69 70") ,executeCode(code))
     }
 
     @Test
@@ -924,7 +924,7 @@ class DeepTest {
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(14129) ,withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.Integer(14129) ,executeCode(code))
     }
 
     @Test
@@ -947,7 +947,7 @@ class DeepTest {
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.String("Hallo") ,withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.String("Hallo") ,executeCode(code))
     }
 
     @Test
@@ -980,7 +980,7 @@ class DeepTest {
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.String("HalloTest15") ,withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.String("HalloTest15") ,executeCode(code))
     }
 
 }

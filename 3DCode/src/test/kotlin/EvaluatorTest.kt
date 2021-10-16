@@ -1009,7 +1009,7 @@ class EvaluatorTest{
     fun classTest(){
         val declarations = listOf<Declaration>(
             Declaration.ClassDeclare("OpenGL", ClassBody(
-                listOf(
+                hashMapOf( "A" to mutableListOf(
                     Declaration.FunctionDeclare(Type.Void,"A",
                         Body(
                             listOf<Statement>(
@@ -1020,8 +1020,8 @@ class EvaluatorTest{
                                     )
                                 )
                             )
-                        ),null),
-                    Declaration.FunctionDeclare(Type.Void,"B",
+                        ),null)),
+                    "B" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"B",
                         Body(
                             listOf<Statement>(
                                 Statement.ProcedureCall(
@@ -1037,7 +1037,7 @@ class EvaluatorTest{
                                     )
                                 )
                             )
-                        ), listOf(Parameter("§a",Type.Integer)))
+                        ), listOf(Parameter("§a",Type.Integer))))
                 ),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))

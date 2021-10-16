@@ -335,8 +335,8 @@ class ParserTest
 
         val declarations = listOf<Declaration>(
             Declaration.ClassDeclare("OpenGL", ClassBody(
-                listOf(
-                    Declaration.FunctionDeclare(Type.Void,"A",
+                hashMapOf(
+                    "A" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"A",
                         Body(
                             listOf<Statement>(
                                 Statement.ProcedureCall(
@@ -346,7 +346,7 @@ class ParserTest
                                     )
                                 )
                             )
-                        ),null)),
+                        ),null))),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
                 )
@@ -390,8 +390,8 @@ class ParserTest
 
         val declarations = listOf<Declaration>(
             Declaration.ClassDeclare("OpenGL", ClassBody(
-                listOf(
-                    Declaration.FunctionDeclare(Type.Void,"A",
+                hashMapOf(
+                    "A" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"A",
                         Body(
                             listOf<Statement>(
                                 Statement.ProcedureCall(
@@ -401,13 +401,13 @@ class ParserTest
                                     )
                                 )
                             )
-                        ),null)),
+                        ),null))),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
                 )
             )),
             Declaration.ClassDeclare("Aaaa", ClassBody(
-                listOf(),
+                hashMapOf(),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"§a",Expression.Value(ConstantValue.String(""))),
                     Declaration.VariableDeclaration(Type.Float,"§b",Expression.Value(ConstantValue.Float(0.0f)))
@@ -454,8 +454,8 @@ class ParserTest
 
         val declarations = listOf<Declaration>(
             Declaration.ClassDeclare("OpenGL", ClassBody(
-                listOf(
-                    Declaration.FunctionDeclare(Type.Void,"A",
+                hashMapOf(
+                    "A" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"A",
                         Body(
                             listOf<Statement>(
                                 Statement.ProcedureCall(
@@ -465,8 +465,8 @@ class ParserTest
                                     )
                                 )
                             )
-                        ),null),
-                Declaration.FunctionDeclare(Type.Void,"B",
+                        ),null)),
+                    "B" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"B",
                     Body(
                         listOf<Statement>(
                             Statement.ProcedureCall(
@@ -482,7 +482,7 @@ class ParserTest
                                 )
                             )
                         )
-                    ), listOf(Parameter("§a",Type.Integer)))
+                    ), listOf(Parameter("§a",Type.Integer))))
                 ),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))

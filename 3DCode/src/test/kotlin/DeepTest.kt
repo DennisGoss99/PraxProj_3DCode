@@ -196,6 +196,90 @@ class DeepTest {
     }
 
     @Test
+    fun overloadedFuncTest(){
+
+        val code = """
+
+            int A(int §a){
+                return §a+5;
+            }
+
+            bool A(bool §a){
+                return §a;
+            }
+
+            int Main(int §b)
+            {
+                return A(§b);
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(10) ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(5)))))
+
+        val code2 = """
+            
+            bool A(bool §a){
+                return §a;
+            }
+            
+            int A(int §a){
+                return §a+5;
+            }
+                        
+            int Main(int §b)
+            {
+                return A(§b);
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(10) ,executeCode(code2, listOf(Expression.Value(ConstantValue.Integer(5)))))
+    }
+
+    @Test
+    fun overloadedFunc2Test() {
+
+        val code = """
+
+            class C{
+            
+                int A(int §a){
+                    return §a + 10;
+                }
+                
+                int A(bool §a){
+                    if(§a){
+                        return 100;
+                    }
+                    return 0;                  
+                }
+                
+                int A(string §a){
+                    if(§a == "Hallo"){
+                        return 1000;
+                    }
+                    return 0;                  
+                }
+            }
+
+            int A(int §a){
+                return §a+1;
+            }
+
+            bool A(bool §a){
+                return §a;
+            }
+
+            int Main(int §b)
+            {
+                c §zzz = C();
+                return A(§b) + §zzz.A(§b) + §zzz.A(true) + §zzz.A("Hallo");
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(1111), withoutTypeCheckerExecuteCode(code, listOf(Expression.Value(ConstantValue.Integer(0)))))
+    }
+
+    @Test
     fun simpleMainParameterTest(){
 
         val code = """
@@ -226,6 +310,7 @@ class DeepTest {
 
         assertEquals(ConstantValue.Integer(10) ,executeCode(code, listOf(Expression.Value(ConstantValue.Integer(5)))))
     }
+
 
     @Test
     fun mathTest(){

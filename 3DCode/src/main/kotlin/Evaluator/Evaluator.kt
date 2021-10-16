@@ -9,7 +9,7 @@ import Parser.ParserToken.Values.DynamicValue
 class Evaluator {
 
     private val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
-    private val functionDeclarations = HashMap<String, Declaration.FunctionDeclare>()
+    private val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
     private val globalEnvironment = HashMap<String, Expression.Value>()
 
     fun eval(declarations: List<Declaration>, args : List<Expression.Value>? = null) : Expression.Value? {
@@ -17,11 +17,11 @@ class Evaluator {
         declarations.forEach { d ->
             when(d){
                 is Declaration.ClassDeclare -> classDeclarations[d.className] = d
-                is Declaration.FunctionDeclare -> functionDeclarations[d.functionName] = d
+                is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
                 is Declaration.VariableDeclaration -> globalEnvironment[d.name] = evalExpression(d.expression, globalEnvironment)
             }
         }
-        val mainFunction = functionDeclarations["Main"] ?: throw FunctionNotFoundRuntimeException("Main")
+        val mainFunction = functionDeclarations["Main"]?.firstOrNull() ?: throw FunctionNotFoundRuntimeException("Main")
 
         return evalFunction(mainFunction,args)
     }
@@ -149,8 +149,10 @@ class Evaluator {
                             statement.parameterList?.map { evalExpression(it,localEnvironment) }?.forEach { p -> print(p.value.getValueAsString())}
                         }
                         else -> {
-                            val procedure = functionDeclarations[statement.procedureName] ?: throw FunctionNotFoundRuntimeException(statement.procedureName)
-                            evalProcedure(procedure, statement.parameterList?.map { evalExpression(it,localEnvironment) })
+                            val procedureList = functionDeclarations[statement.procedureName] ?: throw FunctionNotFoundRuntimeException(statement.procedureName)
+                            val parameters = statement.parameterList?.map { evalExpression(it,localEnvironment) }
+                            val procedure = procedureList.firstOrNull{ functionAcceptsParameter(it, parameters) } ?: throw Exception("Couldn't occur")
+                            evalProcedure(procedure, parameters)
                         }
                     }
                 }
@@ -167,6 +169,8 @@ class Evaluator {
         return null
     }
 
+
+
     private fun statementUseClass(statement : Statement.UseClass, environment: HashMap<String, Expression.Value>){
         val obj = environment.getOrDefault(statement.variableName,null) ?: globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.variableName)
         val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
@@ -180,8 +184,10 @@ class Evaluator {
                 }
             }
             is Statement.ProcedureCall -> {
-                val procedure = classDef.classBody.functions.firstOrNull{it.functionName == statement.procedureName} ?: throw FunctionNotFoundRuntimeException(statement.procedureName)
-                evalMethod(procedure, statement.parameterList?.map { evalExpression(it,environment) }, classObj.value)
+                val procedures = classDef.classBody.functions[statement.procedureName] ?: throw FunctionNotFoundRuntimeException(statement.procedureName)
+                val parameters = statement.parameterList?.map { evalExpression(it,environment) }
+                val procedure = procedures.firstOrNull { functionAcceptsParameter(it,parameters) } ?: throw Exception("Shouldn't occur")
+                evalMethod(procedure, parameters, classObj.value)
             }
             is Statement.UseClass ->{
                 statementUseClass(statement, classObj.value)
@@ -266,17 +272,42 @@ class Evaluator {
 
             }
             is Expression.FunctionCall ->{
-                functionDeclarations[expression.functionName]?.let { func ->
-                    return evalFunction(func, expression.parameterList?.map { evalExpression(it,environment) }) ?: throw ReturnNotFoundRuntimeException(expression.functionName)
+                return when(expression.functionName){
+                    "ToString" -> toStringImplementation(expression.parameterList?.map { evalExpression(it,environment) } )
+                    else -> {
+                        functionDeclarations[expression.functionName]?.let { funcs ->
+                            val parameters = expression.parameterList?.map { evalExpression(it,environment) }
+                            val func = funcs.firstOrNull{ functionAcceptsParameter(it, parameters) } ?: throw Exception("Couldn't occur")
+                            return evalFunction(func, parameters) ?: throw ReturnNotFoundRuntimeException(expression.functionName)
+                        }
+
+                        classDeclarations[expression.functionName]?.let { classDec ->
+                            return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment) })
+                        }
+
+                        throw FunctionNotFoundRuntimeException(expression.functionName)
+                    }
                 }
 
-                classDeclarations[expression.functionName]?.let { classDec ->
-                    return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment) })
-                }
-
-                throw FunctionNotFoundRuntimeException(expression.functionName)
             }
         }
+    }
+
+    private fun functionAcceptsParameter(function: Declaration.FunctionDeclare, parameterList: List<Expression.Value>?) : Boolean {
+        if(function.parameters?.size != parameterList?.size)
+            return false
+
+        if(function.parameters.isNullOrEmpty())
+            return true
+
+        val parameterCombined = function.parameters.zip(parameterList.orEmpty()){ fp, p -> fp to p }
+
+        return parameterCombined.fold(true){ acc, parameter ->
+            if(!acc)
+                return false
+            parameter.first.type == parameter.second.value.getType()
+        }
+
     }
 
     private fun getVariableValue( expression: Expression.UseVariable, environment: HashMap<String, Expression.Value>) =
@@ -296,8 +327,11 @@ class Evaluator {
                     else -> {
                         classObj ?: throw Exception("Can't use dot operation on baseTypes")
                         val classDec = classDeclarations[classObj.type.name] ?: throw Exception("Can't find corresponding class")
-                        val function = classDec.classBody.functions.firstOrNull{it.functionName == expression2.functionName} ?: throw FunctionNotFoundRuntimeException(expression2.functionName)
-                        evalMethod(function, expression2.parameterList?.map { evalExpression(it,environment) }, classObj.value) ?: throw ReturnNotFoundRuntimeException(expression2.functionName)
+                        val functions = classDec.classBody.functions[expression2.functionName] ?: throw FunctionNotFoundRuntimeException(expression2.functionName)
+                        val parameters = expression2.parameterList?.map { evalExpression(it,environment) }
+                        val function = functions.firstOrNull { functionAcceptsParameter(it,parameters) } ?: throw Exception("Shouldn't occur")
+
+                        evalMethod(function, parameters, classObj.value) ?: throw ReturnNotFoundRuntimeException(expression2.functionName)
                     }
                 }
             }
@@ -307,6 +341,18 @@ class Evaluator {
 
     private fun toStringImplementation(expression: Expression.Value): Expression.Value{
         return Expression.Value(ConstantValue.String(expression.value.getValueAsString()))
+    }
+
+    private fun toStringImplementation(parameterList: List<Expression>?): Expression.Value {
+        parameterList ?: throw Exception("Function ToString need one parameter")
+
+        if (parameterList.size > 1)
+            throw Exception("Function ToString only accepts one Parameter")
+
+        val value = parameterList.first() as? Expression.Value
+            ?: throw Exception("Can't ToString Expression: ${parameterList.first()}")
+
+        return Expression.Value(ConstantValue.String(value.value.getValueAsString()))
     }
 
     private fun negateNumber(v1: Expression.Value): Expression.Value{

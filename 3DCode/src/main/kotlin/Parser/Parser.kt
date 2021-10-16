@@ -227,7 +227,7 @@ class Parser(val lexer: Lexer)
         FetchNextExpectedToken<LexerToken.LCurlyBrace>("LCurlyBrace")
 
         val localVariables = mutableListOf<Declaration.VariableDeclaration>()
-        val methodsList = mutableListOf<Declaration.FunctionDeclare>()
+        val methodsList = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
         // TODO: 13.10.2021 ; ClassList
 
         while(true)
@@ -240,8 +240,8 @@ class Parser(val lexer: Lexer)
             }
 
             when(val declaration = DeclarationParse()){
-                is Declaration.VariableDeclaration ->localVariables.add(declaration)
-                is Declaration.FunctionDeclare ->methodsList.add(declaration)
+                is Declaration.VariableDeclaration -> localVariables.add(declaration)
+                is Declaration.FunctionDeclare -> methodsList.getOrPut(declaration.functionName, ::mutableListOf).add(declaration)
                 else -> ParserUnsupportedDeclaration(declaration)
             }
         }

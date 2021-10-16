@@ -7,14 +7,14 @@ import TypeChecker.Exceptions.*
 
 class TypeChecker(private val declarations: List<Declaration>, private val args : List<Expression.Value>? = null) {
 
-    private val functionDeclarations = HashMap<String, Declaration.FunctionDeclare>()
+    private val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
     private val globalVariableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
 
     fun check(){
 
         declarations.forEach { d ->
             when(d){
-                is Declaration.FunctionDeclare -> functionDeclarations[d.functionName] = d
+                is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
                 is Declaration.VariableDeclaration -> {
                     checkVariableDeclaration(d, HashMap())
                     globalVariableDeclarations[d.name] = d
@@ -22,14 +22,22 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
             }
         }
 
-        val mainFunction = functionDeclarations["Main"] ?: throw FunctionNotFoundRuntimeException("Main")
+        val mainFunctionList = functionDeclarations["Main"] ?: throw FunctionNotFoundRuntimeException("Main")
+        if(mainFunctionList.count() != 1)
+            throw TypeCheckerOnlyOneMainException(mainFunctionList.first().LineOfCode)
 
-        checkParameter(mainFunction,args?.map { getExpressionType(it, HashMap())})
+        val mainFunction = mainFunctionList.first()
+
+        val a = args?.map { getExpressionType(it, HashMap())}
+        if(!checkParameter(mainFunction, a))
+            throw TypeCheckerFunctionParameterException(mainFunction.LineOfCode ,mainFunction.functionName,a)
+
         checkFunctionDeclaration(mainFunction)
 
         functionDeclarations.forEach { f ->
-            if(f.key != "Main")
-                checkFunctionDeclaration(f.value)
+            if(f.key != "Main"){
+                f.value.forEach { func -> checkFunctionDeclaration(func) }
+            }
         }
 
     }
@@ -38,17 +46,20 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
         checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, functionDeclaration.parameters?.associate{it.name to it.type}?.let { HashMap(it)} ?: HashMap())
     }
 
-    private fun checkParameter(functionDeclaration : Declaration.FunctionDeclare, args : List<Type>?){
+    private fun checkParameter(functionDeclaration : Declaration.FunctionDeclare, args : List<Type>?) : Boolean{
         if(functionDeclaration.parameters?.size != args?.size)
-            throw TypeCheckerFunctionParameterException(functionDeclaration.LineOfCode ,functionDeclaration.functionName,functionDeclaration.parameters,args)
+            return false
 
-        val parameterCombined = functionDeclaration.parameters?.zip(args.orEmpty()){ fp, p -> fp to p }
+        if(functionDeclaration.parameters.isNullOrEmpty() && args.isNullOrEmpty())
+            return true
 
-        parameterCombined?.forEach {
-            if(it.first.type != it.second)
-                throw TypeCheckerFunctionParameterException(functionDeclaration.LineOfCode ,functionDeclaration.functionName,it.first,it.second)
+        val parameterCombined = functionDeclaration.parameters!!.zip(args.orEmpty()){ fp, p -> fp to p }
+
+        return parameterCombined.fold(true) { acc, e ->
+            if(!acc)
+                return false
+            e.first.type == e.second
         }
-
     }
 
 
@@ -98,8 +109,9 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                 is Statement.ProcedureCall -> {
                     if(statement.procedureName != "Println" && statement.procedureName != "Print")
                     {
-                        val procedure = functionDeclarations[statement.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement.LineOfCode, statement.procedureName)
-                        checkParameter(procedure, statement.parameterList?.map { getExpressionType(it, HashMap())})
+                        val procedureList = functionDeclarations[statement.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement.LineOfCode, statement.procedureName)
+                        procedureList.firstOrNull { checkParameter(it, statement.parameterList?.map { getExpressionType(it, HashMap())}) }
+                            ?: throw TypeCheckerFunctionParameterException(statement.LineOfCode,statement.procedureName, statement.parameterList?.map { getExpressionType(it, HashMap())})
                     }
                 }
             }
@@ -131,8 +143,10 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                         Type.String
                     }
                     else -> {
-                        val function = functionDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
-                        checkParameter(function, expression.parameterList?.map { getExpressionType(it, localVariables)})
+                        val functionList = functionDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
+                        val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
+                        val function = functionList.firstOrNull { checkParameter(it, parameterTypes) }
+                            ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
 
                         function.returnType
                     }

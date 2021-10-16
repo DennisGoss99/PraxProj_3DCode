@@ -2,9 +2,12 @@ import Lexer.Lexer
 import Parser.Parser
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
+import TypeChecker.Exceptions.TypeCheckerFunctionParameterException
 import TypeChecker.Exceptions.TypeCheckerReturnTypeException
 import TypeChecker.TypeChecker
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 class TypeCheckerTest {
@@ -195,6 +198,71 @@ class TypeCheckerTest {
         """.trimIndent()
 
         TypeChecker(parseCode(code)).check()
+    }
+
+    @Test
+    fun overloadedFuncTest(){
+
+        val code = """
+            
+            int A(int §a){
+                return §a+5;
+            }
+            
+            bool A(bool §a){
+                return §a;
+            }
+            
+            int Main(int §b)
+            {
+                bool §a = A(false);
+                return A(§b);
+            }
+        """.trimIndent()
+
+        TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+
+        val code2 = """
+            
+            bool A(bool §a){
+                return §a;
+            }
+            
+            int A(int §a){
+                return §a+5;
+            }
+                        
+            int Main(int §b)
+            {
+                bool §a = A(false);
+                return A(§b);
+            }
+        """.trimIndent()
+
+        TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+    }
+
+    @Test
+    fun overloadedFunc2Test(){
+
+        val code = """
+            
+            int A(int §a){
+                return §a+5;
+            }
+            
+            bool A(bool §a){
+                return §a;
+            }
+            
+            int Main(int §b)
+            {
+                bool §a = A(false) && A(§b) == 1;
+                return A("§b");
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerFunctionParameterException::class) { TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check() }
     }
 
     @Test

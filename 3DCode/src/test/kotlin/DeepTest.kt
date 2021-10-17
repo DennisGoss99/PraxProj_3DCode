@@ -884,30 +884,30 @@ class DeepTest {
     fun class2Test(){
         val code = """   
             class A{
-                int §a = 0;
+                int §aa = 0;
             
                 void A(){
                 }
             
                 void B(int §c){
-                    §a = §a + §c
+                    §aa = §aa + §c
                 }
             
                 int A(int §number){
-                    return §a + 3 + §number;
+                    return §aa + 3 + §number;
                 }
             }
             
             class OpenGL{     
                 a §aOBj = A();
                 
-                int §b = 4000;
+                int §bb = 4000;
                 
                 void OpenGL(){
                 }
                 
                 int B(int §cc){
-                    §aOBj.§a = §aOBj.§a + 10;
+                    §aOBj.§aa = §aOBj.§aa + 10;
                     return §aOBj.A(§cc + 10000);
                 }
             }
@@ -916,15 +916,53 @@ class DeepTest {
                 return §value + 10;
             }
                              
-            string Main(){
+            int Main(){
                 openGL §b = OpenGL();
                 §b.§aOBj.B(6);
-                return Add10(§b.B(100) + §b.§b);
+                return Add10(§b.B(100) + §b.§bb);
             }
             
         """.trimIndent()
 
         assertEquals(ConstantValue.Integer(14129) ,executeCode(code))
+    }
+
+    @Test
+    fun class3Test(){
+        val code = """   
+            class A{
+                string §a = "1";
+                void A(){
+                }
+            }
+            
+            class OpenGL{     
+                a §aOBj = A();
+                                
+                void OpenGL(){
+                }
+                
+                void A(){
+                    §aOBj.§a = "2"
+                }
+            }
+                             
+            string Main(){
+                openGL §b = OpenGL();
+                string §return = §b.§aOBj.§a;
+                §b.A();
+                {
+                    a §c = §b.§aOBj;
+                    §return = §return + §b.§aOBj.§a
+                    §b.§aOBj.§a = "3"
+                    §return = §return + §c.§a
+                }
+                return §return;
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("123") ,executeCode(code))
     }
 
     @Test

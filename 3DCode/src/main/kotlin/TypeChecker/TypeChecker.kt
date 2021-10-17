@@ -4,6 +4,7 @@ import Evaluator.Exceptions.NotFound.FunctionNotFoundRuntimeException
 import Evaluator.Exceptions.NotFound.ReturnNotFoundRuntimeException
 import Evaluator.Exceptions.NotFound.VariableNotFoundRuntimeException
 import Parser.ParserToken.*
+import Parser.ParserToken.Values.DynamicValue
 import TypeChecker.Exceptions.*
 
 class TypeChecker(private val declarations: List<Declaration>, private val args : List<Expression.Value>? = null) {
@@ -171,7 +172,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                     else -> {
 
                         classDeclarations[expression.functionName]?.let {
-                            val methodList = it.classBody.functions[it.className] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
+                            val methodList = it.classBody.functions[it.className] ?: throw TypeCheckerConstructorNotFoundException(expression.LineOfCode, expression.functionName, it.className)
                             val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
                             methodList.firstOrNull { checkParameter(it, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
                             return Type.Custom(it.className)
@@ -180,8 +181,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                         functionDeclarations[expression.functionName]?.let { funcs ->
                             val functionList = functionDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression.functionName)
                             val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
-                            val function = functionList.firstOrNull { checkParameter(it, parameterTypes) }
-                                ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
+                            val function = functionList.firstOrNull { checkParameter(it, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
                             return function.returnType
                         }
 
@@ -190,7 +190,10 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                 }
             }
             is Expression.UseVariable -> {
-                globalVariableDeclarations[expression.variableName]?.type ?: localVariables[expression.variableName] ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
+                localVariables[expression.variableName] ?: globalVariableDeclarations[expression.variableName]?.type ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
+            }
+            is Expression.UseDotVariable -> {
+                useDotVariable(localVariables, expression)
             }
             is Expression.Operation -> {
                 if(expression.operator == Operator.Equals)
@@ -240,7 +243,37 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                     }
                 }
             }
-            is Expression.UseDotVariable -> TODO()
+        }
+    }
+
+    private fun useDotVariable(localVariables: HashMap<String, Type>, expression: Expression.UseDotVariable) : Type{
+        val classType = (localVariables[expression.variableName] ?: globalVariableDeclarations[expression.variableName]?.type) as? Type.Custom //?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
+        val classObj = classDeclarations[classType?.name]
+        val classVariables = classObj?.classBody?.variables?.associateTo(HashMap()) { it.name to it.type } ?: HashMap()
+
+        return when (val expression2 = expression.expression){
+            is Expression.UseVariable -> {
+                classObj ?: throw TypeCheckerClassNotFoundException(expression.LineOfCode, expression.variableName)
+                classVariables[expression2.variableName] ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
+            }
+            is Expression.UseDotVariable -> useDotVariable(classVariables ,expression2)
+            is Expression.FunctionCall -> {
+                when(expression2.functionName){
+                    "ToString" -> {
+                        if(expression2.parameterList != null)
+                            throw TypeCheckerFunctionParameterException(expression.LineOfCode, "Function: 'ToString' must have one or more transfer parameters")
+                        Type.String
+                    }
+                    else ->{
+                        classObj ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
+                        val functionList = classObj.classBody.functions[expression2.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, expression2.functionName)
+                        val parameterTypes = expression2.parameterList?.map{ getExpressionType(it, localVariables)}
+                        val function = functionList.firstOrNull { checkParameter(it, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression2.functionName, parameterTypes)
+                        return function.returnType
+                    }
+                }
+            }
+            else -> throw TypeCheckerCantUseOperationOnDot(expression2.LineOfCode, expression2)
         }
     }
 

@@ -378,7 +378,7 @@ class TypeCheckerTest {
                              
             }
 
-            void Main()
+            int Main()
             {
                 a §a = A();
                 return §a.§a + §a.§b;

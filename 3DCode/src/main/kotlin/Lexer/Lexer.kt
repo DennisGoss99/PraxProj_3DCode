@@ -187,6 +187,7 @@ open class Lexer(input: String) {
         when(val c = iterator.next()){
             '/' ->{
                 while(iterator.hasNext() && iterator.next() != '\n'){}
+                currentLineOfCode++
                 consumeWhitespace()
                 consumeComments()
             }
@@ -195,7 +196,8 @@ open class Lexer(input: String) {
                     if(iterator.peek() == '/' ){
                         consumeComments()
                     }else{
-                        iterator.next()
+                        if(iterator.next() == '\n')
+                            currentLineOfCode++
                     }
                 }
                 iterator.next()

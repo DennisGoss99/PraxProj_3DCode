@@ -20,10 +20,8 @@ fun main(){
     val code = """ 
             class A{
                 void A(){}
-                /*
-                
-                
-                */
+                // dsadasd
+                //dsada
             }
             class OpenGL{     
                 int §GG = 69;

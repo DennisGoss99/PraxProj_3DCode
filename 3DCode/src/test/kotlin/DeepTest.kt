@@ -34,7 +34,7 @@ class DeepTest {
         val code = """
             
             Int Main(){
-                return 5;
+                return 5
             }
             
         """.trimIndent()
@@ -49,7 +49,7 @@ class DeepTest {
         val code = """
             
             Int Main(){
-                return 5+5;
+                return 5+5
             }
             
         """.trimIndent()
@@ -64,7 +64,7 @@ class DeepTest {
         val code = """
             
             Void Main(){
-                Println("Hallo Welt");            
+                Println("Hallo Welt")            
             }
             
         """.trimIndent()
@@ -79,8 +79,8 @@ class DeepTest {
         val code = """
             
             Int Main(){
-                Int a = 5;
-                return a + 5;
+                Int a = 5
+                return a + 5
             }
             
         """.trimIndent()
@@ -92,11 +92,11 @@ class DeepTest {
     fun globalVariableTest(){
 
         val code = """
-            Int a = 5;
+            Int a = 5
                         
             Int Main(){
-                Int b = 5;
-                return a * b;
+                Int b = 5
+                return a * b
             }
             
         """.trimIndent()
@@ -110,14 +110,14 @@ class DeepTest {
         val code = """
             Int Main()
             {
-                Int a = 1;
+                Int a = 1
                 
                 while(a != 14)
                 {
-                    a = a + 1;
+                    a = a + 1
                 }
                 
-                return a;
+                return a
             }
         """.trimIndent()
 
@@ -131,9 +131,9 @@ class DeepTest {
             Int Main()
             {
                 if(true){
-                    return 5;
+                    return 5
                 }else{
-                    return 4;
+                    return 4
                 }  
             }
         """.trimIndent()
@@ -147,12 +147,12 @@ class DeepTest {
         val code = """
             
             Int A(){
-                return 4*3;
+                return 4*3
             }
             
             Int Main()
             {
-                return A();
+                return A()
             }
         """.trimIndent()
 
@@ -165,12 +165,12 @@ class DeepTest {
         val code = """
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
             
             Int Main()
             {
-                return A(10);
+                return A(10)
             }
         """.trimIndent()
 
@@ -183,12 +183,12 @@ class DeepTest {
         val code = """
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
             
             Int Main()
             {
-                return A(A(A(10)));
+                return A(A(A(10)))
             }
         """.trimIndent()
 
@@ -201,16 +201,16 @@ class DeepTest {
         val code = """
 
             Int A(Int a){
-                return a+5;
+                return a+5
             }
 
             Bool A(Bool a){
-                return a;
+                return a
             }
 
             Int Main(Int b)
             {
-                return A(b);
+                return A(b)
             }
         """.trimIndent()
 
@@ -219,16 +219,16 @@ class DeepTest {
         val code2 = """
             
             Bool A(Bool a){
-                return a;
+                return a
             }
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
                         
             Int Main(Int b)
             {
-                return A(b);
+                return A(b)
             }
         """.trimIndent()
 
@@ -246,36 +246,36 @@ class DeepTest {
                 }
                 
                 Int A(Int a){
-                    return a + 10;
+                    return a + 10
                 }
                 
                 Int A(Bool a){
                     if(a){
-                        return 100;
+                        return 100
                     }
-                    return 0;                  
+                    return 0                  
                 }
                 
                 Int A(String a){
                     if(a == "Hallo"){
-                        return 1000;
+                        return 1000
                     }
-                    return 0;                  
+                    return 0                  
                 }
             }
 
             Int A(Int a){
-                return a+1;
+                return a+1
             }
 
             Bool A(Bool a){
-                return a;
+                return a
             }
 
             Int Main(Int b)
             {
-                C zzz = C();
-                return A(b) + zzz.A(b) + zzz.A(true) + zzz.A("Hallo");
+                C zzz = C()
+                return A(b) + zzz.A(b) + zzz.A(true) + zzz.A("Hallo")
             }
         """.trimIndent()
 
@@ -289,7 +289,7 @@ class DeepTest {
                         
             Int Main(Int b)
             {
-                return b;
+                return b
             }
         """.trimIndent()
 
@@ -302,12 +302,12 @@ class DeepTest {
         val code = """
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
             
             Int Main(Int b)
             {
-                return A(b);
+                return A(b)
             }
         """.trimIndent()
 
@@ -322,7 +322,7 @@ class DeepTest {
             
             Int Main(Int b)
             {
-                return  4 * ((3 * 4) + 4) - (4 * 5 - 20);
+                return  4 * ((3 * 4) + 4) - (4 * 5 - 20)
             }
         """.trimIndent()
 
@@ -336,7 +336,7 @@ class DeepTest {
             
             Int Main(Int b)
             {
-                return  -(4+2) * (-4);
+                return  -(4+2) * (-4)
             }
         """.trimIndent()
 
@@ -349,7 +349,7 @@ class DeepTest {
         val code = """            
             Int Main(){
                 // 2576
-                return -1 *( - (3*5) - ( 4 + ( 5 * (30-43)))) * (-56)  ;
+                return -1 *( - (3*5) - ( 4 + ( 5 * (30-43)))) * (-56)  
             }          
         """.trimIndent()
 
@@ -363,7 +363,7 @@ class DeepTest {
             Int Main()
             {
                 // -200 * 30 * 3
-                return -(20 * 10) * (10 + 20) * 3 ;
+                return -(20 * 10) * (10 + 20) * 3 
             }          
         """.trimIndent()
 
@@ -375,7 +375,7 @@ class DeepTest {
 
         val code = """            
             Bool Main(){
-                return !(!((5 != 6) == true) || !( 6 < 7 || ( true != false)));
+                return !(!((5 != 6) == true) || !( 6 < 7 || ( true != false)))
             }                 
         """.trimIndent()
 
@@ -389,19 +389,19 @@ class DeepTest {
             
             Int F(Int n){
                 if(n == 1){
-                    return n;
+                    return n
                 }else{
                     if(n == 0){
-                        return n;
+                        return n
                     }else{
-                        return F(n - 1) + F(n - 2);
+                        return F(n - 1) + F(n - 2)
                     }                   
                 }
             }
             
             Int Main(Int b)
             {
-                return F(b);
+                return F(b)
             }
         """.trimIndent()
 
@@ -415,7 +415,7 @@ class DeepTest {
             
             Int F(Int n){
                 if(n == 0 || n == 1){
-                    return n;
+                    return n
                 }else{
                     return F(n - 1) + F(n - 2)
                 }
@@ -423,7 +423,7 @@ class DeepTest {
             
             Int Main(Int b)
             {
-                return F(b);
+                return F(b)
             }
         """.trimIndent()
 
@@ -438,11 +438,11 @@ class DeepTest {
             
             Int Main(){
             
-                Int a = 45;
+                Int a = 45
                 
                 {
                     Int a = a + 3 
-                    return a;               
+                    return a               
                 }
             }
             
@@ -460,12 +460,12 @@ class DeepTest {
             
             Int Main(){
             
-                Int a = 45;
+                Int a = 45
                 
                 {
-                    Int a = 3;        
+                    Int a = 3        
                 }
-                return a; 
+                return a 
             }
             
         """.trimIndent()
@@ -482,13 +482,13 @@ class DeepTest {
             
             Int Main(){
             
-                Int a = 45;
+                Int a = 45
                 
                 {
-                    Int a = 3;        
-                    Int b = 5;
+                    Int a = 3        
+                    Int b = 5
                 }
-                return b; 
+                return b 
             }
             
         """.trimIndent()
@@ -505,14 +505,14 @@ class DeepTest {
             
             Int Main(){
             
-                Int a = 1;
+                Int a = 1
                 
                 {
-                    Int a = a + a;        
-                    Int b = a + 3;
+                    Int a = a + a        
+                    Int b = a + 3
                     {
-                        Int a = b - 3;
-                        return a;    
+                        Int a = b - 3
+                        return a    
                     }
                 }
             }
@@ -527,32 +527,32 @@ class DeepTest {
     fun moduloTest4(){
 
         val code = """
-            // Pow = n^k;
+            // Pow = n^k
             Int Pow(Int n, Int k){
-                Int returnValue = 1;
+                Int returnValue = 1
                 
                 if(k == 0){
-                    return 1;
+                    return 1
                 }
                 
                 while(k >= 1){
-                    returnValue = returnValue * n;
-                    k = k - 1;
+                    returnValue = returnValue * n
+                    k = k - 1
                 }
                 
-                return returnValue;           
+                return returnValue           
             }
             
-            // ModResult = n % k; 
+            // ModResult = n % k 
             Int Mod(Int n, Int k){
                 while(n - k > 0){
-                    n = n - k;
+                    n = n - k
                 }
-                return n;
+                return n
             }
             
             Int Main(){
-                return Mod(Pow(5,10),7);
+                return Mod(Pow(5,10),7)
             }
             
         """.trimIndent()
@@ -568,17 +568,17 @@ class DeepTest {
          {
             while(n >= k)
             {
-                n = n - k;
+                n = n - k
             }
-            return n;
+            return n
         }
             
         Int Main()
         {
-            Int x = 2;
-            Int i = 2;
-            Bool quitFlag = true;
-            Int foundPrimes = 0;
+            Int x = 2
+            Int i = 2
+            Bool quitFlag = true
+            Int foundPrimes = 0
                   
             while(x <= 1000)
             {                  
@@ -586,24 +586,24 @@ class DeepTest {
                 {
                     if((Mod(x,i) == 0) && (x != i))
                     {
-                        quitFlag = false; // break
+                        quitFlag = false // break
                     }
                     else
                     {
                         if(i == x)
                         {
-                            foundPrimes = foundPrimes + 1;
-                            //Println(i);
+                            foundPrimes = foundPrimes + 1
+                            //Println(i)
                         }
                     }     
                                    
-                    i = i + 1;   
+                    i = i + 1   
                 }
-                quitFlag = true;
-                i = 2;
-                x = x + 1;
+                quitFlag = true
+                i = 2
+                x = x + 1
             }                  
-            return foundPrimes;
+            return foundPrimes
         }
         
         """.trimIndent()
@@ -617,67 +617,67 @@ class DeepTest {
         val code = """
          String DivToString(Int n, Int k, Int decimalPlaces)
          {
-            String returnValue = "";
-            Int i = decimalPlaces + 1;
-            Int tempNumber = n;
+            String returnValue = ""
+            Int i = decimalPlaces + 1
+            Int tempNumber = n
             
-            decimalPlaces = decimalPlaces + 1;
+            decimalPlaces = decimalPlaces + 1
                         
             while(i > 0)
             {
-                Int counter = 0;
+                Int counter = 0
                 
                 if(i != decimalPlaces){
-                    tempNumber = tempNumber * 10;
+                    tempNumber = tempNumber * 10
                 }
                 
-                //Println(ToString(tempNumber));   
+                //Println(ToString(tempNumber))   
                 
                 while(tempNumber - k >= 0){
-                    counter = counter + 1; 
-                    tempNumber = tempNumber - k;
+                    counter = counter + 1 
+                    tempNumber = tempNumber - k
                 }
                 
-                //Println("Value:" + ToString(counter));
-                //Println("Rest:" + ToString(tempNumber));
-                //Println("---");
+                //Println("Value:" + ToString(counter))
+                //Println("Rest:" + ToString(tempNumber))
+                //Println("---")
                 
                 if(i == 1){
-                    Int b = counter;
-                    counter = 0;
+                    Int b = counter
+                    counter = 0
                     
-                    tempNumber = tempNumber * 10;
+                    tempNumber = tempNumber * 10
                 
                     while(tempNumber - k >= 0){
-                        counter = counter + 1; 
-                        tempNumber = tempNumber - k;
+                        counter = counter + 1 
+                        tempNumber = tempNumber - k
                     }
                                         
                     if(counter < 5){
-                        returnValue = returnValue + ToString(b);
+                        returnValue = returnValue + ToString(b)
                     }else{
-                        returnValue = returnValue + ToString(b + 1);
+                        returnValue = returnValue + ToString(b + 1)
                     }
                
                 }else{
-                    returnValue = returnValue + ToString(counter);
+                    returnValue = returnValue + ToString(counter)
                 }
                 
                 
                 if(i == decimalPlaces){
-                    returnValue = returnValue + ".";
+                    returnValue = returnValue + "."
                 }
                 
-                i = i - 1;
+                i = i - 1
             }
-            return returnValue;
+            return returnValue
         }
             
         String Main(Int dividend, Int divisor)
         {
-            Int decimalPlaces = 14;
+            Int decimalPlaces = 14
                     
-            return DivToString(dividend, divisor, decimalPlaces);
+            return DivToString(dividend, divisor, decimalPlaces)
         }
         
         """.trimIndent()
@@ -722,15 +722,15 @@ class DeepTest {
                              
             Float Main(){
             
-                Float a = 0.0;
-                Int i = 0;
+                Float a = 0.0
+                Int i = 0
                 
                 while(i != 10){
-                    a = a + (0.1 * i);  
-                    i = i + 1;
+                    a = a + (0.1 * i)  
+                    i = i + 1
                 }
                 
-                return a;
+                return a
             }
             
         """.trimIndent()
@@ -746,24 +746,24 @@ class DeepTest {
                              
             Bool Main(){
                 
-                Bool c = true;
+                Bool c = true
                 
-                Float a = 1.0001;
-                Float b = 1.0000;
+                Float a = 1.0001
+                Float b = 1.0000
                 
                 if(a < b){
-                    c = false;
+                    c = false
                 }
                 
                 if(a == b){
-                    c = false;
+                    c = false
                 }
                                 
                 if(a != b + 0.0001){
-                    c = false;
+                    c = false
                 }
                     
-                return c;
+                return c
             }
             
         """.trimIndent()
@@ -779,15 +779,15 @@ class DeepTest {
                              
             Int Main(){
             
-                Float a = 0.0;
-                Int i = 0;
+                Float a = 0.0
+                Int i = 0
                 
                 while(a < 10){
-                    i = i + 1;  
-                    a = a + 0.01;
+                    i = i + 1  
+                    a = a + 0.01
                 }
                 
-                return i;
+                return i
             }
             
         """.trimIndent()
@@ -803,8 +803,8 @@ class DeepTest {
             
                              
             Int Main(){
-                Int a = 2;
-                return a * 13 + 4;
+                Int a = 2
+                return a * 13 + 4
             }
             
         """.trimIndent()
@@ -815,8 +815,8 @@ class DeepTest {
             
                              
             Int Main(){
-                Int a = 2;
-                return 2 * 13 + 4;
+                Int a = 2
+                return 2 * 13 + 4
             }
             
         """.trimIndent()
@@ -828,12 +828,12 @@ class DeepTest {
     fun bugfix2Test(){
         val code = """   
             Int P(){
-                return = 4;
+                return = 4
             }
                              
             Int Main(){
-                Int a = P();
-                return a;
+                Int a = P()
+                return a
             }
             
         """.trimIndent()
@@ -846,33 +846,33 @@ class DeepTest {
         val code = """   
             
             class OpenGL{     
-                Int gg = 69;
-                String name = gg.ToString();
+                Int gg = 69
+                String name = gg.ToString()
             
                 Void OpenGL(){
                 }
             
                 Void A(String name){
-                    String name = gg.ToString();
+                    String name = gg.ToString()
                 }
                 
                 String B(Int a){
-                    String c = (" " + a.ToString() + " Hallo " + name);
-                    gg = gg + 1;
+                    String c = (" " + a.ToString() + " Hallo " + name)
+                    gg = gg + 1
                     
-                    return c;
+                    return c
                 }
                 
                 Int C(Int a){
-                    return a + 3;
+                    return a + 3
                 }
             }
                              
             String Main(){
-                OpenGL b = OpenGL();
-                Int r = b.C(5) + 5;
+                OpenGL b = OpenGL()
+                Int r = b.C(5) + 5
                      
-                return r.ToString() + " " + b.gg.ToString() + " " + b.name + b.B(57) + " " + b.gg.ToString(); 
+                return r.ToString() + " " + b.gg.ToString() + " " + b.name + b.B(57) + " " + b.gg.ToString() 
             }
             
         """.trimIndent()
@@ -884,7 +884,7 @@ class DeepTest {
     fun class2Test(){
         val code = """   
             class A{
-                Int aa = 0;
+                Int aa = 0
             
                 Void A(){
                 }
@@ -894,32 +894,32 @@ class DeepTest {
                 }
             
                 Int A(Int number){
-                    return aa + 3 + number;
+                    return aa + 3 + number
                 }
             }
             
             class OpenGL{     
-                A aOBj = A();
+                A aOBj = A()
                 
-                Int bb = 4000;
+                Int bb = 4000
                 
                 Void OpenGL(){
                 }
                 
                 Int B(Int cc){
-                    aOBj.aa = aOBj.aa + 10;
-                    return aOBj.A(cc + 10000);
+                    aOBj.aa = aOBj.aa + 10
+                    return aOBj.A(cc + 10000)
                 }
             }
             
             Int Add10(Int value){
-                return value + 10;
+                return value + 10
             }
                              
             Int Main(){
-                OpenGL b = OpenGL();
-                b.aOBj.B(6);
-                return Add10(b.B(100) + b.bb);
+                OpenGL b = OpenGL()
+                b.aOBj.B(6)
+                return Add10(b.B(100) + b.bb)
             }
             
         """.trimIndent()
@@ -931,13 +931,13 @@ class DeepTest {
     fun class3Test(){
         val code = """   
             class A{
-                String a = "1";
+                String a = "1"
                 Void A(){
                 }
             }
             
             class OpenGL{     
-                A aOBj = A();
+                A aOBj = A()
                                 
                 Void OpenGL(){
                 }
@@ -948,16 +948,16 @@ class DeepTest {
             }
                              
             String Main(){
-                OpenGL b = OpenGL();
-                String returnValue = b.aOBj.a;
-                b.A();
+                OpenGL b = OpenGL()
+                String returnValue = b.aOBj.a
+                b.A()
                 {
-                    A c = b.aOBj;
+                    A c = b.aOBj
                     returnValue = returnValue + b.aOBj.a
                     b.aOBj.a = "3"
                     returnValue = returnValue + c.a
                 }
-                return returnValue;
+                return returnValue
             }
             
         """.trimIndent()
@@ -970,7 +970,7 @@ class DeepTest {
         val code = """   
             
             class OpenGL{     
-                String name = "";
+                String name = ""
             
                 Void OpenGL(String a){
                     name = a
@@ -978,9 +978,9 @@ class DeepTest {
             }
                              
             String Main(){
-                OpenGL b = OpenGL("Hallo");
+                OpenGL b = OpenGL("Hallo")
                                      
-                return b.name; 
+                return b.name 
             }
             
         """.trimIndent()
@@ -993,14 +993,17 @@ class DeepTest {
         val code = """   
             
             class OpenGL{     
-                String name = "";
+                String name = ""
             
                 Void OpenGL(String a){
                     name = a
                 }
                 
                 Void OpenGL(){
+                    Int b = 12
+                    + 13
                     name = "Test"
+                    Println(b)
                 }
                 
                 Void OpenGL(Int a){
@@ -1009,11 +1012,11 @@ class DeepTest {
             }
                              
             String Main(){
-                OpenGL b = OpenGL("Hallo");
-                OpenGL c = OpenGL();
-                OpenGL d = OpenGL(15);
+                OpenGL b = OpenGL("Hallo")
+                OpenGL c = OpenGL()
+                OpenGL d = OpenGL(15)
                                      
-                return b.name + c.name + d.name; 
+                return b.name + c.name + d.name
             }
             
         """.trimIndent()
@@ -1025,14 +1028,14 @@ class DeepTest {
     fun operationEqualsTest() {
         val code = """
             Float Main(){
-                Int b = 5;
-                Float a = 0.0;
-                b += 5;
-                b *= 5;
-                b -= 5;
-                a = b + 0.0;
-                a /= 5;
-                return a;
+                Int b = 5
+                Float a = 0.0
+                b += 5
+                b *= 5
+                b -= 5
+                a = b + 0.0
+                a /= 5
+                return a
             }
         """.trimIndent()
 
@@ -1044,7 +1047,7 @@ class DeepTest {
     fun divisionTest() {
         val code = """
             Float Main(){
-                return (6/3) + (5/3) + 0.0;
+                return (6/3) + (5/3) + 0.0
             }
         """.trimIndent()
 
@@ -1056,12 +1059,10 @@ class DeepTest {
     fun division2Test() {
         val code = """
             Float Main(){
-                return ((6.0 + 34 * 6) / 3) + (5/3) + 0.6 / 89);
+                return ((6.0 + 34 * 6) / 3) + (5/3) + 0.6 / 89)
             }
         """.trimIndent()
 
         assertEquals(ConstantValue.Float(((6.0f + 34 * 6) / 3) + (5/3) + 0.6f / 89 ),executeCode(code))
-
     }
-
 }

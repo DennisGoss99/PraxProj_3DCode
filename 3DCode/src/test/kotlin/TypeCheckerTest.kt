@@ -21,7 +21,7 @@ class TypeCheckerTest {
         val code = """
             
             Int Main(){
-                return 5;
+                return 5
             }
             
         """.trimIndent()
@@ -35,7 +35,7 @@ class TypeCheckerTest {
         val code = """
             
             Int Main(){
-                return 5 + 2;
+                return 5 + 2
             }
             
         """.trimIndent()
@@ -49,7 +49,7 @@ class TypeCheckerTest {
         val code = """
                    
             String Main(){
-                return "5" + "2";
+                return "5" + "2"
             }
             
         """.trimIndent()
@@ -62,8 +62,8 @@ class TypeCheckerTest {
 
         val code = """  
             Int Main(){
-                Int a = 56 * 2;
-                return -(a + a);
+                Int a = 56 * 2
+                return -(a + a)
             }
             
         """.trimIndent()
@@ -76,12 +76,12 @@ class TypeCheckerTest {
 
         val code = """  
             Int Main(){
-                Int a = 56 * 2;
+                Int a = 56 * 2
                 {
-                    Int a = 4;
-                    return a;
+                    Int a = 4
+                    return a
                 }
-                return -(a + a);
+                return -(a + a)
             }
             
         """.trimIndent()
@@ -93,10 +93,10 @@ class TypeCheckerTest {
     fun globalVariableTest(){
 
         val code = """  
-            Int b = 5;            
+            Int b = 5            
             Int Main(){
-                Int a = 56 * 2;
-                return -(a + b);
+                Int a = 56 * 2
+                return -(a + b)
             }
             
         """.trimIndent()
@@ -108,15 +108,15 @@ class TypeCheckerTest {
     fun globalVariableTest2(){
 
         val code = """  
-            Int b = 5;   
+            Int b = 5   
                      
             Int A(Int a, Int b){
-             return a + b;
+             return a + b
             } 
                      
             Int Main(){
-                Int a = 56 * 2;
-                return -(a + b);
+                Int a = 56 * 2
+                return -(a + b)
             }
             
         """.trimIndent()
@@ -130,11 +130,11 @@ class TypeCheckerTest {
         val code = """
             
             Int A(){
-                return 5;
+                return 5
             }       
                    
             Int Main(){
-                return A();
+                return A()
             }
             
         """.trimIndent()
@@ -148,11 +148,11 @@ class TypeCheckerTest {
         val code = """
             
             Int A(Int a, Int b){
-                return a + b;
+                return a + b
             }       
                    
             Int Main(){
-                return A(45, 34);
+                return A(45, 34)
             }
             
         """.trimIndent()
@@ -166,11 +166,11 @@ class TypeCheckerTest {
         val code = """
             
             Int A(Int a, Int b){
-                return "test";
+                return "test"
             }       
                    
             Int Main(){
-                return A(45, 34);
+                return A(45, 34)
             }
             
         """.trimIndent()
@@ -185,13 +185,13 @@ class TypeCheckerTest {
             
             Int Mod(Int n, Int k){
                 while(n - k > 0){
-                    n = n - k;
+                    n = n - k
                 }
-                return n;
+                return n
             }       
                    
             Int Main(){
-                return Mod(45,16);
+                return Mod(45,16)
             }
             
         """.trimIndent()
@@ -205,17 +205,17 @@ class TypeCheckerTest {
         val code = """
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
             
             Bool A(Bool a){
-                return a;
+                return a
             }
             
             Int Main(Int b)
             {
-                Bool a = A(false);
-                return A(b);
+                Bool a = A(false)
+                return A(b)
             }
         """.trimIndent()
 
@@ -224,17 +224,17 @@ class TypeCheckerTest {
         val code2 = """
             
             Bool A(Bool a){
-                return a;
+                return a
             }
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
                         
             Int Main(Int b)
             {
-                Bool a = A(false);
-                return A(b);
+                Bool a = A(false)
+                return A(b)
             }
         """.trimIndent()
 
@@ -247,17 +247,17 @@ class TypeCheckerTest {
         val code = """
             
             Int A(Int a){
-                return a+5;
+                return a+5
             }
             
             Bool A(Bool a){
-                return a;
+                return a
             }
             
             Int Main(Int b)
             {
-                Bool a = A(false) && A(b) == 1;
-                return A("b");
+                Bool a = A(false) && A(b) == 1
+                return A("b")
             }
         """.trimIndent()
 
@@ -271,7 +271,7 @@ class TypeCheckerTest {
             
             Int F(Int n){
                 if(n == 0 || n == 1){
-                    return n;
+                    return n
                 }else{
                     return F(n - 1) + F(n - 2)
                 }
@@ -279,7 +279,7 @@ class TypeCheckerTest {
             
             Int Main(Int b)
             {
-                return F(b);
+                return F(b)
             }
         """.trimIndent()
 
@@ -293,9 +293,9 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                Int a = 1;
-                Int b = b + a;
-                Int c = c + b + a;
+                Int a = 1
+                Int b = b + a
+                Int c = c + b + a
                 
                 Void A(){}
             }
@@ -315,13 +315,13 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                Int a = 1;
-                Int b = b + a;
-                Int c = c + b + a;
+                Int a = 1
+                Int b = b + a
+                Int c = c + b + a
                 
                 Void A(){
-                    Int b = 1293 + c;                
-                    a = 2 + b;
+                    Int b = 1293 + c                
+                    a = 2 + b
                 }
                 
             }
@@ -341,20 +341,20 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                Int a = 1;
-                Int b = b + a;
-                Int c = c + b + a;
+                Int a = 1
+                Int b = b + a
+                Int c = c + b + a
                 
                 Void A(){
-                    Int b = 1293 + c;                
-                    a = 2 + b;
+                    Int b = 1293 + c                
+                    a = 2 + b
                 }
                 
             }
 
             Void Main()
             {
-                A a = A();
+                A a = A()
             }
         """.trimIndent()
 
@@ -368,21 +368,21 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                Int a = 1;
-                Int b = b + a;
-                Int c = c + b + a;
+                Int a = 1
+                Int b = b + a
+                Int c = c + b + a
                 
                 Void A(){
-                    Int b = 1293 + c;                
-                    a = 2 + b;
+                    Int b = 1293 + c                
+                    a = 2 + b
                 }
                              
             }
 
             Int Main()
             {
-                A a = A();
-                return a.a + a.b;
+                A a = A()
+                return a.a + a.b
             }
         """.trimIndent()
 
@@ -401,21 +401,21 @@ class TypeCheckerTest {
             }
             
             class A{
-                Int a = 1;
-                Int b = b + a;
-                Int c = c + b + a;
+                Int a = 1
+                Int b = b + a
+                Int c = c + b + a
                 
                 Void A(){
-                    Int b = 1293 + c;                
-                    a = 2 + b;
+                    Int b = 1293 + c                
+                    a = 2 + b
                 }
                              
             }
             
             Int Main()
             {
-                A a = A();
-                return a.a + a.b;
+                A a = A()
+                return a.a + a.b
             }
         """.trimIndent()
 

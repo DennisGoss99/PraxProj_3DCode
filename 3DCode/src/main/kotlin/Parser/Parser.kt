@@ -750,7 +750,8 @@ class Parser(val lexer: Lexer)
         val name = FunctionIdentifyParse()
         val parameter = ParameterParseAsExpression()
 
-        val expectedSemicolon = FetchNextExpectedToken<LexerToken.Semicolon>("';'")
+        if(lexer.peek() == LexerToken.Semicolon())
+            FetchNextExpectedToken<LexerToken.Semicolon>("';'")
 
         return Statement.ProcedureCall(name, parameter, currentLineOfCode)
     }

@@ -35,7 +35,7 @@ class ParserTest
         val code = """
             Int Main()
             {
-                return 5;
+                return 5
             }
         """.trimIndent()
 
@@ -54,7 +54,7 @@ class ParserTest
         val code = """
             Int Main()
             {
-                return 5 + 5;
+                return 5 + 5
             }
         """.trimIndent()
 
@@ -70,7 +70,7 @@ class ParserTest
 
         val tree = CallMain(statementList, null, null)
 
-        TestIfTreeIsAsExpected(code, tree);
+        TestIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -79,9 +79,9 @@ class ParserTest
         val code = """
             Int Main()
             {
-                Int a = 0;
+                Int a = 0
                 
-                return a;
+                return a
             }
         """.trimIndent()
 
@@ -107,14 +107,14 @@ class ParserTest
         val code = """
             Int Main()
             {
-                Int a = 1;
+                Int a = 1
                 
                 while(a == 14)
                 {
-                    a = a + 1;
+                    a = a + 1
                 }
                 
-                return a;
+                return a
             }
         """.trimIndent()
 
@@ -159,7 +159,7 @@ class ParserTest
         val code = """
             Int Main(Int a, Int b)
             {
-                return a * b;
+                return a * b
             }
         """.trimIndent()
 
@@ -190,7 +190,7 @@ class ParserTest
         val code = """
             Int Main()
             {
-                return 2 + A(3,5);
+                return 2 + A(3,5)
             }
         """.trimIndent()
 
@@ -222,15 +222,15 @@ class ParserTest
         val code = """
             Int Main()
             {
-                Int w = 3;
-                Bool f = w <= 3;
+                Int w = 3
+                Bool f = w <= 3
                 
                 if(f)
                 {
-                    return 1;
+                    return 1
                 }
             
-                return 0;
+                return 0
             }
         """.trimIndent()
 
@@ -269,14 +269,14 @@ class ParserTest
         val code = """
             Float Main()
             {
-                Float a = 1.0;
+                Float a = 1.0
                 
                 while(a == 14.0)
                 {
-                    a = a + 1.0;
+                    a = a + 1.0
                 }
                 
-                return a;
+                return a
             }
         """.trimIndent()
 
@@ -320,15 +320,15 @@ class ParserTest
         val code = """   
             
             class OpenGL{           
-                String name = "";
+                String name = ""
                 
                 Void A(){
-                    Println("Hallo");
+                    Println("Hallo")
                 }
             }
                              
             Void Main(){
-                OpenGL b = OpenGL();
+                OpenGL b = OpenGL()
             }
             
         """.trimIndent()
@@ -370,20 +370,20 @@ class ParserTest
         val code = """   
             
             class OpenGL{           
-                String name = "";
+                String name = ""
                 
                 Void A(){
-                    Println("Hallo");
+                    Println("Hallo")
                 }
             }
             
             class Aaaa{           
-                String a = "";
-                Float b = 0.0;
+                String a = ""
+                Float b = 0.0
             }
                              
             Void Main(){
-                OpenGL b = OpenGL();
+                OpenGL b = OpenGL()
             }
             
         """.trimIndent()
@@ -432,22 +432,22 @@ class ParserTest
         val code = """   
             
             class OpenGL{           
-                String name = "";
+                String name = ""
             
                 Void A(){
-                    Println("Hallo");
+                    Println("Hallo")
                 }
                 
                 Void B(Int a){
-                    Println(ToString(a) + "Hallo" + name);
+                    Println(ToString(a) + "Hallo" + name)
                 }
             }
                              
             Void Main(){
-                OpenGL b = OpenGL();
-                String a = b.name;
+                OpenGL b = OpenGL()
+                String a = b.name
                 
-                b.B(5);
+                b.B(5)
             }
             
         """.trimIndent()
@@ -514,11 +514,11 @@ class ParserTest
 
         val code = """
             Void Main(){
-                Int b = 5;
-                b += 5;
-                b *= 5;
-                b -= 5;
-                b /= 5;
+                Int b = 5
+                b += 5
+                b *= 5
+                b -= 5
+                b /= 5
             }
         """.trimIndent()
 

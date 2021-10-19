@@ -17,8 +17,19 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
         declarations.forEach { d ->
             when(d){
-                is Declaration.ClassDeclare -> classDeclarations[d.className] = d
-                is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
+                is Declaration.ClassDeclare -> {
+                    if(classDeclarations.containsKey(d.className))
+                        throw TypeCheckerDuplicateClassException(d.LineOfCode, d.className)
+                    classDeclarations[d.className] = d
+                }
+                is Declaration.FunctionDeclare -> {
+                    val functionList = functionDeclarations.getOrPut(d.functionName, ::mutableListOf)
+
+                    if(functionList.any { it.parameters?.zip(d.parameters ?: listOf() )?.all { it.first.type == it.second.type } != false })
+                        throw TypeCheckerDuplicateFunctionException(d.LineOfCode, d)
+
+                    functionList.add(d)
+                }
                 is Declaration.VariableDeclaration -> {
                     checkVariableDeclaration(d, HashMap())
                     globalVariableDeclarations[d.name] = d
@@ -59,9 +70,16 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
             checkVariableDeclaration(v,localVariables)
         }
 
-        classDef.classBody.functions.forEach{
-            it.value.forEach{
-                checkMethodDeclaration(it, localVariables)
+        classDef.classBody.functions.forEach{ (_, functions) ->
+            functions.forEach{ function ->
+                checkMethodDeclaration(function, localVariables)
+
+                if(functions.count {
+                        if(it.parameters.isNullOrEmpty() || function.parameters.isNullOrEmpty())
+                            it.parameters.isNullOrEmpty() && function.parameters.isNullOrEmpty()
+                        else
+                            it.parameters.zip(function.parameters.orEmpty() ).all{ it.first.type == it.second.type }
+                } >= 2) throw TypeCheckerDuplicateFunctionException(function.LineOfCode,function)
             }
         }
 

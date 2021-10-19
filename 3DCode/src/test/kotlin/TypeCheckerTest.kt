@@ -2,8 +2,7 @@ import Lexer.Lexer
 import Parser.Parser
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
-import TypeChecker.Exceptions.TypeCheckerFunctionParameterException
-import TypeChecker.Exceptions.TypeCheckerReturnTypeException
+import TypeChecker.Exceptions.*
 import TypeChecker.TypeChecker
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -389,4 +388,160 @@ class TypeCheckerTest {
         TypeChecker(parseCode(code), null).check()
     }
 
+    @Test
+    fun classDuplicateTest(){
+
+        val code = """
+            class A{                
+                void A(){
+                }
+                             
+            }
+            
+            class A{
+                int §a = 1;
+                int §b = §b + §a;
+                int §c = §c + §b + §a;
+                
+                void A(){
+                    int §b = 1293 + §c;                
+                    §a = 2 + §b;
+                }
+                             
+            }
+            
+            int Main()
+            {
+                a §a = A();
+                return §a.§a + §a.§b;
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerDuplicateClassException::class){TypeChecker(parseCode(code), null).check()}
+
+    }
+
+    @Test
+    fun functionDuplicateTest(){
+
+        val code = """
+            void A(){
+            }
+            void A(){
+            }
+            
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
+
+        val code2 = """
+            void A(int §a){
+            }
+            void A(int §a){
+            }
+            
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code2), null).check()}
+
+        val code3 = """
+            void A(string §b, int §a){
+            }
+            void A(int §a, string §b){
+            }
+            
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        TypeChecker(parseCode(code3), null).check()
+
+        val code4 = """
+            void A(string §b, int §a){
+            }
+            void A(string §b, int §a){
+            }
+            
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        TypeChecker(parseCode(code3), null).check()
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code4), null).check()}
+    }
+
+    @Test
+    fun methodeDuplicateTest(){
+
+        val code = """
+            class A{
+                void A(){
+                }
+                void A(){
+                }
+            }
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
+
+    }
+
+    @Test
+    fun methodeDuplicate2Test(){
+
+        val code = """
+            class A{
+                void A(int §a){
+                }
+                void A(int §a){
+                }
+            }
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
+
+        val code2 = """
+            class A{
+                void A(string §b, int §a){
+                }
+                void A(string §b, int §a){
+                }
+            }
+            
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code2), null).check()}
+
+        val code3 = """
+            class A{
+                void A(string §b, int §a){
+                }
+                void A(int §a, string §b){
+                }
+            }
+            
+            int Main()
+            {
+            }
+        """.trimIndent()
+
+        TypeChecker(parseCode(code3), null).check()
+    }
 }

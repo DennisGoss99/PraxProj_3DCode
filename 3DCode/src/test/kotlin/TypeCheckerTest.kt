@@ -20,7 +20,7 @@ class TypeCheckerTest {
 
         val code = """
             
-            int Main(){
+            Int Main(){
                 return 5;
             }
             
@@ -34,7 +34,7 @@ class TypeCheckerTest {
 
         val code = """
             
-            int Main(){
+            Int Main(){
                 return 5 + 2;
             }
             
@@ -48,7 +48,7 @@ class TypeCheckerTest {
 
         val code = """
                    
-            string Main(){
+            String Main(){
                 return "5" + "2";
             }
             
@@ -61,9 +61,9 @@ class TypeCheckerTest {
     fun variableTest(){
 
         val code = """  
-            int Main(){
-                int §a = 56 * 2;
-                return -(§a + §a);
+            Int Main(){
+                Int a = 56 * 2;
+                return -(a + a);
             }
             
         """.trimIndent()
@@ -75,13 +75,13 @@ class TypeCheckerTest {
     fun variableTest2(){
 
         val code = """  
-            int Main(){
-                int §a = 56 * 2;
+            Int Main(){
+                Int a = 56 * 2;
                 {
-                    int §a = 4;
-                    return §a;
+                    Int a = 4;
+                    return a;
                 }
-                return -(§a + §a);
+                return -(a + a);
             }
             
         """.trimIndent()
@@ -93,10 +93,10 @@ class TypeCheckerTest {
     fun globalVariableTest(){
 
         val code = """  
-            int §b = 5;            
-            int Main(){
-                int §a = 56 * 2;
-                return -(§a + §b);
+            Int b = 5;            
+            Int Main(){
+                Int a = 56 * 2;
+                return -(a + b);
             }
             
         """.trimIndent()
@@ -108,15 +108,15 @@ class TypeCheckerTest {
     fun globalVariableTest2(){
 
         val code = """  
-            int §b = 5;   
+            Int b = 5;   
                      
-            int A(int §a, int §b){
-             return §a + §b;
+            Int A(Int a, Int b){
+             return a + b;
             } 
                      
-            int Main(){
-                int §a = 56 * 2;
-                return -(§a + §b);
+            Int Main(){
+                Int a = 56 * 2;
+                return -(a + b);
             }
             
         """.trimIndent()
@@ -129,11 +129,11 @@ class TypeCheckerTest {
 
         val code = """
             
-            int A(){
+            Int A(){
                 return 5;
             }       
                    
-            int Main(){
+            Int Main(){
                 return A();
             }
             
@@ -147,11 +147,11 @@ class TypeCheckerTest {
 
         val code = """
             
-            int A(int §a, int §b){
-                return §a + §b;
+            Int A(Int a, Int b){
+                return a + b;
             }       
                    
-            int Main(){
+            Int Main(){
                 return A(45, 34);
             }
             
@@ -165,11 +165,11 @@ class TypeCheckerTest {
 
         val code = """
             
-            int A(int §a, int §b){
+            Int A(Int a, Int b){
                 return "test";
             }       
                    
-            int Main(){
+            Int Main(){
                 return A(45, 34);
             }
             
@@ -183,14 +183,14 @@ class TypeCheckerTest {
 
         val code = """
             
-            int Mod(int §n, int §k){
-                while(§n - §k > 0){
-                    §n = §n - §k;
+            Int Mod(Int n, Int k){
+                while(n - k > 0){
+                    n = n - k;
                 }
-                return §n;
+                return n;
             }       
                    
-            int Main(){
+            Int Main(){
                 return Mod(45,16);
             }
             
@@ -204,18 +204,18 @@ class TypeCheckerTest {
 
         val code = """
             
-            int A(int §a){
-                return §a+5;
+            Int A(Int a){
+                return a+5;
             }
             
-            bool A(bool §a){
-                return §a;
+            Bool A(Bool a){
+                return a;
             }
             
-            int Main(int §b)
+            Int Main(Int b)
             {
-                bool §a = A(false);
-                return A(§b);
+                Bool a = A(false);
+                return A(b);
             }
         """.trimIndent()
 
@@ -223,18 +223,18 @@ class TypeCheckerTest {
 
         val code2 = """
             
-            bool A(bool §a){
-                return §a;
+            Bool A(Bool a){
+                return a;
             }
             
-            int A(int §a){
-                return §a+5;
+            Int A(Int a){
+                return a+5;
             }
                         
-            int Main(int §b)
+            Int Main(Int b)
             {
-                bool §a = A(false);
-                return A(§b);
+                Bool a = A(false);
+                return A(b);
             }
         """.trimIndent()
 
@@ -246,18 +246,18 @@ class TypeCheckerTest {
 
         val code = """
             
-            int A(int §a){
-                return §a+5;
+            Int A(Int a){
+                return a+5;
             }
             
-            bool A(bool §a){
-                return §a;
+            Bool A(Bool a){
+                return a;
             }
             
-            int Main(int §b)
+            Int Main(Int b)
             {
-                bool §a = A(false) && A(§b) == 1;
-                return A("§b");
+                Bool a = A(false) && A(b) == 1;
+                return A("b");
             }
         """.trimIndent()
 
@@ -269,17 +269,17 @@ class TypeCheckerTest {
 
         val code = """
             
-            int F(int §n){
-                if(§n == 0 || §n == 1){
-                    return §n;
+            Int F(Int n){
+                if(n == 0 || n == 1){
+                    return n;
                 }else{
-                    return F(§n - 1) + F(§n - 2)
+                    return F(n - 1) + F(n - 2)
                 }
             }
             
-            int Main(int §b)
+            Int Main(Int b)
             {
-                return F(§b);
+                return F(b);
             }
         """.trimIndent()
 
@@ -293,14 +293,14 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                int §a = 1;
-                int §b = §b + §a;
-                int §c = §c + §b + §a;
+                Int a = 1;
+                Int b = b + a;
+                Int c = c + b + a;
                 
-                void A(){}
+                Void A(){}
             }
 
-            void Main()
+            Void Main()
             {
             }
         """.trimIndent()
@@ -315,18 +315,18 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                int §a = 1;
-                int §b = §b + §a;
-                int §c = §c + §b + §a;
+                Int a = 1;
+                Int b = b + a;
+                Int c = c + b + a;
                 
-                void A(){
-                    int §b = 1293 + §c;                
-                    §a = 2 + §b;
+                Void A(){
+                    Int b = 1293 + c;                
+                    a = 2 + b;
                 }
                 
             }
 
-            void Main()
+            Void Main()
             {
             }
         """.trimIndent()
@@ -341,20 +341,20 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                int §a = 1;
-                int §b = §b + §a;
-                int §c = §c + §b + §a;
+                Int a = 1;
+                Int b = b + a;
+                Int c = c + b + a;
                 
-                void A(){
-                    int §b = 1293 + §c;                
-                    §a = 2 + §b;
+                Void A(){
+                    Int b = 1293 + c;                
+                    a = 2 + b;
                 }
                 
             }
 
-            void Main()
+            Void Main()
             {
-                A §a = A();
+                A a = A();
             }
         """.trimIndent()
 
@@ -368,21 +368,21 @@ class TypeCheckerTest {
         val code = """
             
             class A{
-                int §a = 1;
-                int §b = §b + §a;
-                int §c = §c + §b + §a;
+                Int a = 1;
+                Int b = b + a;
+                Int c = c + b + a;
                 
-                void A(){
-                    int §b = 1293 + §c;                
-                    §a = 2 + §b;
+                Void A(){
+                    Int b = 1293 + c;                
+                    a = 2 + b;
                 }
                              
             }
 
-            int Main()
+            Int Main()
             {
-                A §a = A();
-                return §a.§a + §a.§b;
+                A a = A();
+                return a.a + a.b;
             }
         """.trimIndent()
 
@@ -395,27 +395,27 @@ class TypeCheckerTest {
 
         val code = """
             class A{                
-                void A(){
+                Void A(){
                 }
                              
             }
             
             class A{
-                int §a = 1;
-                int §b = §b + §a;
-                int §c = §c + §b + §a;
+                Int a = 1;
+                Int b = b + a;
+                Int c = c + b + a;
                 
-                void A(){
-                    int §b = 1293 + §c;                
-                    §a = 2 + §b;
+                Void A(){
+                    Int b = 1293 + c;                
+                    a = 2 + b;
                 }
                              
             }
             
-            int Main()
+            Int Main()
             {
-                a §a = A();
-                return §a.§a + §a.§b;
+                A a = A();
+                return a.a + a.b;
             }
         """.trimIndent()
 
@@ -427,12 +427,12 @@ class TypeCheckerTest {
     fun functionDuplicateTest(){
 
         val code = """
-            void A(){
+            Void A(){
             }
-            void A(){
+            Void A(){
             }
             
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -440,12 +440,12 @@ class TypeCheckerTest {
         assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
 
         val code2 = """
-            void A(int §a){
+            Void A(Int a){
             }
-            void A(int §a){
+            Void A(Int a){
             }
             
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -453,12 +453,12 @@ class TypeCheckerTest {
         assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code2), null).check()}
 
         val code3 = """
-            void A(string §b, int §a){
+            Void A(String b, Int a){
             }
-            void A(int §a, string §b){
+            Void A(Int a, String b){
             }
             
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -466,12 +466,12 @@ class TypeCheckerTest {
         TypeChecker(parseCode(code3), null).check()
 
         val code4 = """
-            void A(string §b, int §a){
+            Void A(String b, Int a){
             }
-            void A(string §b, int §a){
+            Void A(String b, Int a){
             }
             
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -485,12 +485,12 @@ class TypeCheckerTest {
 
         val code = """
             class A{
-                void A(){
+                Void A(){
                 }
-                void A(){
+                Void A(){
                 }
             }
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -504,12 +504,12 @@ class TypeCheckerTest {
 
         val code = """
             class A{
-                void A(int §a){
+                Void A(Int a){
                 }
-                void A(int §a){
+                Void A(Int a){
                 }
             }
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -518,13 +518,13 @@ class TypeCheckerTest {
 
         val code2 = """
             class A{
-                void A(string §b, int §a){
+                Void A(String b, Int a){
                 }
-                void A(string §b, int §a){
+                Void A(String b, Int a){
                 }
             }
             
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()
@@ -533,13 +533,13 @@ class TypeCheckerTest {
 
         val code3 = """
             class A{
-                void A(string §b, int §a){
+                Void A(String b, Int a){
                 }
-                void A(int §a, string §b){
+                Void A(Int a, String b){
                 }
             }
             
-            int Main()
+            Int Main()
             {
             }
         """.trimIndent()

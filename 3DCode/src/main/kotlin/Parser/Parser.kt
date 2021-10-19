@@ -148,7 +148,7 @@ class Parser(val lexer: Lexer)
 
         val name = token
 
-        return "§${name.identify}" // ???
+        return "${name.identify}"
     }
 
     private fun LocalVariablesParse() : List<Declaration.VariableDeclaration>?

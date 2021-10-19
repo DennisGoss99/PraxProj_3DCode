@@ -33,7 +33,7 @@ class ParserTest
     fun ReturnDirectTest()
     {
         val code = """
-            int Main()
+            Int Main()
             {
                 return 5;
             }
@@ -52,7 +52,7 @@ class ParserTest
     fun ReturnWithAdditionTest()
     {
         val code = """
-            int Main()
+            Int Main()
             {
                 return 5 + 5;
             }
@@ -77,22 +77,22 @@ class ParserTest
     fun ReturnWithDeclarationTest()
     {
         val code = """
-            int Main()
+            Int Main()
             {
-                int §a = 0;
+                Int a = 0;
                 
-                return §a;
+                return a;
             }
         """.trimIndent()
 
         val localVariables = listOf<Declaration.VariableDeclaration>(
-            Declaration.VariableDeclaration(Type.Integer, "§a", Expression.Value(ConstantValue.Integer(0)))
+            Declaration.VariableDeclaration(Type.Integer, "a", Expression.Value(ConstantValue.Integer(0)))
         )
 
         val statementList = listOf<Statement>(
             Statement.AssignValue(
                 "return",
-                Expression.UseVariable("§a")
+                Expression.UseVariable("a")
             )
         )
 
@@ -105,37 +105,37 @@ class ParserTest
     fun ReturnWithLoopTest()
     {
         val code = """
-            int Main()
+            Int Main()
             {
-                int §a = 1;
+                Int a = 1;
                 
-                while(§a == 14)
+                while(a == 14)
                 {
-                    §a = §a + 1;
+                    a = a + 1;
                 }
                 
-                return §a;
+                return a;
             }
         """.trimIndent()
 
         val localVariables = listOf<Declaration.VariableDeclaration>(
-            Declaration.VariableDeclaration(Type.Integer, "§a", Expression.Value(ConstantValue.Integer(1)))
+            Declaration.VariableDeclaration(Type.Integer, "a", Expression.Value(ConstantValue.Integer(1)))
         )
 
         val statementList = listOf<Statement>(
             Statement.While(
                 Expression.Operation(
                     Operator.DoubleEquals,
-                    Expression.UseVariable("§a"),
+                    Expression.UseVariable("a"),
                     Expression.Value(ConstantValue.Integer(14))
                 ),
                 Body(
                     listOf<Statement>(
                     Statement.AssignValue(
-                        "§a",
+                        "a",
                         Expression.Operation(
                             Operator.Plus,
-                            Expression.UseVariable("§a"),
+                            Expression.UseVariable("a"),
                             Expression.Value(ConstantValue.Integer(1))
                         )
                     )
@@ -144,7 +144,7 @@ class ParserTest
             ),
             Statement.AssignValue(
                 "return",
-                Expression.UseVariable("§a")
+                Expression.UseVariable("a")
             )
         )
 
@@ -157,15 +157,15 @@ class ParserTest
     fun ReturnWithParametersTest()
     {
         val code = """
-            int Main(int §a, int §b)
+            Int Main(Int a, Int b)
             {
-                return §a * §b;
+                return a * b;
             }
         """.trimIndent()
 
         val parameters = listOf<Parameter>(
-            Parameter("§a", Type.Integer),
-            Parameter("§b", Type.Integer)
+            Parameter("a", Type.Integer),
+            Parameter("b", Type.Integer)
         )
 
         val statementList = listOf<Statement>(
@@ -173,8 +173,8 @@ class ParserTest
                 "return",
                 Expression.Operation(
                     Operator.Multiply,
-                    Expression.UseVariable("§a"),
-                    Expression.UseVariable("§b")
+                    Expression.UseVariable("a"),
+                    Expression.UseVariable("b")
                 )
             )
         )
@@ -188,7 +188,7 @@ class ParserTest
     fun ReturnWithFuncitonCallTest()
     {
         val code = """
-            int Main()
+            Int Main()
             {
                 return 2 + A(3,5);
             }
@@ -220,12 +220,12 @@ class ParserTest
     fun ReturnWithIFTest()
     {
         val code = """
-            int Main()
+            Int Main()
             {
-                int §w = 3;
-                bool §f = §w <= 3;
+                Int w = 3;
+                Bool f = w <= 3;
                 
-                if(§f)
+                if(f)
                 {
                     return 1;
                 }
@@ -235,14 +235,14 @@ class ParserTest
         """.trimIndent()
 
         val localVariables = listOf<Declaration.VariableDeclaration>(
-            Declaration.VariableDeclaration(Type.Integer, "§w", Expression.Value(ConstantValue.Integer(3))),
-            Declaration.VariableDeclaration(Type.Boolean, "§f", Expression.Operation(Operator.LessEqual, Expression.UseVariable("§w"), Expression.Value(
+            Declaration.VariableDeclaration(Type.Integer, "w", Expression.Value(ConstantValue.Integer(3))),
+            Declaration.VariableDeclaration(Type.Boolean, "f", Expression.Operation(Operator.LessEqual, Expression.UseVariable("w"), Expression.Value(
                 ConstantValue.Integer(3))))
         )
 
         val statementList = listOf<Statement>(
             Statement.If(
-                Expression.UseVariable("§f"),
+                Expression.UseVariable("f"),
                 Body(listOf<Statement>(
                     Statement.AssignValue(
                         "return",
@@ -267,37 +267,37 @@ class ParserTest
     fun FloatReturnWithLoopTest()
     {
         val code = """
-            float Main()
+            Float Main()
             {
-                float §a = 1.0;
+                Float a = 1.0;
                 
-                while(§a == 14.0)
+                while(a == 14.0)
                 {
-                    §a = §a + 1.0;
+                    a = a + 1.0;
                 }
                 
-                return §a;
+                return a;
             }
         """.trimIndent()
 
         val localVariables = listOf<Declaration.VariableDeclaration>(
-            Declaration.VariableDeclaration(Type.Float, "§a", Expression.Value(ConstantValue.Float(1.0f)))
+            Declaration.VariableDeclaration(Type.Float, "a", Expression.Value(ConstantValue.Float(1.0f)))
         )
 
         val statementList = listOf<Statement>(
             Statement.While(
                 Expression.Operation(
                     Operator.DoubleEquals,
-                    Expression.UseVariable("§a"),
+                    Expression.UseVariable("a"),
                     Expression.Value(ConstantValue.Float(14.0f))
                 ),
                 Body(
                     listOf<Statement>(
                         Statement.AssignValue(
-                            "§a",
+                            "a",
                             Expression.Operation(
                                 Operator.Plus,
-                                Expression.UseVariable("§a"),
+                                Expression.UseVariable("a"),
                                 Expression.Value(ConstantValue.Float(1.0f))
                             )
                         )
@@ -306,7 +306,7 @@ class ParserTest
             ),
             Statement.AssignValue(
                 "return",
-                Expression.UseVariable("§a")
+                Expression.UseVariable("a")
             )
         )
 
@@ -320,15 +320,15 @@ class ParserTest
         val code = """   
             
             class OpenGL{           
-                string §name = "";
+                String name = "";
                 
-                void A(){
+                Void A(){
                     Println("Hallo");
                 }
             }
                              
-            void Main(){
-                OpenGL §b = OpenGL();
+            Void Main(){
+                OpenGL b = OpenGL();
             }
             
         """.trimIndent()
@@ -348,7 +348,7 @@ class ParserTest
                             )
                         ),null))),
                 listOf(
-                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                    Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
             )),
             Declaration.FunctionDeclare(
@@ -356,7 +356,7 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"§b",Expression.FunctionCall("OpenGL",null)))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)))
                 ),
                 null
             )
@@ -370,20 +370,20 @@ class ParserTest
         val code = """   
             
             class OpenGL{           
-                string §name = "";
+                String name = "";
                 
-                void A(){
+                Void A(){
                     Println("Hallo");
                 }
             }
             
             class Aaaa{           
-                string §a = "";
-                float §b = 0.0;
+                String a = "";
+                Float b = 0.0;
             }
                              
-            void Main(){
-                OpenGL §b = OpenGL();
+            Void Main(){
+                OpenGL b = OpenGL();
             }
             
         """.trimIndent()
@@ -403,14 +403,14 @@ class ParserTest
                             )
                         ),null))),
                 listOf(
-                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                    Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
             )),
             Declaration.ClassDeclare("Aaaa", ClassBody(
                 hashMapOf(),
                 listOf(
-                    Declaration.VariableDeclaration(Type.String,"§a",Expression.Value(ConstantValue.String(""))),
-                    Declaration.VariableDeclaration(Type.Float,"§b",Expression.Value(ConstantValue.Float(0.0f)))
+                    Declaration.VariableDeclaration(Type.String,"a",Expression.Value(ConstantValue.String(""))),
+                    Declaration.VariableDeclaration(Type.Float,"b",Expression.Value(ConstantValue.Float(0.0f)))
                 )
             )),
             Declaration.FunctionDeclare(
@@ -418,7 +418,7 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"§b",Expression.FunctionCall("OpenGL",null)))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)))
                 ),
                 null
             )
@@ -432,22 +432,22 @@ class ParserTest
         val code = """   
             
             class OpenGL{           
-                string §name = "";
+                String name = "";
             
-                void A(){
+                Void A(){
                     Println("Hallo");
                 }
                 
-                void B(int §a){
-                    Println(ToString(§a) + "Hallo" + §name);
+                Void B(Int a){
+                    Println(ToString(a) + "Hallo" + name);
                 }
             }
                              
-            void Main(){
-                OpenGL §b = OpenGL();
-                string §a = §b.§name;
+            Void Main(){
+                OpenGL b = OpenGL();
+                String a = b.name;
                 
-                §b.B(5);
+                b.B(5);
             }
             
         """.trimIndent()
@@ -473,19 +473,19 @@ class ParserTest
                                 "Println",
                                 listOf<Expression>(
                                     Expression.Operation(Operator.Plus,
-                                        Expression.FunctionCall("ToString", listOf(Expression.UseVariable("§a"))),
+                                        Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a"))),
                                         Expression.Operation(Operator.Plus,
                                             Expression.Value(ConstantValue.String("Hallo")),
-                                            Expression.UseVariable("§name")
+                                            Expression.UseVariable("name")
                                         ),
                                     )
                                 )
                             )
                         )
-                    ), listOf(Parameter("§a",Type.Integer))))
+                    ), listOf(Parameter("a",Type.Integer))))
                 ),
                 listOf(
-                    Declaration.VariableDeclaration(Type.String,"§name",Expression.Value(ConstantValue.String("")))
+                    Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
             )),
             Declaration.FunctionDeclare(
@@ -493,11 +493,11 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(
-                        Statement.UseClass("§b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
+                        Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
                     ),
                     listOf<Declaration.VariableDeclaration>(
-                        Declaration.VariableDeclaration(Type.Custom("OpenGL"),"§b",Expression.FunctionCall("OpenGL",null)),
-                        Declaration.VariableDeclaration(Type.String,"§a", Expression.UseDotVariable("§b",Expression.UseVariable("§name"))),
+                        Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)),
+                        Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
                 ),
                 null
@@ -513,24 +513,24 @@ class ParserTest
 
 
         val code = """
-            void Main(){
-                int §b = 5;
-                §b += 5;
-                §b *= 5;
-                §b -= 5;
-                §b /= 5;
+            Void Main(){
+                Int b = 5;
+                b += 5;
+                b *= 5;
+                b -= 5;
+                b /= 5;
             }
         """.trimIndent()
 
         val localVariables = listOf<Declaration.VariableDeclaration>(
-            Declaration.VariableDeclaration(Type.Integer, "§b", Expression.Value(ConstantValue.Integer(5)))
+            Declaration.VariableDeclaration(Type.Integer, "b", Expression.Value(ConstantValue.Integer(5)))
         )
 
         val statementList = listOf<Statement>(
-            Statement.AssignValue("§b",Expression.Operation(Operator.Plus,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
-            Statement.AssignValue("§b",Expression.Operation(Operator.Multiply,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
-            Statement.AssignValue("§b",Expression.Operation(Operator.Minus,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
-            Statement.AssignValue("§b",Expression.Operation(Operator.Divide,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("b",Expression.Operation(Operator.Plus,Expression.UseVariable("b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("b",Expression.Operation(Operator.Multiply,Expression.UseVariable("b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("b",Expression.Operation(Operator.Minus,Expression.UseVariable("b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("b",Expression.Operation(Operator.Divide,Expression.UseVariable("b"), Expression.Value(ConstantValue.Integer(5)))),
 
         )
 

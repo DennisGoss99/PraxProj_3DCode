@@ -32,7 +32,7 @@ class LexerTest : BaseLexerTest() {
     fun simpleCommentLexerTest() {
 
         val code = """
-            //int §b = 5;
+            //Int b = 5;
         """.trimIndent()
 
         val lexer = TestLexer(code);
@@ -45,9 +45,9 @@ class LexerTest : BaseLexerTest() {
 
         val code = """
             if(true){
-                int §b = 123;
+                Int b = 123;
             }else{
-                int §baaaFF = 523;
+                Int baaaFF = 523;
             }
         """.trimIndent()
 
@@ -60,8 +60,8 @@ class LexerTest : BaseLexerTest() {
             LexerToken.Boolean_Literal(true),
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
-            // int b = 123;
-            LexerToken.TypeIdent("int"),
+            // Int b = 123;
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(123),
@@ -70,8 +70,8 @@ class LexerTest : BaseLexerTest() {
             LexerToken.RCurlyBrace(),
             LexerToken.Else(),
             LexerToken.LCurlyBrace(),
-            // int baaaFF = 523;
-            LexerToken.TypeIdent("int"),
+            // Int baaaFF = 523;
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("baaaFF"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(523),
@@ -88,9 +88,9 @@ class LexerTest : BaseLexerTest() {
     fun advancedIfLexerTest() {
 
         val code = """
-            int §i = 5;
-            bool §b = 5<8;
-            if(§i >= 7 && §b || true ){
+            Int i = 5;
+            Bool b = 5<8;
+            if(i >= 7 && b || true ){
                 // NICE
             }
         """.trimIndent()
@@ -98,14 +98,14 @@ class LexerTest : BaseLexerTest() {
         val lexer = TestLexer(code);
 
         val expectedLexerTokenList = listOf<LexerToken>(
-            // int i = 5;
-            LexerToken.TypeIdent("int"),
+            // Int i = 5;
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("i"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(5),
             LexerToken.Semicolon(),
-            // int i = 5;
-            LexerToken.TypeIdent("bool"),
+            // Int i = 5;
+            LexerToken.TypeIdent("Bool"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(5),
@@ -145,25 +145,25 @@ class LexerTest : BaseLexerTest() {
         val lexer = TestLexer(code);
 
         val expectedLexerTokenList = listOf<LexerToken>(
-            LexerToken.TypeIdent("int"),
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("i"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(54534),
             LexerToken.Semicolon(),
 
-            LexerToken.TypeIdent("char[]"),
+            LexerToken.TypeIdent("Char[]"),
             LexerToken.NameIdent("s"),
             LexerToken.AssignEquals(),
             LexerToken.String_Literal("Test"),
             LexerToken.Semicolon(),
 
-            LexerToken.TypeIdent("bool"),
+            LexerToken.TypeIdent("Bool"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
             LexerToken.Boolean_Literal(true),
             LexerToken.Semicolon(),
 
-            LexerToken.TypeIdent("char"),
+            LexerToken.TypeIdent("Char"),
             LexerToken.NameIdent("c"),
             LexerToken.AssignEquals(),
             LexerToken.Char_Literal('h'),
@@ -231,7 +231,7 @@ class LexerTest : BaseLexerTest() {
     fun functionLexerTest() {
 
         val code = """
-            int Hallo(int §a, char[] §b){
+            Int Hallo(Int a, Char[] b){
             return 0;
             }
         """.trimIndent()
@@ -239,13 +239,13 @@ class LexerTest : BaseLexerTest() {
         val lexer = TestLexer(code);
 
         val expectedLexerTokenList = listOf<LexerToken>(
-            LexerToken.TypeIdent("int"),
+            LexerToken.TypeIdent("Int"),
             LexerToken.FunctionIdent("Hallo"),
             LexerToken.Lparen(),
-            LexerToken.TypeIdent("int"),
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("a"),
             LexerToken.Comma(),
-            LexerToken.TypeIdent("char[]"),
+            LexerToken.TypeIdent("Char[]"),
             LexerToken.NameIdent("b"),
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
@@ -264,18 +264,18 @@ class LexerTest : BaseLexerTest() {
     fun functionLexerTest2() {
 
         val code = """
-            void Hallo(char[] §b){
-                §b = "TEST";
+            Void Hallo(Char[] b){
+                b = "TEST";
             }
         """.trimIndent()
 
         val lexer = TestLexer(code);
 
         val expectedLexerTokenList = listOf<LexerToken>(
-            LexerToken.TypeIdent("void"),
+            LexerToken.TypeIdent("Void"),
             LexerToken.FunctionIdent("Hallo"),
             LexerToken.Lparen(),
-            LexerToken.TypeIdent("char[]"),
+            LexerToken.TypeIdent("Char[]"),
             LexerToken.NameIdent("b"),
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
@@ -301,7 +301,7 @@ class LexerTest : BaseLexerTest() {
         val lexer = TestLexer(code);
 
         val expectedLexerTokenList = listOf<LexerToken>(
-            LexerToken.TypeIdent("float"),
+            LexerToken.TypeIdent("Float"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
             LexerToken.Float_Literal(5.0f),
@@ -319,19 +319,19 @@ class LexerTest : BaseLexerTest() {
         val code = """   
             
             class OpenGL{           
-                string §name = "";
+                String name = "";
             
                 A(){
                     Println("Hallo");
                 }
                 
-                B(int §a){
-                    Println(ToString(§a) + "Hallo" + §name);
+                B(Int a){
+                    Println(ToString(a) + "Hallo" + name);
                 }
             }
                              
-            void Main(){
-                OpenGL §b = OpenGL();
+            Void Main(){
+                OpenGL b = OpenGL();
             }
             
         """.trimIndent()
@@ -342,7 +342,7 @@ class LexerTest : BaseLexerTest() {
             LexerToken.Class(),
             LexerToken.TypeIdent("OpenGL"),
             LexerToken.LCurlyBrace(),
-            LexerToken.TypeIdent("string"),
+            LexerToken.TypeIdent("String"),
             LexerToken.NameIdent("name"),
             LexerToken.AssignEquals(),
             LexerToken.String_Literal(""),
@@ -361,7 +361,7 @@ class LexerTest : BaseLexerTest() {
 
             LexerToken.FunctionIdent("B"),
             LexerToken.Lparen(),
-            LexerToken.TypeIdent("int"),
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("a"),
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
@@ -380,7 +380,7 @@ class LexerTest : BaseLexerTest() {
             LexerToken.RCurlyBrace(),
             LexerToken.RCurlyBrace(),
 
-            LexerToken.TypeIdent("void"),
+            LexerToken.TypeIdent("Void"),
             LexerToken.FunctionIdent("Main"),
             LexerToken.Lparen(),
             LexerToken.Rparen(),
@@ -405,22 +405,22 @@ class LexerTest : BaseLexerTest() {
         val code = """   
             
             class OpenGL{           
-                string §name = "";
+                String name = "";
             
                 A(){
                     Println("Hallo");
                 }
                 
-                B(int §a){
-                    Println(ToString(§a) + "Hallo" + §name);
+                B(Int a){
+                    Println(ToString(a) + "Hallo" + name);
                 }
             }
                              
-            void Main(){
-                openGL §b = OpenGL();
+            Void Main(){
+                OpenGL b = OpenGL();
                 
-                string §a = §b.§name;
-                §b.B(5);
+                String a = b.name;
+                b.B(5);
             }
             
         """.trimIndent()
@@ -431,7 +431,7 @@ class LexerTest : BaseLexerTest() {
             LexerToken.Class(),
             LexerToken.TypeIdent("OpenGL"),
             LexerToken.LCurlyBrace(),
-            LexerToken.TypeIdent("string"),
+            LexerToken.TypeIdent("String"),
             LexerToken.NameIdent("name"),
             LexerToken.AssignEquals(),
             LexerToken.String_Literal(""),
@@ -450,7 +450,7 @@ class LexerTest : BaseLexerTest() {
 
             LexerToken.FunctionIdent("B"),
             LexerToken.Lparen(),
-            LexerToken.TypeIdent("int"),
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("a"),
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
@@ -469,19 +469,19 @@ class LexerTest : BaseLexerTest() {
             LexerToken.RCurlyBrace(),
             LexerToken.RCurlyBrace(),
 
-            LexerToken.TypeIdent("void"),
+            LexerToken.TypeIdent("Void"),
             LexerToken.FunctionIdent("Main"),
             LexerToken.Lparen(),
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
-            LexerToken.TypeIdent("openGL"),
+            LexerToken.TypeIdent("OpenGL"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
             LexerToken.FunctionIdent("OpenGL"),
             LexerToken.Lparen(),
             LexerToken.Rparen(),
             LexerToken.Semicolon(),
-            LexerToken.TypeIdent("string"),
+            LexerToken.TypeIdent("String"),
             LexerToken.NameIdent("a"),
             LexerToken.AssignEquals(),
             LexerToken.NameIdent("b"),
@@ -506,17 +506,17 @@ class LexerTest : BaseLexerTest() {
     fun operationEqualsLexerTest() {
 
         val code = """
-            int §b = 5;
-            §b += 5;
-            §b *= 5;
-            §b -= 5;
-            §b /= 5;
+            Int b = 5;
+            b += 5;
+            b *= 5;
+            b -= 5;
+            b /= 5;
         """.trimIndent()
 
         val lexer = TestLexer(code);
 
         val expectedLexerTokenList = listOf<LexerToken>(
-            LexerToken.TypeIdent("int"),
+            LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(5),

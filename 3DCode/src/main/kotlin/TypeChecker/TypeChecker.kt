@@ -83,6 +83,8 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
             }
         }
 
+        if(classDef.classBody.functions[classDef.className].isNullOrEmpty())
+            throw TypeCheckerConstructorNotFoundException(classDef.LineOfCode, classDef.className, classDef.className)
     }
 
     private fun checkFunctionDeclaration(functionDeclaration : Declaration.FunctionDeclare){

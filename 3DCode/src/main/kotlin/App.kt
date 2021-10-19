@@ -10,19 +10,25 @@ private fun executeCode(code : String, args: List<Expression.Value>? = null): IV
 
     val parserOutput = Parser(Lexer(code)).ParsingStart()
 
-    //TypeChecker(parserOutput, args).check()
+    TypeChecker(parserOutput, args).check()
 
     return Evaluator().eval(parserOutput,args)?.value
 
 }
 fun main(){
 
-    val code = """   
-            
+    val code = """ 
+            class A{
+                void A(){}
+                /*
+                
+                
+                */
+            }
             class OpenGL{     
                 int §GG = 69;
                 string §name = §GG.ToString();
-            
+
                 void A(string §name){
                     Println(§name);
                     {
@@ -43,7 +49,7 @@ fun main(){
             }
                              
             string Main(){
-                openGL §b = OpenGL();
+                 openGL §b = OpenGL();
                 int §r = §b.C(5) + 5;
                 
                 Println(§b.§name);

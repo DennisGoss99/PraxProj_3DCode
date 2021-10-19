@@ -265,7 +265,7 @@ class LexerTest : BaseLexerTest() {
 
         val code = """
             void Hallo(char[] §b){
-            §b := "TEST";
+                §b = "TEST";
             }
         """.trimIndent()
 
@@ -280,7 +280,7 @@ class LexerTest : BaseLexerTest() {
             LexerToken.Rparen(),
             LexerToken.LCurlyBrace(),
             LexerToken.NameIdent("b"),
-            LexerToken.Equals(),
+            LexerToken.AssignEquals(),
             LexerToken.String_Literal("TEST"),
             LexerToken.Semicolon(),
             LexerToken.RCurlyBrace(),

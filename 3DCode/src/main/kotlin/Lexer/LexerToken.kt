@@ -17,7 +17,6 @@ sealed class LexerToken() {
 
         // Symbols
         data class AssignEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}       // =
-        data class Equals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}             // :=
         data class Semicolon(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}          // ;
         data class Lparen(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}             // (
         data class Rparen(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}             // )

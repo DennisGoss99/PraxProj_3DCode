@@ -40,13 +40,6 @@ open class Lexer(input: String) {
                 }
                 else -> LexerToken.AssignEquals(currentLineOfCode)
             }
-            ':' -> when (iterator.peek()) {
-                '=' -> {
-                    iterator.next()
-                    LexerToken.Equals(currentLineOfCode)
-                }
-                else -> throw LexerUnexpectedCharException(currentLineOfCode, c, ':')
-            }
             '&' -> when (iterator.peek()) {
                 '&' -> {
                     iterator.next()

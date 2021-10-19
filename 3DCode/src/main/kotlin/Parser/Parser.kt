@@ -15,7 +15,7 @@ class Parser(val lexer: Lexer)
     private var _currentBlockDepth = 0
 
     private inline fun <reified A> FetchNextExpectedToken(expectedType: String): A {
-        val next = GetTextToken()
+        val next = GetNextToken()
 
         if (next !is A) {
             throw Exception("Unexpected token: expected $expectedType, but got $next")
@@ -24,7 +24,7 @@ class Parser(val lexer: Lexer)
         return next
     }
 
-    private fun GetTextToken() : LexerToken
+    private fun GetNextToken() : LexerToken
     {
         val token = lexer.next()
         currentLineOfCode = token.LineOfCode
@@ -50,14 +50,14 @@ class Parser(val lexer: Lexer)
 
         if(lexer.peek() is LexerToken.EOF)
         {
-            val token = GetTextToken()
+            val token = GetNextToken()
         }
         else
         {
 
             while(true)
             {
-                val token = GetTextToken()
+                val token = GetNextToken()
 
                 if(token is LexerToken.EOF)
                     break;
@@ -141,7 +141,7 @@ class Parser(val lexer: Lexer)
 
     private fun NameParse(): String
     {
-        val token = GetTextToken()
+        val token = GetNextToken()
 
         if(token is LexerToken.Return)
         {
@@ -203,11 +203,11 @@ class Parser(val lexer: Lexer)
                 is LexerToken.RCurlyBrace -> break // Body has ended
                 is LexerToken.Rparen ->
                 {
-                    GetTextToken()
+                    GetNextToken()
 
                     while(lexer.peek() is LexerToken.Semicolon)
                     {
-                        GetTextToken()
+                        GetNextToken()
                     }
 
                     break
@@ -281,13 +281,13 @@ class Parser(val lexer: Lexer)
 
             if (isAtEndOfParameter)
             {
-                GetTextToken()
+                GetNextToken()
                 break
             }
 
             if(isSeperator)
             {
-                GetTextToken()
+                GetNextToken()
             }
 
             parameterList.add(ParameterParse())
@@ -334,7 +334,7 @@ class Parser(val lexer: Lexer)
 
     private fun OperatorParse() : Operator
     {
-        val token = GetTextToken()
+        val token = GetNextToken()
 
         return when(token)
         {
@@ -411,7 +411,7 @@ class Parser(val lexer: Lexer)
 
     private fun ValueParse() : Expression.Value
     {
-        val token = GetTextToken()
+        val token = GetNextToken()
 
         val expression = when(token)
         {
@@ -445,7 +445,7 @@ class Parser(val lexer: Lexer)
         {
             expressionList.add(ExpressionParse())
 
-            val token = GetTextToken()
+            val token = GetNextToken()
 
             if(token is LexerToken.Rparen)
             {
@@ -641,7 +641,7 @@ class Parser(val lexer: Lexer)
 
             is LexerToken.AssignEquals ->
             {
-                GetTextToken()
+                GetNextToken()
                 ExpressionParse()
             }
 
@@ -652,7 +652,7 @@ class Parser(val lexer: Lexer)
 
         when(expectedSemicolon)
         {
-            is LexerToken.Semicolon -> GetTextToken()
+            is LexerToken.Semicolon -> GetNextToken()
 
             is LexerToken.Plus,
             is LexerToken.Minus,
@@ -714,7 +714,7 @@ class Parser(val lexer: Lexer)
 
         if(expectedElseToken is LexerToken.Else)
         {
-            GetTextToken()
+            GetNextToken()
             elseBody = BodyParse()
         }
 
@@ -740,7 +740,7 @@ class Parser(val lexer: Lexer)
 
     private fun AssignParse(name: String) : Statement.AssignValue
     {
-        val expression = when(val tokenEquals = GetTextToken()){
+        val expression = when(val tokenEquals = GetNextToken()){
             is LexerToken.AssignEquals -> ExpressionParse()
             is LexerToken.AssignPlusEquals -> Expression.Operation(Operator.Plus,Expression.UseVariable(name), ExpressionParse())
             is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus,Expression.UseVariable(name), ExpressionParse())
@@ -787,7 +787,7 @@ class Parser(val lexer: Lexer)
 
     private fun TypeParse(): Type
     {
-        val variableType = GetTextToken()
+        val variableType = GetNextToken()
 
         val identifier = variableType as LexerToken.TypeIdent
 

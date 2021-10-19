@@ -1040,4 +1040,28 @@ class DeepTest {
 
     }
 
+    @Test
+    fun divisionTest() {
+        val code = """
+            float Main(){
+                return (6/3) + (5/3) + 0.0;
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float((6/3) + (5/3) + 0.0f) ,executeCode(code))
+
+    }
+
+    @Test
+    fun division2Test() {
+        val code = """
+            float Main(){
+                return ((6.0 + 34 * 6) / 3) + (5/3) + 0.6 / 89);
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float(((6.0f + 34 * 6) / 3) + (5/3) + 0.6f / 89 ),executeCode(code))
+
+    }
+
 }

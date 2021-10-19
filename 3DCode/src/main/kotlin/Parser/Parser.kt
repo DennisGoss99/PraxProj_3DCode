@@ -28,7 +28,6 @@ class Parser(val lexer: Lexer)
     private fun GetTextToken() : LexerToken
     {
         val token = lexer.next()
-
         currentLineOfCode = token.LineOfCode
 
         return token
@@ -328,8 +327,9 @@ class Parser(val lexer: Lexer)
         return when(token)
         {
             is LexerToken.Plus -> Operator.Plus
-            is LexerToken.Minus-> Operator.Minus
-            is LexerToken.Mul-> Operator.Multiply
+            is LexerToken.Minus -> Operator.Minus
+            is LexerToken.Mul -> Operator.Multiply
+            is LexerToken.Div -> Operator.Divide
             is LexerToken.Double_Equals-> Operator.DoubleEquals
 
             is LexerToken.And-> Operator.And
@@ -642,14 +642,15 @@ class Parser(val lexer: Lexer)
         {
             is LexerToken.Semicolon -> GetTextToken()
 
-            is LexerToken.Plus ,
-            is LexerToken.Minus ,
-            is LexerToken.Mul ,
+            is LexerToken.Plus,
+            is LexerToken.Minus,
+            is LexerToken.Mul,
+            is LexerToken.Div,
             is LexerToken.Double_Equals,
-            is LexerToken.And ,
+            is LexerToken.And,
             is LexerToken.Or,
             is LexerToken.Not,
-            is LexerToken.NotEqual ,
+            is LexerToken.NotEqual,
             is LexerToken.Less,
             is LexerToken.LessEqual,
             is LexerToken.Greater,

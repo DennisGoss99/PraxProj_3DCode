@@ -243,6 +243,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
                         Operator.Minus -> numberOperation(typeA, typeB, expression)
                         Operator.Multiply -> numberOperation(typeA, typeB, expression)
+                        Operator.Divide -> numberOperation(typeA, typeB, expression)
                         Operator.Less -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
                         Operator.LessEqual -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
                         Operator.Greater -> checkOperatorTypes2<Type.Boolean, Type.Float>(Type.Boolean,typeA,typeB,expression)
@@ -260,6 +261,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
                         Operator.Not -> throw TypeCheckerOperationException(expression.LineOfCode, "Needs only one Argument", expression.operator)
                         Operator.Equals -> throw TypeCheckerOperationException(expression.LineOfCode, "Can't use Operator at this position", expression.operator)
+
                     }
                 }
             }

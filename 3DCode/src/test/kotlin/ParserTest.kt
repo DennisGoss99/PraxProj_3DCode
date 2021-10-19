@@ -45,7 +45,7 @@ class ParserTest
 
         val tree = CallMain(statementList,null, null)
 
-        TestIfTreeIsAsExpected(code, tree);
+        TestIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -505,6 +505,38 @@ class ParserTest
         )
 
         TestIfTreeIsAsExpected(code, declarations)
+
+    }
+
+    @Test
+    fun operationEqualsTest() {
+
+
+        val code = """
+            void Main(){
+                int §b = 5;
+                §b += 5;
+                §b *= 5;
+                §b -= 5;
+                §b /= 5;
+            }
+        """.trimIndent()
+
+        val localVariables = listOf<Declaration.VariableDeclaration>(
+            Declaration.VariableDeclaration(Type.Integer, "§b", Expression.Value(ConstantValue.Integer(5)))
+        )
+
+        val statementList = listOf<Statement>(
+            Statement.AssignValue("§b",Expression.Operation(Operator.Plus,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("§b",Expression.Operation(Operator.Multiply,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("§b",Expression.Operation(Operator.Minus,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
+            Statement.AssignValue("§b",Expression.Operation(Operator.Divide,Expression.UseVariable("§b"), Expression.Value(ConstantValue.Integer(5)))),
+
+        )
+
+        val tree = CallMain(statementList, localVariables, null,Type.Void)
+
+        TestIfTreeIsAsExpected(code, tree)
 
     }
 }

@@ -224,6 +224,11 @@ class Evaluator {
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) * numberToFloat(v2)))
                             else -> throw Exception("Can't use multiply operation on [${v1::class} * ${v2::class}]")
                         }
+                        Operator.Divide -> when{
+                            v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 / v2))
+                            v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) / numberToFloat(v2)))
+                            else -> throw Exception("Can't use division operation on [${v1::class} * ${v2::class}]")
+                        }
                         Operator.And -> evalBinaryBoolean(v1,v2){x,y -> x&&y}
                         Operator.Or -> evalBinaryBoolean(v1,v2){x,y -> x||y}
                         Operator.NotEqual -> Expression.Value(ConstantValue.Boolean(v1 != v2))
@@ -249,6 +254,7 @@ class Evaluator {
                         }
                         Operator.Not -> throw OperationRuntimeException("Needs only one Argument", expression.operator)
                         Operator.Equals -> throw OperationRuntimeException("In this position operator isn't allowed", expression.operator)
+
                     }
                 }
 

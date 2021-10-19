@@ -8,6 +8,7 @@ enum class Operator
     Plus,
     Minus,
     Multiply,
+    Divide,
 
     And,
     Or,

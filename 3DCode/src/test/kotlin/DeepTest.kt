@@ -1021,4 +1021,23 @@ class DeepTest {
         assertEquals(ConstantValue.String("HalloTest15") ,executeCode(code))
     }
 
+    @Test
+    fun operationEqualsTest() {
+        val code = """
+            float Main(){
+                int §b = 5;
+                float §a = 0.0;
+                §b += 5;
+                §b *= 5;
+                §b -= 5;
+                §a = §b + 0.0;
+                §a /= 5;
+                return §a;
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float(9f) ,executeCode(code))
+
+    }
+
 }

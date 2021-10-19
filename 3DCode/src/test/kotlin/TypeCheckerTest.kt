@@ -296,6 +296,8 @@ class TypeCheckerTest {
                 int §a = 1;
                 int §b = §b + §a;
                 int §c = §c + §b + §a;
+                
+                void A(){}
             }
 
             void Main()

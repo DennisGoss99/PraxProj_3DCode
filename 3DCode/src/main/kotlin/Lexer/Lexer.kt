@@ -14,12 +14,12 @@ open class Lexer(input: String) {
 
         lookahead?.let { lookahead = null; return it }
         consumeWhitespace()
-        consumeComments()
+        var nextChar = consumeComments()
 
         if (!iterator.hasNext())
             return LexerToken.EOF
 
-        return when (val c = iterator.next()) {
+        return when (val c = nextChar ?: iterator.next()) {
             '(' -> LexerToken.Lparen(currentLineOfCode)
             ')' -> LexerToken.Rparen(currentLineOfCode)
             '[' -> LexerToken.LBracket(currentLineOfCode)
@@ -30,9 +30,34 @@ open class Lexer(input: String) {
             ',' -> LexerToken.Comma(currentLineOfCode)
             '.' -> LexerToken.Dot(currentLineOfCode)
 
-            '+' -> LexerToken.Plus(currentLineOfCode)
-            '-' -> LexerToken.Minus(currentLineOfCode)
-            '*' -> LexerToken.Mul(currentLineOfCode)
+            '+' -> when (iterator.peek()) {
+                '=' -> {
+                    iterator.next()
+                    LexerToken.AssignPlusEquals(currentLineOfCode)
+                }
+                else -> LexerToken.Plus(currentLineOfCode)
+            }
+            '-' -> when (iterator.peek()) {
+                '=' -> {
+                    iterator.next()
+                    LexerToken.AssignMinusEquals(currentLineOfCode)
+                }
+                else -> LexerToken.Minus(currentLineOfCode)
+            }
+            '*' -> when (iterator.peek()) {
+                '=' -> {
+                    iterator.next()
+                    LexerToken.AssignMulEquals(currentLineOfCode)
+                }
+                else -> LexerToken.Mul(currentLineOfCode)
+            }
+            '/' -> when (iterator.peek()) {
+                '=' -> {
+                    iterator.next()
+                    LexerToken.AssignDivEquals(currentLineOfCode)
+                }
+                else -> LexerToken.Div(currentLineOfCode)
+            }
             '=' -> when (iterator.peek()) {
                 '=' -> {
                     iterator.next()
@@ -175,23 +200,25 @@ open class Lexer(input: String) {
 
     }
 
-    private fun consumeComments() {
+    private fun consumeComments() : Char? {
         if(!iterator.hasNext())
-            return
+            return null
 
         if(iterator.peek() != '/')
-            return
+            return null
 
         iterator.next()
 
-        when(val c = iterator.next()){
+        when(iterator.peek()){
             '/' ->{
+                iterator.next()
                 while(iterator.hasNext() && iterator.next() != '\n'){}
                 currentLineOfCode++
                 consumeWhitespace()
                 consumeComments()
             }
             '*' ->{
+                iterator.next()
                 while(iterator.peek() != '*'){
                     if(iterator.peek() == '/' ){
                         consumeComments()
@@ -205,9 +232,9 @@ open class Lexer(input: String) {
                 consumeWhitespace()
                 consumeComments()
             }
-            else -> throw LexerUnexpectedCharException(currentLineOfCode, c)
+            else -> return '/'
         }
-
+        return null
     }
 
     private fun consumeWhitespace() {

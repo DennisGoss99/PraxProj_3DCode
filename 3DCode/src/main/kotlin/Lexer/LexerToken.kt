@@ -17,6 +17,10 @@ sealed class LexerToken() {
 
         // Symbols
         data class AssignEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}       // =
+        data class AssignPlusEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}   // +=
+        data class AssignMinusEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}  // -=
+        data class AssignMulEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}    // *=
+        data class AssignDivEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}    // /=
         data class Semicolon(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}          // ;
         data class Lparen(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}             // (
         data class Rparen(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}             // )
@@ -31,6 +35,7 @@ sealed class LexerToken() {
         data class Plus(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}               // +
         data class Minus(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}              // -
         data class Mul(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}                // *
+        data class Div(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}                // /
         data class Double_Equals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}      // ==
 
         data class And(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}                // &&

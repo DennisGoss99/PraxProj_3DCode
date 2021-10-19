@@ -112,10 +112,11 @@ class Parser(val lexer: Lexer)
         {
             Operator.Not ->  1 to 2
 
-            Operator.Multiply -> 3 to 4
-            Operator.Plus, Operator.Minus -> 5 to 6
+            Operator.Multiply,
+            Operator.Divide -> 3 to 4
 
-
+            Operator.Plus,
+            Operator.Minus -> 5 to 6
 
             Operator.Less,
             Operator.LessEqual,
@@ -125,9 +126,9 @@ class Parser(val lexer: Lexer)
 
             Operator.DoubleEquals,
             Operator.NotEqual -> 9 to 10
+
             Operator.And -> 10 to 11
             Operator.Or -> 12 to 13
-
 
             Operator.Equals -> 14 to 15
         }
@@ -168,6 +169,8 @@ class Parser(val lexer: Lexer)
             val type = TypeParse()
             val name = NameParse()
             val expression = ExpressionParse()
+
+
             val variableDeclaration = Declaration.VariableDeclaration(type, name, expression,currentLineOfCode)
 
             localVariableList.add(variableDeclaration)
@@ -630,7 +633,7 @@ class Parser(val lexer: Lexer)
                 ExpressionParse()
             }
 
-            else -> throw ParserExpressionInvalid(nextToken);
+            else -> throw ParserExpressionInvalid(nextToken)
         }
 
         var expectedSemicolon = lexer.peek()
@@ -724,8 +727,14 @@ class Parser(val lexer: Lexer)
 
     private fun AssignParse(name: String) : Statement.AssignValue
     {
-        val tokenEquals = FetchNextExpectedToken<LexerToken.AssignEquals>("Equals")
-        val expression = ExpressionParse()
+        val expression = when(val tokenEquals = GetTextToken()){
+            is LexerToken.AssignEquals -> ExpressionParse()
+            is LexerToken.AssignPlusEquals -> Expression.Operation(Operator.Plus,Expression.UseVariable(name), ExpressionParse())
+            is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus,Expression.UseVariable(name), ExpressionParse())
+            is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply,Expression.UseVariable(name), ExpressionParse())
+            is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide,Expression.UseVariable(name), ExpressionParse())
+            else -> throw ParserUnsupportedAssignment(tokenEquals)
+        }
 
         return Statement.AssignValue(name, expression, currentLineOfCode)
     }

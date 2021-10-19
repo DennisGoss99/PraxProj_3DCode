@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class LexerTest : BaseLexerTest() {
 
     @Test
-    fun simpleLexerTest(){
+    fun simpleLexerTest() {
 
         val code = """
             int §b = 5;
@@ -24,12 +24,12 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 
     @Test
-    fun simpleCommentLexerTest(){
+    fun simpleCommentLexerTest() {
 
         val code = """
             //int §b = 5;
@@ -37,11 +37,11 @@ class LexerTest : BaseLexerTest() {
 
         val lexer = TestLexer(code);
 
-        assertEquals(LexerToken.EOF,lexer.next())
+        assertEquals(LexerToken.EOF, lexer.next())
     }
 
     @Test
-    fun ifLexerTest(){
+    fun ifLexerTest() {
 
         val code = """
             if(true){
@@ -81,11 +81,11 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
     }
 
     @Test
-    fun advancedIfLexerTest(){
+    fun advancedIfLexerTest() {
 
         val code = """
             int §i = 5;
@@ -129,11 +129,11 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
     }
 
     @Test
-    fun typeLexerTest(){
+    fun typeLexerTest() {
 
         val code = """
             int §i = 54534;
@@ -171,12 +171,12 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF,
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 
     @Test
-    fun advancedCommentLexerTest(){
+    fun advancedCommentLexerTest() {
 
         val code = """
         if (false){
@@ -223,12 +223,12 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 
     @Test
-    fun functionLexerTest(){
+    fun functionLexerTest() {
 
         val code = """
             int Hallo(int §a, char[] §b){
@@ -256,12 +256,12 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF,
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 
     @Test
-    fun functionLexerTest2(){
+    fun functionLexerTest2() {
 
         val code = """
             void Hallo(char[] §b){
@@ -287,12 +287,12 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF,
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 
     @Test
-    fun simpleFloatLexerTest(){
+    fun simpleFloatLexerTest() {
 
         val code = """
             float §b = 5.0;
@@ -310,12 +310,12 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 
     @Test
-    fun classTest(){
+    fun classTest() {
         val code = """   
             
             class OpenGL{           
@@ -397,11 +397,11 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
     }
 
     @Test
-    fun class2Test(){
+    fun class2Test() {
         val code = """   
             
             class OpenGL{           
@@ -499,7 +499,49 @@ class LexerTest : BaseLexerTest() {
             LexerToken.EOF
         )
 
-        assertEqualLexerList(expectedLexerTokenList,lexer)
+        assertEqualLexerList(expectedLexerTokenList, lexer)
     }
 
+    @Test
+    fun operationEqualsLexerTest() {
+
+        val code = """
+            int §b = 5;
+            §b += 5;
+            §b *= 5;
+            §b -= 5;
+            §b /= 5;
+        """.trimIndent()
+
+        val lexer = TestLexer(code);
+
+        val expectedLexerTokenList = listOf<LexerToken>(
+            LexerToken.TypeIdent("int"),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignEquals(),
+            LexerToken.Number_Literal(5),
+            LexerToken.Semicolon(),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignPlusEquals(),
+            LexerToken.Number_Literal(5),
+            LexerToken.Semicolon(),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignMulEquals(),
+            LexerToken.Number_Literal(5),
+            LexerToken.Semicolon(),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignMinusEquals(),
+            LexerToken.Number_Literal(5),
+            LexerToken.Semicolon(),
+            LexerToken.NameIdent("b"),
+            LexerToken.AssignDivEquals(),
+            LexerToken.Number_Literal(5),
+            LexerToken.Semicolon(),
+            LexerToken.EOF,
+            LexerToken.EOF
+        )
+
+        assertEqualLexerList(expectedLexerTokenList, lexer)
+
+    }
 }

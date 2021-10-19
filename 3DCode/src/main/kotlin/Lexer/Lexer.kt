@@ -101,12 +101,6 @@ open class Lexer(input: String) {
                 else -> LexerToken.Greater(currentLineOfCode)
             }
 
-            '§' -> if (iterator.peek().isJavaIdentifierStart()) {
-                LexerToken.NameIdent(identBase(iterator.next()), currentLineOfCode)
-            }else
-                throw LexerUnexpectedCharException(currentLineOfCode, c, '§')
-
-
             '\'' -> getChar()
             '\"' -> getString()
             else -> when {
@@ -155,10 +149,13 @@ open class Lexer(input: String) {
             "return" -> LexerToken.Return(currentLineOfCode)
             "class" -> LexerToken.Class(currentLineOfCode)
             else -> {
-                if(result[0].isLowerCase())
-                    LexerToken.TypeIdent(result, currentLineOfCode)
+                if(iterator.peek() != '(')
+                    if(result[0].isLowerCase())
+                        LexerToken.NameIdent(result, currentLineOfCode)
+                    else
+                        LexerToken.TypeIdent(result, currentLineOfCode)
                 else
-                    LexerToken.UpperCaseIdent(result, currentLineOfCode)
+                    LexerToken.FunctionIdent(result, currentLineOfCode)
             }
         }
     }

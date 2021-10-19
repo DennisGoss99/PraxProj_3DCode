@@ -49,7 +49,7 @@ sealed class LexerToken() {
 
         data class NameIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
         data class TypeIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
-        data class UpperCaseIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
+        data class FunctionIdent(val identify: String, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($identify)"}
 
         // Literals
         data class Boolean_Literal(val b: Boolean, override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString() + "($b)"}

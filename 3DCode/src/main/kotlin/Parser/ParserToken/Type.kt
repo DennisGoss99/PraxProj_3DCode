@@ -14,13 +14,15 @@ sealed class Type
     object Double : Type()
     object String : Type()
     object Void : Type()
-    class Custom() : Type(){
-        public var name : kotlin.String = ""
+    class Custom(var name : kotlin.String) : Type(){
 
-        constructor(name : kotlin.String) : this() {
-            this.name = name.capitalize()
+        override fun toString(): kotlin.String {
+            return "Class.$name"
         }
 
-        override fun equals(other: Any?): kotlin.Boolean { return if(other is Custom) other.name == this.name else false}
+        override fun equals(other: Any?): kotlin.Boolean {
+            return if(other is Custom)
+                other.name == this.name
+            else false}
     }
 }

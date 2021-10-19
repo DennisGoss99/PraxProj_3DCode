@@ -73,7 +73,7 @@ class Evaluator {
 
         evalMethod(classDefinition.classBody.functions[classDefinition.className], classDefinition.className, parameter, classEnvironment)
 
-        return Expression.Value(DynamicValue.Class(classEnvironment , Type.Custom(classDefinition.className.decapitalize())))
+        return Expression.Value(DynamicValue.Class(classEnvironment , Type.Custom(classDefinition.className)))
     }
 
     private fun evalBody(body: Body, environment: HashMap<String, Expression.Value>) : Expression.Value? {

@@ -328,7 +328,7 @@ class ParserTest
             }
                              
             void Main(){
-                openGL §b = OpenGL();
+                OpenGL §b = OpenGL();
             }
             
         """.trimIndent()
@@ -356,7 +356,7 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"§b",Expression.FunctionCall("OpenGL",null)))
                 ),
                 null
             )
@@ -383,7 +383,7 @@ class ParserTest
             }
                              
             void Main(){
-                openGL §b = OpenGL();
+                OpenGL §b = OpenGL();
             }
             
         """.trimIndent()
@@ -418,7 +418,7 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"§b",Expression.FunctionCall("OpenGL",null)))
                 ),
                 null
             )
@@ -444,7 +444,7 @@ class ParserTest
             }
                              
             void Main(){
-                openGL §b = OpenGL();
+                OpenGL §b = OpenGL();
                 string §a = §b.§name;
                 
                 §b.B(5);
@@ -496,7 +496,7 @@ class ParserTest
                         Statement.UseClass("§b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
                     ),
                     listOf<Declaration.VariableDeclaration>(
-                        Declaration.VariableDeclaration(Type.Custom("openGl"),"§b",Expression.FunctionCall("OpenGL",null)),
+                        Declaration.VariableDeclaration(Type.Custom("OpenGL"),"§b",Expression.FunctionCall("OpenGL",null)),
                         Declaration.VariableDeclaration(Type.String,"§a", Expression.UseDotVariable("§b",Expression.UseVariable("§name"))),
                     )
                 ),

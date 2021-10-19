@@ -354,7 +354,7 @@ class TypeCheckerTest {
 
             void Main()
             {
-                a §a = A();
+                A §a = A();
             }
         """.trimIndent()
 
@@ -381,7 +381,7 @@ class TypeCheckerTest {
 
             int Main()
             {
-                a §a = A();
+                A §a = A();
                 return §a.§a + §a.§b;
             }
         """.trimIndent()

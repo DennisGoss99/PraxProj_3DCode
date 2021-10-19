@@ -274,7 +274,7 @@ class DeepTest {
 
             int Main(int §b)
             {
-                c §zzz = C();
+                C §zzz = C();
                 return A(§b) + §zzz.A(§b) + §zzz.A(true) + §zzz.A("Hallo");
             }
         """.trimIndent()
@@ -869,7 +869,7 @@ class DeepTest {
             }
                              
             string Main(){
-                openGL §b = OpenGL();
+                OpenGL §b = OpenGL();
                 int §r = §b.C(5) + 5;
                      
                 return §r.ToString() + " " + §b.§GG.ToString() + " " + §b.§name + §b.B(57) + " " + §b.§GG.ToString(); 
@@ -899,7 +899,7 @@ class DeepTest {
             }
             
             class OpenGL{     
-                a §aOBj = A();
+                A §aOBj = A();
                 
                 int §bb = 4000;
                 
@@ -917,7 +917,7 @@ class DeepTest {
             }
                              
             int Main(){
-                openGL §b = OpenGL();
+                OpenGL §b = OpenGL();
                 §b.§aOBj.B(6);
                 return Add10(§b.B(100) + §b.§bb);
             }
@@ -937,7 +937,7 @@ class DeepTest {
             }
             
             class OpenGL{     
-                a §aOBj = A();
+                A §aOBj = A();
                                 
                 void OpenGL(){
                 }
@@ -948,11 +948,11 @@ class DeepTest {
             }
                              
             string Main(){
-                openGL §b = OpenGL();
+                OpenGL §b = OpenGL();
                 string §return = §b.§aOBj.§a;
                 §b.A();
                 {
-                    a §c = §b.§aOBj;
+                    A §c = §b.§aOBj;
                     §return = §return + §b.§aOBj.§a
                     §b.§aOBj.§a = "3"
                     §return = §return + §c.§a
@@ -978,7 +978,7 @@ class DeepTest {
             }
                              
             string Main(){
-                openGL §b = OpenGL("Hallo");
+                OpenGL §b = OpenGL("Hallo");
                                      
                 return §b.§name; 
             }
@@ -1009,9 +1009,9 @@ class DeepTest {
             }
                              
             string Main(){
-                openGL §b = OpenGL("Hallo");
-                openGL §c = OpenGL();
-                openGL §d = OpenGL(15);
+                OpenGL §b = OpenGL("Hallo");
+                OpenGL §c = OpenGL();
+                OpenGL §d = OpenGL(15);
                                      
                 return §b.§name + §c.§name + §d.§name; 
             }

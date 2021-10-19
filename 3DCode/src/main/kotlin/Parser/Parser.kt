@@ -5,7 +5,6 @@ import Lexer.LexerToken
 import Parser.Exception.*
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
-import kotlin.concurrent.thread
 
 class Parser(val lexer: Lexer)
 {
@@ -77,7 +76,7 @@ class Parser(val lexer: Lexer)
                 when(val nextToken = lexer.peek())
                 {
                     is LexerToken.NameIdent -> VariableDeclaration(type)
-                    is LexerToken.UpperCaseIdent -> FuncitonParse(type)
+                    is LexerToken.FunctionIdent -> FuncitonParse(type)
 
                     else -> throw ParserDeclarationTokenInvalid(nextToken)
                 }
@@ -294,16 +293,22 @@ class Parser(val lexer: Lexer)
         return parameterList
     }
 
-    private fun UpperCaseIdentifyParse() : String
+    private fun FunctionIdentifyParse() : String
     {
-        val name = FetchNextExpectedToken<LexerToken.UpperCaseIdent>("function idefiyer")
+        val name = FetchNextExpectedToken<LexerToken.FunctionIdent>("function identifier")
+        return name.identify
+    }
+
+    private fun ClassIdentifyParse() : String
+    {
+        val name = FetchNextExpectedToken<LexerToken.TypeIdent>("class identifier")
         return name.identify
     }
 
     private fun FuncitonParse(type : Type): Declaration.FunctionDeclare
     {
         val currentLineOfCode = lexer.peek().LineOfCode
-        val name = UpperCaseIdentifyParse()
+        val name = FunctionIdentifyParse()
         val parameter = ParameterParseAsDeclaration()
         val body = BodyParse()
 
@@ -315,7 +320,7 @@ class Parser(val lexer: Lexer)
         FetchNextExpectedToken<LexerToken.Class>("Class")
 
         val currentLineOfCode = lexer.peek().LineOfCode
-        val name = UpperCaseIdentifyParse()
+        val name = ClassIdentifyParse()
         val body = ClassBodyParse()
         return Declaration.ClassDeclare(name, body,currentLineOfCode)
     }
@@ -456,7 +461,7 @@ class Parser(val lexer: Lexer)
 
     private fun FunctionCallParse() : Expression.FunctionCall
     {
-        val name = UpperCaseIdentifyParse()
+        val name = FunctionIdentifyParse()
         val parameter = ParameterParseAsExpression()
 
         return Expression.FunctionCall(name, parameter, currentLineOfCode)
@@ -470,7 +475,7 @@ class Parser(val lexer: Lexer)
             FetchNextExpectedToken<LexerToken.Dot>("'.'")
 
             val expression = when(val nextLexerToken = lexer.peek()){
-                is LexerToken.UpperCaseIdent -> FunctionCallParse()
+                is LexerToken.FunctionIdent -> FunctionCallParse()
                 is LexerToken.NameIdent -> UseVariableParse()
                 else -> throw Exception("$name.$nextLexerToken is not supported")
             }
@@ -511,7 +516,7 @@ class Parser(val lexer: Lexer)
             is LexerToken.Not -> NotParse()
             is LexerToken.Minus -> LoneMinusParse()
 
-            is LexerToken.UpperCaseIdent ->
+            is LexerToken.FunctionIdent ->
             {
                 val expression = FunctionCallParse()
                 val next = lexer.peek()
@@ -616,7 +621,7 @@ class Parser(val lexer: Lexer)
             is LexerToken.Float_Literal,
             is LexerToken.Number_Literal -> ValueParse()
 
-            is LexerToken.UpperCaseIdent -> FunctionCallParse()
+            is LexerToken.FunctionIdent -> FunctionCallParse()
             is LexerToken.NameIdent -> UseVariableParse()
 
             is LexerToken.Lparen ->
@@ -742,7 +747,7 @@ class Parser(val lexer: Lexer)
 
     private fun ProcedureCallParse() : Statement.ProcedureCall
     {
-        val name = UpperCaseIdentifyParse()
+        val name = FunctionIdentifyParse()
         val parameter = ParameterParseAsExpression()
 
         val expectedSemicolon = FetchNextExpectedToken<LexerToken.Semicolon>("';'")
@@ -766,7 +771,7 @@ class Parser(val lexer: Lexer)
                 }else
                     AssignParse(token)
             }
-            is LexerToken.UpperCaseIdent -> ProcedureCallParse()
+            is LexerToken.FunctionIdent -> ProcedureCallParse()
 
             else -> throw ParserStatementInvalid(token)
         }
@@ -780,19 +785,19 @@ class Parser(val lexer: Lexer)
 
         return when (identifier.identify)
         {
-            "int" -> Type.Integer
-            "bool" -> Type.Boolean
-            "char" -> Type.Char
-            "string" -> Type.String
-            "float" -> Type.Float
-            "double" -> Type.Double
-            "void" -> Type.Void
+            "Int" -> Type.Integer
+            "Bool" -> Type.Boolean
+            "Char" -> Type.Char
+            "String" -> Type.String
+            "Float" -> Type.Float
+            "Double" -> Type.Double
+            "Void" -> Type.Void
 
             else -> Type.Custom(identifier.identify)
         }
     }
 
-    private fun VariableDeclaration(type: Type): Declaration.VariableDeclaration
+    private fun VariableDeclaration(type: Type) : Declaration.VariableDeclaration
     {
         val variableName = NameParse()
         val expression = ExpressionParse()

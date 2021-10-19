@@ -542,6 +542,24 @@ class LexerTest : BaseLexerTest() {
         )
 
         assertEqualLexerList(expectedLexerTokenList, lexer)
+    }
+
+    @Test
+    fun importLexerTest() {
+
+        val code = """
+            include "Test.A.Math"
+        """.trimIndent()
+
+        val lexer = TestLexer(code);
+
+        val expectedLexerTokenList = listOf<LexerToken>(
+            LexerToken.Import(),
+            LexerToken.String_Literal("Test.A.Math"),
+            LexerToken.EOF
+        )
+
+        assertEqualLexerList(expectedLexerTokenList, lexer)
 
     }
 }

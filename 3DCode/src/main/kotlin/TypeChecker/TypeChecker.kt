@@ -25,7 +25,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                 is Declaration.FunctionDeclare -> {
                     val functionList = functionDeclarations.getOrPut(d.functionName, ::mutableListOf)
 
-                    if(functionList.any { it.parameters?.zip(d.parameters ?: listOf() )?.all { it.first.type == it.second.type } != false })
+                    if(functionList.any {it.parameters?.size == d.parameters?.size && it.parameters?.zip(d.parameters ?: listOf() )?.all { it.first.type == it.second.type } != false })
                         throw TypeCheckerDuplicateFunctionException(d.LineOfCode, d)
 
                     functionList.add(d)
@@ -78,6 +78,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                         if(it.parameters.isNullOrEmpty() || function.parameters.isNullOrEmpty())
                             it.parameters.isNullOrEmpty() && function.parameters.isNullOrEmpty()
                         else
+                            it.parameters.size == function.parameters.size &&
                             it.parameters.zip(function.parameters.orEmpty() ).all{ it.first.type == it.second.type }
                 } >= 2) throw TypeCheckerDuplicateFunctionException(function.LineOfCode,function)
             }
@@ -85,6 +86,11 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
         if(classDef.classBody.functions[classDef.className].isNullOrEmpty())
             throw TypeCheckerConstructorNotFoundException(classDef.LineOfCode, classDef.className, classDef.className)
+
+        classDef.classBody.functions[classDef.className]?.forEach {
+            if(it.returnType != Type.Void)
+                throw TypeCheckerReturnTypeException(it.LineOfCode,classDef.className)
+        }
     }
 
     private fun checkFunctionDeclaration(functionDeclaration : Declaration.FunctionDeclare){

@@ -849,7 +849,7 @@ class DeepTest {
                 Int gg = 69
                 String name = gg.ToString()
             
-                Void OpenGL(){
+                OpenGL(){
                 }
             
                 Void A(String name){
@@ -886,14 +886,14 @@ class DeepTest {
             class A{
                 Int aa = 0
             
-                Void A(){
+                A(){
                 }
             
                 Void B(Int c){
                     aa = aa + c
                 }
             
-                Int A(Int number){
+                Int C(Int number){
                     return aa + 3 + number
                 }
             }
@@ -908,7 +908,7 @@ class DeepTest {
                 
                 Int B(Int cc){
                     aOBj.aa = aOBj.aa + 10
-                    return aOBj.A(cc + 10000)
+                    return aOBj.C(cc + 10000)
                 }
             }
             

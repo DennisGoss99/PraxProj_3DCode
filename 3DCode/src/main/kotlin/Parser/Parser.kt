@@ -32,8 +32,11 @@ class Parser(val lexer: Lexer)
         return token
     }
 
-    fun ParsingStart() : List<Declaration> // Return List<Declarations>
+    fun ParsingStart() : List<Declaration>
     {
+
+
+
         var declarationList : List<Declaration>? = null
 
         try
@@ -81,6 +84,10 @@ class Parser(val lexer: Lexer)
                     else -> throw ParserDeclarationTokenInvalid(nextToken)
                 }
             }
+            // Constructor Parse
+            is LexerToken.FunctionIdent -> FuncitonParse(Type.Void)
+
+            is LexerToken.NameIdent -> throw ParserTypeLowerCase(nextToken)
             else -> throw ParserTypeUnknown(nextToken)
         }
     }

@@ -476,8 +476,21 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code3), null).check()
         assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code4), null).check()}
+
+        val code5 = """
+            Void A(String b){
+            }
+            
+            Void A(String b, Int a){
+            }
+            
+            Int Main()
+            {
+            }
+        """.trimIndent()
+
+        TypeChecker(parseCode(code5), null).check()
     }
 
     @Test
@@ -504,9 +517,9 @@ class TypeCheckerTest {
 
         val code = """
             class A{
-                Void A(Int a){
+                A(Int a){
                 }
-                Void A(Int a){
+                A(Int a){
                 }
             }
             Int Main()
@@ -518,9 +531,9 @@ class TypeCheckerTest {
 
         val code2 = """
             class A{
-                Void A(String b, Int a){
+                A(String b, Int a){
                 }
-                Void A(String b, Int a){
+                A(String b, Int a){
                 }
             }
             
@@ -533,9 +546,9 @@ class TypeCheckerTest {
 
         val code3 = """
             class A{
-                Void A(String b, Int a){
+                A(String b, Int a){
                 }
-                Void A(Int a, String b){
+                A(Int a, String b){
                 }
             }
             
@@ -546,4 +559,23 @@ class TypeCheckerTest {
 
         TypeChecker(parseCode(code3), null).check()
     }
+
+    @Test
+    fun constructorReturnTest() {
+
+        val code = """
+            class A{
+                A(Int a){
+                }
+                Int A(Int a, Float b){
+                }
+            }
+            Int Main()
+            {
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerReturnTypeException::class) { TypeChecker(parseCode(code), null).check() }
+    }
+
 }

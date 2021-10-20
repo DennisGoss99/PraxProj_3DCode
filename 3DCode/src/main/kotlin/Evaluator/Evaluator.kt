@@ -5,9 +5,11 @@ import Evaluator.Exceptions.NotFound.*
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
+import TypeChecker.Exceptions.TypeCheckerDuplicateClassException
 
 class Evaluator {
 
+    private val importDeclarations = HashMap<String, Declaration.ClassDeclare>()
     private val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
     private val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
     private val globalEnvironment = HashMap<String, Expression.Value>()
@@ -16,6 +18,11 @@ class Evaluator {
 
         declarations.forEach { d ->
             when(d){
+                is Declaration.Imports -> {
+                    d.list?.forEach { if(it is Declaration.ClassDeclare)
+                                        importDeclarations[it.className] = it
+                    }
+                }
                 is Declaration.ClassDeclare -> classDeclarations[d.className] = d
                 is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
                 is Declaration.VariableDeclaration -> globalEnvironment[d.name] = evalExpression(d.expression, globalEnvironment)
@@ -29,9 +36,6 @@ class Evaluator {
 
         val parameter = rawParameter?.map { evalExpression(it,environment) }
         val function = functions?.firstOrNull{ functionAcceptsParameter(it, parameter) } ?: throw FunctionNotFoundRuntimeException(functionName)
-
-        if(function.parameters?.size != parameter?.size)
-            throw FunctionParameterRuntimeException(function.functionName,function.parameters)
 
         val localEnvironment = function.parameters?.zip(parameter.orEmpty()){ fp, p -> fp.name to p }?.associateTo(HashMap()){it.first to it.second} ?: HashMap()
 
@@ -158,7 +162,7 @@ class Evaluator {
     private fun statementUseClass(statement : Statement.UseClass, environment: HashMap<String, Expression.Value>){
         val obj = environment.getOrDefault(statement.variableName,null) ?: globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.variableName)
         val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
-        val classDef = classDeclarations[classObj.type.name.capitalize()] ?: throw Exception("Couldn't find class named: ${classObj.type.name.capitalize()}")
+        val classDef = classDeclarations[classObj.type.name] ?: importDeclarations[classObj.type.name] ?: throw Exception("Couldn't find class named: ${classObj.type.name}")
 
         when(val statement = statement.statement){
             is Statement.AssignValue -> {
@@ -263,7 +267,7 @@ class Evaluator {
                 return when(expression.functionName){
                     "ToString" -> toStringImplementation(expression.parameterList?.map { evalExpression(it,environment) } )
                     else -> {
-                        classDeclarations[expression.functionName]?.let { classDec ->
+                        classDeclarations[expression.functionName] ?: importDeclarations[expression.functionName]?.let { classDec ->
                             return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment) })
                         }
 
@@ -281,6 +285,9 @@ class Evaluator {
     }
 
     private fun functionAcceptsParameter(function: Declaration.FunctionDeclare, parameterList: List<Expression.Value>?) : Boolean {
+        if(function.parameters.isNullOrEmpty() == parameterList.isNullOrEmpty())
+            return true
+
         if(function.parameters?.size != parameterList?.size)
             return false
 
@@ -313,7 +320,7 @@ class Evaluator {
                     "ToString" -> toStringImplementation(evalExpression( Expression.UseVariable(expression.variableName, expression.LineOfCode) , environment))
                     else -> {
                         classObj ?: throw Exception("Can't use dot operation on baseTypes")
-                        val classDec = classDeclarations[classObj.type.name] ?: throw Exception("Can't find corresponding class")
+                        val classDec = classDeclarations[classObj.type.name] ?: importDeclarations[classObj.type.name] ?: throw Exception("Can't find corresponding class")
                         val parameters = expression2.parameterList?.map { evalExpression(it,environment) }
                         evalMethod(classDec.classBody.functions[expression2.functionName], expression2.functionName, parameters, classObj.value) ?: throw ReturnNotFoundRuntimeException(expression2.functionName)
                     }

@@ -1003,7 +1003,6 @@ class DeepTest {
                     Int b = 12
                     + 13
                     name = "Test"
-                    Println(b)
                 }
                 
                 Void OpenGL(Int a){

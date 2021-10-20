@@ -9,6 +9,7 @@ import TypeChecker.Exceptions.*
 
 class TypeChecker(private val declarations: List<Declaration>, private val args : List<Expression.Value>? = null) {
 
+    private val importDeclarations = HashMap<String, Declaration.ClassDeclare>()
     private val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
     private val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
     private val globalVariableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
@@ -17,6 +18,15 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
         declarations.forEach { d ->
             when(d){
+                is Declaration.Imports -> {
+                    d.list?.forEach {
+                        if(it is Declaration.ClassDeclare){
+                            if(importDeclarations.containsKey(it.className))
+                                throw TypeCheckerDuplicateClassException(it.LineOfCode, it.className)
+                            importDeclarations[it.className] = it
+                        }
+                    }
+                }
                 is Declaration.ClassDeclare -> {
                     if(classDeclarations.containsKey(d.className))
                         throw TypeCheckerDuplicateClassException(d.LineOfCode, d.className)
@@ -42,17 +52,20 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
             checkClassDeclaration(it.value)
         }
 
-        val mainFunctionList = functionDeclarations["Main"] ?: throw FunctionNotFoundRuntimeException("Main")
-        if(mainFunctionList.count() != 1)
-            throw TypeCheckerOnlyOneMainException(mainFunctionList.first().LineOfCode)
+        functionDeclarations["Main"]?.let { mainFunctionList ->
 
-        val mainFunction = mainFunctionList.first()
+            if(mainFunctionList.count() != 1)
+                throw TypeCheckerOnlyOneMainException(mainFunctionList.first().LineOfCode)
 
-        val a = args?.map { getExpressionType(it, HashMap())}
-        if(!checkParameter(mainFunction, a))
-            throw TypeCheckerFunctionParameterException(mainFunction.LineOfCode ,mainFunction.functionName,a)
+            val mainFunction = mainFunctionList.first()
 
-        checkFunctionDeclaration(mainFunction)
+            val a = args?.map { getExpressionType(it, HashMap())}
+            if(!checkParameter(mainFunction, a))
+                throw TypeCheckerFunctionParameterException(mainFunction.LineOfCode ,mainFunction.functionName,a)
+
+            checkFunctionDeclaration(mainFunction)
+        }
+
 
         functionDeclarations.forEach { f ->
             if(f.key != "Main"){
@@ -197,7 +210,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
                     }
                     else -> {
 
-                        classDeclarations[expression.functionName]?.let {
+                        classDeclarations[expression.functionName] ?: importDeclarations[expression.functionName]?.let {
                             val methodList = it.classBody.functions[it.className] ?: throw TypeCheckerConstructorNotFoundException(expression.LineOfCode, expression.functionName, it.className)
                             val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables)}
                             methodList.firstOrNull { checkParameter(it, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode,expression.functionName, parameterTypes)
@@ -276,7 +289,7 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
     private fun useDotVariable(localVariables: HashMap<String, Type>, expression: Expression.UseDotVariable) : Type{
         val classType = (localVariables[expression.variableName] ?: globalVariableDeclarations[expression.variableName]?.type) as? Type.Custom //?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
-        val classObj = classDeclarations[classType?.name]
+        val classObj = classDeclarations[classType?.name] ?: importDeclarations[classType?.name]
         val classVariables = classObj?.classBody?.variables?.associateTo(HashMap()) { it.name to it.type } ?: HashMap()
 
         return when (val expression2 = expression.expression){

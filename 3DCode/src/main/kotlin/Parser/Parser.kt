@@ -32,16 +32,13 @@ class Parser(val lexer: Lexer)
         return token
     }
 
-    fun ParsingStart() : List<Declaration>
+    fun ParsingStart(imports : MutableList<Declaration>? = null) : List<Declaration>
     {
-
-
-
-        var declarationList : List<Declaration>? = null
+        var declarationList : MutableList<Declaration> = imports ?: mutableListOf()
 
         try
         {
-            declarationList = DeclarationListParse()
+            DeclarationListParse().forEach { declarationList.add(it) }
         }
         catch(e : Exception)
         {

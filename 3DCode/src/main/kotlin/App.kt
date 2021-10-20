@@ -1,10 +1,12 @@
 import Evaluator.Evaluator
 import Lexer.Lexer
 import Parser.Parser
+import Parser.ParserManager
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.IValue
 import TypeChecker.TypeChecker
+import java.io.File
 
 private fun executeCode(code : String, args: List<Expression.Value>? = null): IValue? {
 
@@ -15,51 +17,24 @@ private fun executeCode(code : String, args: List<Expression.Value>? = null): IV
     return Evaluator().eval(parserOutput,args)?.value
 
 }
+
+private fun executePath(path : String, args: List<Expression.Value>? = null): IValue? {
+
+    val appCode = ParserManager(path).getApp()
+
+    return Evaluator().eval(appCode,args)?.value
+
+}
+
 fun main(){
 
-    val code = """ 
-            class A{
-                void A(){}
-                // dsadasd
-                //dsada
-            }
-            class OpenGL{     
-                int §GG = 69;
-                string §name = §GG.ToString();
+//    val code = """
+//
+//        """.trimIndent()
+//
+//    println(executeCode(code))
 
-                void A(string §name){
-                    Println(§name);
-                    {
-                        string §name = "A";
-                        Println(§name);
-                    }
-                }
-                
-                void B(int §a){
-                    string §c = (§a.ToString() + " Hallo " + §name);
-                    Println(§c);
-                }
-                
-                int C(int §a){
-                    §GG = §GG + 4200;
-                    return §a + 3;
-                }
-            }
-                             
-            string Main(){
-                 openGL §b = OpenGL();
-                int §r = §b.C(5) + 5;
-                
-                Println(§b.§name);
-                
-                Println(§r);
-                §b.B(1);
-                                
-                return §b.§GG.ToString(); 
-            }
-            
-        """.trimIndent()
 
-    println(executeCode(code))
+    println(executePath("C:/Users/Merdo/Desktop/TEST/App.c3d", listOf()))
 
 }

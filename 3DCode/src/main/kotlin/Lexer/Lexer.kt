@@ -148,6 +148,8 @@ open class Lexer(input: String) {
             "while" -> LexerToken.While(currentLineOfCode)
             "return" -> LexerToken.Return(currentLineOfCode)
             "class" -> LexerToken.Class(currentLineOfCode)
+            "include",
+            "import" -> LexerToken.Import(currentLineOfCode)
             else -> {
                 if(iterator.peek() != '(')
                     if(result[0].isLowerCase())

@@ -1,1 +1,3 @@
 nicht nur Funktionen! unterteilung in Methoden und globalen Funktionen Sinnvoll
+
+include https://en.wikipedia.org/wiki/Include_directive

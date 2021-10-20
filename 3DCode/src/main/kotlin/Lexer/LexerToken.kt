@@ -8,12 +8,16 @@ sealed class LexerToken() {
 
         open val LineOfCode : Int = -1
 
+
+
         // Keywords
         data class If(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class Else(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class While(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class Return(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
+
         data class Class(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
+        data class Import(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
 
         // Symbols
         data class AssignEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}       // =

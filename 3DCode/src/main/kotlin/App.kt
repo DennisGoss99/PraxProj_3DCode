@@ -6,25 +6,14 @@ import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.IValue
 import TypeChecker.TypeChecker
-import java.io.File
 
-private fun executeCode(code : String, args: List<Expression.Value>? = null): IValue? {
+private fun executeCode(file: File, args: List<Expression.Value>? = null): IValue? {
 
-    val parserOutput = Parser(Lexer(code)).ParsingStart()
 
-    TypeChecker(parserOutput, args).check()
+    //TypeChecker(file, args).check()
 
-    return Evaluator().eval(parserOutput,args)?.value
-
+    return Evaluator().eval(file,args)?.value
 }
-//
-//private fun executePath(path : String, args: List<Expression.Value>? = null): IValue? {
-
-//    val appCode = ParserManager(path).getApp()
-//
-//    return Evaluator().eval(appCode,args)?.value
-//
-//}
 
 fun main(){
 
@@ -34,7 +23,7 @@ fun main(){
 //
 //    println(executeCode(code))
 
-      ParserManager("C:/Users/Merdo/Desktop/TEST/App.c3d")
+    println(executeCode(ParserManager.loadFromDisk("C:/Users/Merdo/Desktop/TEST/App.c3d"), listOf()))
 //    println(executePath("C:/Users/Merdo/Desktop/TEST/App.c3d", listOf()))
 
 }

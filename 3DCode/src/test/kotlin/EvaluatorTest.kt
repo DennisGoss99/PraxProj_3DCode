@@ -11,8 +11,8 @@ class EvaluatorTest{
     @Test
     fun simpleMainTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.FunctionDeclare
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(Declaration.FunctionDeclare
                 (
                 Type.Integer,
                 "Main",
@@ -23,8 +23,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -35,8 +35,8 @@ class EvaluatorTest{
     @Test
     fun simpleAdditionMainTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.FunctionDeclare
+         val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(Declaration.FunctionDeclare
                 (
                 Type.Integer,
                 "Main",
@@ -53,8 +53,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -65,8 +65,8 @@ class EvaluatorTest{
     @Test
     fun globalVariableTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5))),
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -75,8 +75,10 @@ class EvaluatorTest{
                         Statement.AssignValue("return",Expression.UseVariable("a")))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(
+                "a" to Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5))),
+            ), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -88,8 +90,8 @@ class EvaluatorTest{
     @Test
     fun sameVariableNameTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5))),
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -100,8 +102,9 @@ class EvaluatorTest{
                         ConstantValue.Integer(15))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf("a" to Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5)))),
+            hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -113,8 +116,8 @@ class EvaluatorTest{
     @Test
     fun variableAdditionTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.VariableDeclaration(Type.Integer,"b",Expression.Value(ConstantValue.Integer(5))),
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -133,8 +136,9 @@ class EvaluatorTest{
                         ConstantValue.Integer(15))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf("b" to Declaration.VariableDeclaration(Type.Integer,"b",Expression.Value(ConstantValue.Integer(5)))),
+            hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -146,7 +150,8 @@ class EvaluatorTest{
     @Test
     fun reassignVariableAdditionTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -165,8 +170,8 @@ class EvaluatorTest{
                         ConstantValue.Integer(15))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -177,7 +182,8 @@ class EvaluatorTest{
 
     @Test
     fun simpleBlockTest(){
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -203,8 +209,8 @@ class EvaluatorTest{
                         ConstantValue.Integer(15))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -214,7 +220,8 @@ class EvaluatorTest{
 
     @Test
     fun variableShadowingTest(){
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -241,8 +248,8 @@ class EvaluatorTest{
                         ConstantValue.Integer(1))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -252,7 +259,8 @@ class EvaluatorTest{
 
     @Test
     fun block2Test(){
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -282,8 +290,8 @@ class EvaluatorTest{
                         ConstantValue.Integer(15))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -294,7 +302,8 @@ class EvaluatorTest{
 
     @Test
     fun blockExternalVariableTest(){
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -315,8 +324,8 @@ class EvaluatorTest{
                     ),null
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -325,7 +334,8 @@ class EvaluatorTest{
 
     @Test
     fun functionExternalVariableTest(){
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "A",
@@ -357,8 +367,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -368,7 +378,8 @@ class EvaluatorTest{
     @Test
     fun simpleIfTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -387,10 +398,11 @@ class EvaluatorTest{
                     ),
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
-        val declarations2 = listOf<Declaration>(
+        val declarations2 = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -409,8 +421,8 @@ class EvaluatorTest{
                     ),
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -423,7 +435,8 @@ class EvaluatorTest{
     @Test
     fun ifTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Boolean,
                 "Main",
@@ -456,8 +469,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
         assertEquals(Expression.Value(ConstantValue.Boolean(true)),evaluator.eval(declarations,null))
@@ -467,7 +480,8 @@ class EvaluatorTest{
     @Test
     fun noParameterFunctionTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "A",
@@ -485,8 +499,8 @@ class EvaluatorTest{
                         Statement.AssignValue("return",Expression.FunctionCall("A",null)))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -498,27 +512,27 @@ class EvaluatorTest{
     @Test
     fun parameterFunctionTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.FunctionDeclare(
-                Type.Integer,
-                "A",
-                Body(
-                    listOf<Statement>(
-                        Statement.AssignValue("return",Expression.UseVariable("hallo")))
-                ),
-                listOf(Parameter("hallo",Type.Integer))
-            ),
-            Declaration.FunctionDeclare(
-                Type.Integer,
-                "Main",
-                Body(
-                    listOf<Statement>(
-                        Statement.AssignValue("return",Expression.FunctionCall("A", listOf(Expression.Value(
-                            ConstantValue.Integer(5))))))
-                ),
-                null
-            )
-        )
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf(
+                "A" to mutableListOf( Declaration.FunctionDeclare(
+                        Type.Integer,
+                        "A",
+                        Body(
+                            listOf<Statement>(
+                                Statement.AssignValue("return",Expression.UseVariable("hallo")))
+                        ),
+                        listOf(Parameter("hallo",Type.Integer))
+                    )),
+                "Main" to mutableListOf( Declaration.FunctionDeclare(
+                    Type.Integer,
+                    "Main",
+                    Body(
+                        listOf<Statement>(
+                            Statement.AssignValue("return",Expression.FunctionCall("A", listOf(Expression.Value(
+                                ConstantValue.Integer(5))))))
+                    ),
+                null))
+            ), hashMapOf(), hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -530,7 +544,8 @@ class EvaluatorTest{
     @Test
     fun advancedParameterFunctionTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("A" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "A",
@@ -545,7 +560,7 @@ class EvaluatorTest{
                     )
                 ),
                 listOf(Parameter("hallo",Type.Integer))
-            ),
+            )),"Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -569,8 +584,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -581,8 +596,8 @@ class EvaluatorTest{
     @Test
     fun parameterProcedureTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5))),
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("A" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Void,
                 "A",
@@ -591,7 +606,7 @@ class EvaluatorTest{
                         Statement.AssignValue("a",Expression.Value(ConstantValue.Integer(10))))
                 ),
                 null
-            ),
+            )),"Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -602,8 +617,9 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf("a" to Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5)))),
+            hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -615,7 +631,8 @@ class EvaluatorTest{
     @Test
     fun whileTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Boolean,
                 "Main",
@@ -637,8 +654,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
         assertEquals(Expression.Value(ConstantValue.Integer(256)),evaluator.eval(declarations,null))
@@ -648,7 +665,8 @@ class EvaluatorTest{
     @Test
     fun fibonacciFunctionTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("F" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "F",
@@ -698,7 +716,7 @@ class EvaluatorTest{
                     )
                 ),
                 listOf(Parameter("n",Type.Integer))
-            ),
+            )),"Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -714,8 +732,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -725,7 +743,8 @@ class EvaluatorTest{
     @Test
     fun fibonacciFunctionTest2(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("F" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "F",
@@ -790,7 +809,8 @@ class EvaluatorTest{
                     )
                 ),
                 listOf(Parameter("n",Type.Integer))
-            ),
+            )),
+                "Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -806,8 +826,7 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -817,11 +836,8 @@ class EvaluatorTest{
     @Test
     fun fibonacciLoopTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.VariableDeclaration(Type.Integer,"n",Expression.Value(ConstantValue.Integer(10))),
-            Declaration.VariableDeclaration(Type.Integer,"f",Expression.Value(ConstantValue.Integer(0))),
-            Declaration.VariableDeclaration(Type.Integer,"f1",Expression.Value(ConstantValue.Integer(-1))),
-            Declaration.VariableDeclaration(Type.Integer,"f2",Expression.Value(ConstantValue.Integer(1))),
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
                 "Main",
@@ -847,8 +863,14 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(
+                "n" to Declaration.VariableDeclaration(Type.Integer,"n",Expression.Value(ConstantValue.Integer(10))),
+                "f" to Declaration.VariableDeclaration(Type.Integer,"f",Expression.Value(ConstantValue.Integer(0))),
+                "f1" to Declaration.VariableDeclaration(Type.Integer,"f1",Expression.Value(ConstantValue.Integer(-1))),
+                "f2" to Declaration.VariableDeclaration(Type.Integer,"f2",Expression.Value(ConstantValue.Integer(1))),
+            ),
+            hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -858,7 +880,8 @@ class EvaluatorTest{
     @Test
     fun mathMainTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare
                 (
                 Type.Integer,
@@ -896,8 +919,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -906,7 +929,9 @@ class EvaluatorTest{
 
     @Test
     fun boolTest(){
-        val declarations = listOf<Declaration>(
+
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare
                 (
                 Type.Boolean,
@@ -933,8 +958,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+               ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 
@@ -945,7 +970,8 @@ class EvaluatorTest{
     @Test
     fun stringTest(){
 
-        val declarations = listOf<Declaration>(
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare
                 (
                 Type.Integer,
@@ -963,9 +989,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
-
+            ))
+            ), hashMapOf(), hashMapOf())
         var evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.String("TEST:OK")),evaluator.eval(declarations,null))
@@ -975,8 +1000,8 @@ class EvaluatorTest{
     @Test
     fun floatAdditionTest(){
 
-        val declarations = listOf<Declaration>(
-            Declaration.VariableDeclaration(Type.Float,"b",Expression.Value(ConstantValue.Float(5.5f))),
+        val declarations = File("demo", hashMapOf(),hashMapOf(),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Float,
                 "Main",
@@ -995,8 +1020,9 @@ class EvaluatorTest{
                         ConstantValue.Float(15.7f))))
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf("b" to Declaration.VariableDeclaration(Type.Float,"b",Expression.Value(ConstantValue.Float(5.5f)))),
+            hashMapOf())
 
 
         var evaluator = Evaluator()
@@ -1007,46 +1033,50 @@ class EvaluatorTest{
 
     @Test
     fun classTest(){
-        val declarations = listOf<Declaration>(
-            Declaration.ClassDeclare("OpenGL", ClassBody(
-                hashMapOf( "OpenGL" to mutableListOf(
-                    Declaration.FunctionDeclare(Type.Void,"OpenGL",
-                        Body(listOf(
-                        )),null)),
-                    "A" to mutableListOf(
-                    Declaration.FunctionDeclare(Type.Void,"A",
-                        Body(
-                            listOf<Statement>(
-                                Statement.ProcedureCall(
-                                    "Println",
-                                    listOf<Expression>(
-                                        Expression.Value(ConstantValue.String("Hallo"))
+
+        val declarations = File("demo", hashMapOf(),
+            hashMapOf(
+                "OpenGL" to Declaration.ClassDeclare("OpenGL", ClassBody(
+                    hashMapOf( "OpenGL" to mutableListOf(
+                        Declaration.FunctionDeclare(Type.Void,"OpenGL",
+                            Body(listOf(
+                            )),null)),
+                        "A" to mutableListOf(
+                            Declaration.FunctionDeclare(Type.Void,"A",
+                                Body(
+                                    listOf<Statement>(
+                                        Statement.ProcedureCall(
+                                            "Println",
+                                            listOf<Expression>(
+                                                Expression.Value(ConstantValue.String("Hallo"))
+                                            )
+                                        )
                                     )
-                                )
-                            )
-                        ),null)),
-                    "B" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"B",
-                        Body(
-                            listOf<Statement>(
-                                Statement.ProcedureCall(
-                                    "Println",
-                                    listOf<Expression>(
-                                        Expression.Operation(Operator.Plus,
-                                            Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a"))),
+                                ),null)),
+                        "B" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"B",
+                            Body(
+                                listOf<Statement>(
+                                    Statement.ProcedureCall(
+                                        "Println",
+                                        listOf<Expression>(
                                             Expression.Operation(Operator.Plus,
-                                                Expression.Value(ConstantValue.String("Hallo")),
-                                                Expression.UseVariable("name")
-                                            ),
+                                                Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a"))),
+                                                Expression.Operation(Operator.Plus,
+                                                    Expression.Value(ConstantValue.String("Hallo")),
+                                                    Expression.UseVariable("name")
+                                                ),
+                                            )
                                         )
                                     )
                                 )
-                            )
-                        ), listOf(Parameter("a",Type.Integer))))
-                ),
-                listOf(
-                    Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
-                )
-            )),
+                            ), listOf(Parameter("a",Type.Integer))))
+                    ),
+                    listOf(
+                        Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
+                    )
+                ))
+            ),
+            hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Void,
                 "Main",
@@ -1060,8 +1090,8 @@ class EvaluatorTest{
                     )
                 ),
                 null
-            )
-        )
+            ))
+            ), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
 

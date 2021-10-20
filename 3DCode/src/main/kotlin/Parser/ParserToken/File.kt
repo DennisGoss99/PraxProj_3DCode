@@ -8,6 +8,7 @@ class File(
     val includes : HashMap<String, File?>,
     val classDeclarations : HashMap<String, Declaration.ClassDeclare>,
     val functionDeclarations : HashMap<String, MutableList<Declaration.FunctionDeclare>>,
-    val globalEnvironment : HashMap<String, Declaration.VariableDeclaration>
-    ){
-}
+    val variableDeclaration: HashMap<String, Declaration.VariableDeclaration>,
+    val globalEnvironment : HashMap<String, Expression.Value>,
+    var variablesEventuated : Boolean = false
+    )

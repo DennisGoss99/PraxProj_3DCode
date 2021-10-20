@@ -18,15 +18,15 @@ class TypeChecker(private val declarations: List<Declaration>, private val args 
 
         declarations.forEach { d ->
             when(d){
-                is Declaration.Imports -> {
-                    d.list?.forEach {
-                        if(it is Declaration.ClassDeclare){
-                            if(importDeclarations.containsKey(it.className))
-                                throw TypeCheckerDuplicateClassException(it.LineOfCode, it.className)
-                            importDeclarations[it.className] = it
-                        }
-                    }
-                }
+//                is Declaration.Imports -> {
+//                    d.list?.forEach {
+//                        if(it is Declaration.ClassDeclare){
+//                            if(importDeclarations.containsKey(it.className))
+//                                throw TypeCheckerDuplicateClassException(it.LineOfCode, it.className)
+//                            importDeclarations[it.className] = it
+//                        }
+//                    }
+//                }
                 is Declaration.ClassDeclare -> {
                     if(classDeclarations.containsKey(d.className))
                         throw TypeCheckerDuplicateClassException(d.LineOfCode, d.className)

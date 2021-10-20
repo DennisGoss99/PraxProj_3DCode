@@ -1,6 +1,7 @@
 import Evaluator.Evaluator
 import Lexer.Lexer
 import Parser.Parser
+import Parser.ParserManager
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.IValue
@@ -13,19 +14,21 @@ import kotlin.test.assertFailsWith
 class DeepTest {
 
     private fun executeCode(code : String, args: List<Expression.Value>? = null): IValue? {
-
-        val parserOutput = Parser(Lexer(code)).ParsingStart()
-
-        TypeChecker(parserOutput, args).check()
-
-        return Evaluator().eval(parserOutput,args)?.value
-
+        return executeCode(mutableListOf("App" to code), args)
     }
 
-    private fun withoutTypeCheckerExecuteCode(code : String, args: List<Expression.Value>? = null): IValue? {
+    private fun executeCode(code : MutableList<Pair<String, String>>, args: List<Expression.Value>? = null): IValue? {
 
-        val parserOutput = Parser(Lexer(code)).ParsingStart()
-        return Evaluator().eval(parserOutput,args)?.value
+        val mainFile = ParserManager.loadFromString(code)
+        //TypeChecker(mainFile, args).check()
+
+        return Evaluator().eval(mainFile,args)?.value
+    }
+
+    private fun withoutTypeCheckerExecuteCode(code : MutableList<Pair<String, String>>, args: List<Expression.Value>? = null): IValue? {
+
+        val mainFile = ParserManager.loadFromString(code)
+        return Evaluator().eval(mainFile,args)?.value
     }
 
     @Test

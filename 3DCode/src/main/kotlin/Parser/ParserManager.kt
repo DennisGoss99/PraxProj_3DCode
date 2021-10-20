@@ -3,81 +3,125 @@ package Parser
 import Lexer.Lexer
 import Lexer.LexerToken
 import Parser.ParserToken.Declaration
-import Parser.ParserToken.Expression
 import Parser.ParserToken.File
-import TypeChecker.TypeChecker
 import java.util.HashMap
 
-class ParserManager(path : String) {
+class ParserManager{
+    companion object {
 
+        private var loadedFiles = HashMap<String,File?>()
 
-    val loadedFiles = HashMap<String,File?>()
+        fun loadFromDisk(path: String): File {
+            loadedFiles = HashMap<String, File?>()
 
-    init {
-        var file = loadImports(path)
-        loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
+            var file = loadImportsFile(path)
+            loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
 
-        loadedFiles.forEach { _, f ->
-            f?.includes?.forEach { n, i ->
-                if(i == null)
-                    f.includes[n] = loadedFiles[n]
+            loadedFiles.forEach { (_, f) ->
+                f?.includes?.forEach { (n, i) ->
+                    if (i == null)
+                        f.includes[n] = loadedFiles[n]
+                }
             }
+            return file
         }
 
-        println("")
-    }
+        fun loadFromString(list: MutableList<Pair<String , String>>) : File {
+            loadedFiles = HashMap<String, File?>()
 
-    private fun loadImports(filePath: String) : File {
-        val file = java.io.File(filePath)
-        val inputStream = file.inputStream()
-        val inputString = inputStream.bufferedReader().use { it.readText() }
+            if(list.size == 0)
+                throw Exception("No code files found")
 
-        val lexer = Lexer(inputString)
-        val rawImports = getImports(lexer)
-
-        val includes = HashMap<String, File?>()
-        val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
-        val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
-        val variableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
-
-        loadedFiles[file.nameWithoutExtension] = null
-
-        rawImports.forEach {
-            val name = it.first.substringAfterLast('/').substringBeforeLast('.')
-            if(!loadedFiles.containsKey(name)){
-                val loadedFile = loadImports(file.path.substringBeforeLast('\\') + '\\' + it.first)
-                includes[name] = loadedFile
-                loadedFiles[name] = loadedFile
-            }else{
-                includes[name] = loadedFiles[name]
-            }
-        }
-
-        val parserOutput = Parser(lexer).ParsingStart() //rawImports.mapTo(mutableListOf()) { Declaration.Imports(it.first.substringAfterLast('/').substringBeforeLast('.'),null,it.second) })
-
-        parserOutput.forEach { d ->
-            when(d){
-                is Declaration.ClassDeclare -> classDeclarations[d.className] = d
-                is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
-                is Declaration.VariableDeclaration -> variableDeclarations[d.name] = d
+            list.forEach {
+                loadedFiles[it.first] = loadImportsString(it)
             }
 
+
+            loadedFiles.forEach { (_, f) ->
+                f?.includes?.forEach { (n, i) ->
+                    if (i == null)
+                        f.includes[n] = loadedFiles[n]
+                }
+            }
+
+            return loadedFiles["App"] ?: throw Exception("Couldn't find file 'App'")
         }
 
-        return File(file.nameWithoutExtension, includes ,classDeclarations , functionDeclarations ,variableDeclarations)//files[file.nameWithoutExtension] = File(file.nameWithoutExtension, parserOutput)
-    }
+        private fun loadImportsString(file: Pair<String , String>) : File {
 
-    private fun getImports(lexer: Lexer) : List<Pair<String, Int>>{
-        val fileNames = mutableListOf<Pair<String, Int>>()
+            val includes = HashMap<String, File?>()
+            val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
+            val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
+            val variableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
 
-        while (lexer.peek() is LexerToken.Import){
-            val importToken = lexer.next()
+            val lexer = Lexer(file.second)
 
-            val fileName = (lexer.next() as? LexerToken.String_Literal) ?: throw Exception("")
+            getImports(lexer).forEach {
+                includes[it] = null
+            }
 
-            fileNames.add((fileName.s.replace('.','/') + ".c3d") to importToken.LineOfCode )
+            Parser(lexer).ParsingStart().forEach { d ->
+                when(d){
+                    is Declaration.ClassDeclare -> classDeclarations[d.className] = d
+                    is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
+                    is Declaration.VariableDeclaration -> variableDeclarations[d.name] = d
+                }
+            }
+
+            return File(file.first, includes ,classDeclarations , functionDeclarations ,variableDeclarations, hashMapOf())
         }
-        return fileNames
-    }
 
+        private fun loadImportsFile(filePath: String) : File {
+            val file = java.io.File(filePath)
+            val inputStream = file.inputStream()
+            val inputString = inputStream.bufferedReader().use { it.readText() }
+
+            val lexer = Lexer(inputString)
+            val rawImports = getImports(lexer)
+
+            val includes = HashMap<String, File?>()
+            val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
+            val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
+            val variableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
+
+            loadedFiles[file.nameWithoutExtension] = null
+
+            rawImports.forEach {
+                val name = it.substringAfterLast('/').substringBeforeLast('.')
+                if(!loadedFiles.containsKey(name)){
+                    val loadedFile = loadImportsFile(file.path.substringBeforeLast('\\') + '\\' + it)
+                    includes[name] = loadedFile
+                    loadedFiles[name] = loadedFile
+                }else{
+                    includes[name] = loadedFiles[name]
+                }
+            }
+
+            val parserOutput = Parser(lexer).ParsingStart()
+
+            parserOutput.forEach { d ->
+                when(d){
+                    is Declaration.ClassDeclare -> classDeclarations[d.className] = d
+                    is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
+                    is Declaration.VariableDeclaration -> variableDeclarations[d.name] = d
+                }
+            }
+
+            return File(file.nameWithoutExtension, includes ,classDeclarations , functionDeclarations ,variableDeclarations, hashMapOf())
+        }
+
+        private fun getImports(lexer: Lexer) : List<String>{
+            val fileNames = mutableListOf<String>()
+
+            while (lexer.peek() is LexerToken.Import){
+                val importToken = lexer.next()
+
+                val fileName = (lexer.next() as? LexerToken.String_Literal) ?: throw Exception("")
+
+                fileNames.add(fileName.s.replace('.','/') + ".c3d")
+            }
+            return fileNames
+        }
+
+    }
 }

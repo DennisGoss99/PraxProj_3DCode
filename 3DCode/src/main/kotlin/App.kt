@@ -17,14 +17,14 @@ private fun executeCode(code : String, args: List<Expression.Value>? = null): IV
     return Evaluator().eval(parserOutput,args)?.value
 
 }
+//
+//private fun executePath(path : String, args: List<Expression.Value>? = null): IValue? {
 
-private fun executePath(path : String, args: List<Expression.Value>? = null): IValue? {
-
-    val appCode = ParserManager(path).getApp()
-
-    return Evaluator().eval(appCode,args)?.value
-
-}
+//    val appCode = ParserManager(path).getApp()
+//
+//    return Evaluator().eval(appCode,args)?.value
+//
+//}
 
 fun main(){
 
@@ -34,7 +34,7 @@ fun main(){
 //
 //    println(executeCode(code))
 
-
-    println(executePath("C:/Users/Merdo/Desktop/TEST/App.c3d", listOf()))
+      ParserManager("C:/Users/Merdo/Desktop/TEST/App.c3d")
+//    println(executePath("C:/Users/Merdo/Desktop/TEST/App.c3d", listOf()))
 
 }

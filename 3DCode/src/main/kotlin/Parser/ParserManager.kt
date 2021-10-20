@@ -3,50 +3,68 @@ package Parser
 import Lexer.Lexer
 import Lexer.LexerToken
 import Parser.ParserToken.Declaration
+import Parser.ParserToken.Expression
 import Parser.ParserToken.File
 import TypeChecker.TypeChecker
+import java.util.HashMap
 
 class ParserManager(path : String) {
 
-    val files = HashMap<String,File?>()
+
+    val loadedFiles = HashMap<String,File?>()
 
     init {
-        loadImports(path)
+        var file = loadImports(path)
+        loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
 
-        files.forEach { (_, f) ->
-            if(f?.declarations != null){
-                for (declaration in f.declarations){
-                    when(declaration){
-                        is Declaration.Imports -> declaration.list = files[declaration.name]?.declarations
-                        else -> break
-                    }
-                }
+        loadedFiles.forEach { _, f ->
+            f?.includes?.forEach { n, i ->
+                if(i == null)
+                    f.includes[n] = loadedFiles[n]
             }
         }
 
-        files.forEach { (_, f) ->
-            TypeChecker(f?.declarations ?: mutableListOf()).check()
-        }
+        println("")
     }
 
-    public fun getApp() = files["App"]?.declarations ?: throw Exception("Couldn't find App")
-
-    private fun loadImports(filePath: String) {
+    private fun loadImports(filePath: String) : File {
         val file = java.io.File(filePath)
         val inputStream = file.inputStream()
         val inputString = inputStream.bufferedReader().use { it.readText() }
 
-        files[file.nameWithoutExtension] = null
-
         val lexer = Lexer(inputString)
         val rawImports = getImports(lexer)
+
+        val includes = HashMap<String, File?>()
+        val classDeclarations = HashMap<String, Declaration.ClassDeclare>()
+        val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
+        val variableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
+
+        loadedFiles[file.nameWithoutExtension] = null
+
         rawImports.forEach {
-            if(!files.containsKey(it.first.substringBeforeLast('.')))
-                loadImports(file.path.substringBeforeLast('\\') + '\\' + it.first)
+            val name = it.first.substringAfterLast('/').substringBeforeLast('.')
+            if(!loadedFiles.containsKey(name)){
+                val loadedFile = loadImports(file.path.substringBeforeLast('\\') + '\\' + it.first)
+                includes[name] = loadedFile
+                loadedFiles[name] = loadedFile
+            }else{
+                includes[name] = loadedFiles[name]
+            }
         }
 
-        val parserOutput = Parser(lexer).ParsingStart(rawImports.mapTo(mutableListOf()) { Declaration.Imports(it.first.substringAfterLast('/').substringBeforeLast('.'),null,it.second) })
-        files[file.nameWithoutExtension] = File(file.nameWithoutExtension, parserOutput)
+        val parserOutput = Parser(lexer).ParsingStart() //rawImports.mapTo(mutableListOf()) { Declaration.Imports(it.first.substringAfterLast('/').substringBeforeLast('.'),null,it.second) })
+
+        parserOutput.forEach { d ->
+            when(d){
+                is Declaration.ClassDeclare -> classDeclarations[d.className] = d
+                is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
+                is Declaration.VariableDeclaration -> variableDeclarations[d.name] = d
+            }
+
+        }
+
+        return File(file.nameWithoutExtension, includes ,classDeclarations , functionDeclarations ,variableDeclarations)//files[file.nameWithoutExtension] = File(file.nameWithoutExtension, parserOutput)
     }
 
     private fun getImports(lexer: Lexer) : List<Pair<String, Int>>{
@@ -61,6 +79,5 @@ class ParserManager(path : String) {
         }
         return fileNames
     }
-
 
 }

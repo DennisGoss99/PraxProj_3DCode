@@ -2,4 +2,4 @@ package Evaluator.Exceptions
 
 import Parser.ParserToken.Type
 
-class TypeMismatchRuntimeException(message: String, expectedType : Type) : Exception("$message '$expectedType'")
+class TypeMismatchRuntimeException(lineOfCode: Int, fileName : String, message: String, expectedType : Type) : EvaluatorBaseException(lineOfCode, fileName ,"$message '$expectedType'")

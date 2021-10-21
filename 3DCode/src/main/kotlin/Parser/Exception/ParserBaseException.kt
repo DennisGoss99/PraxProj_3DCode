@@ -1,3 +1,4 @@
 package Parser.Exception
 
-open class ParserBaseException(lineOfCode: Int, message: String) : Exception("[Error at line:$lineOfCode] $message")
+
+open class ParserBaseException(lineOfCode: Int, fileName : String, message: String) : Exception("[Error at 'line:$lineOfCode' in '$fileName'] $message")

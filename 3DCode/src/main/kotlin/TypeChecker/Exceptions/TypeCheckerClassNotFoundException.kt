@@ -1,3 +1,3 @@
 package TypeChecker.Exceptions
 
-class TypeCheckerClassNotFoundException (lineOfCode : Int,className : String) : TypeCheckerBaseException(lineOfCode, "Couldn't find class: '$className'")
+class TypeCheckerClassNotFoundException (lineOfCode : Int, fileName : String,className : String) : TypeCheckerBaseException(lineOfCode, fileName, "Couldn't find class: '$className'")

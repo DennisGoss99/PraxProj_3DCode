@@ -22,7 +22,7 @@ class ParserTest
     fun TestIfTreeIsAsExpected(code : String, declaration: List<Declaration>)
     {
         val lexer = TestLexer(code)
-        val parser = Parser(lexer)
+        val parser = Parser(lexer, "Test")
         val parserTokenTree = parser.ParsingStart()
 
         assertEquals(declaration.toString(), parserTokenTree.toString())

@@ -55,17 +55,17 @@ class ParserManager{
             val functionDeclarations = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
             val variableDeclarations = HashMap<String, Declaration.VariableDeclaration>()
 
-            val lexer = Lexer(file.second)
+            val lexer = Lexer(file.second, file.first)
 
             getImports(lexer).forEach {
                 includes[it] = null
             }
 
-            Parser(lexer).ParsingStart().forEach { d ->
+            Parser(lexer, file.first).ParsingStart().forEach { d ->
                 when(d){
                     is Declaration.ClassDeclare -> {
                         if(classDeclarations.containsKey(d.className))
-                            throw TypeCheckerDuplicateClassException(d.LineOfCode,d.className)
+                            throw TypeCheckerDuplicateClassException(d.LineOfCode, file.first, d.className)
                         classDeclarations[d.className] = d
                     }
                     is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
@@ -81,7 +81,7 @@ class ParserManager{
             val inputStream = file.inputStream()
             val inputString = inputStream.bufferedReader().use { it.readText() }
 
-            val lexer = Lexer(inputString)
+            val lexer = Lexer(inputString, file.name)
             val rawImports = getImports(lexer)
 
             val includes = HashMap<String, File?>()
@@ -102,13 +102,13 @@ class ParserManager{
                 }
             }
 
-            val parserOutput = Parser(lexer).ParsingStart()
+            val parserOutput = Parser(lexer, file.name).ParsingStart()
 
             parserOutput.forEach { d ->
                 when(d){
                     is Declaration.ClassDeclare -> {
                         if(classDeclarations.containsKey(d.className))
-                            throw TypeCheckerDuplicateClassException(d.LineOfCode,d.className)
+                            throw TypeCheckerDuplicateClassException(d.LineOfCode, file.name, d.className)
                         classDeclarations[d.className] = d
                     }
                     is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)

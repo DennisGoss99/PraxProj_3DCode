@@ -1,3 +1,5 @@
 package Evaluator.Exceptions.NotFound
 
-class FunctionNotFoundRuntimeException(val functionName : String) : Exception("Couldn't find Function: '$functionName'")
+import Evaluator.Exceptions.EvaluatorBaseException
+
+class FunctionNotFoundRuntimeException(lineOfCode: Int, fileName : String, val functionName : String) : EvaluatorBaseException(lineOfCode, fileName ,"Couldn't find Function: '$functionName'")

@@ -6,7 +6,7 @@ import Parser.Exception.*
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 
-class Parser(val lexer: Lexer)
+class Parser(val lexer: Lexer, val fileName : String)
 {
     private var currentLineOfCode = 1
 
@@ -78,14 +78,14 @@ class Parser(val lexer: Lexer)
                     is LexerToken.NameIdent -> VariableDeclaration(type)
                     is LexerToken.FunctionIdent -> FuncitonParse(type)
 
-                    else -> throw ParserDeclarationTokenInvalid(nextToken)
+                    else -> throw ParserDeclarationTokenInvalid(nextToken, fileName)
                 }
             }
             // Constructor Parse
             is LexerToken.FunctionIdent -> FuncitonParse(Type.Void)
 
-            is LexerToken.NameIdent -> throw ParserTypeLowerCase(nextToken)
-            else -> throw ParserTypeUnknown(nextToken)
+            is LexerToken.NameIdent -> throw ParserTypeLowerCase(nextToken, fileName)
+            else -> throw ParserTypeUnknown(nextToken, fileName)
         }
     }
 
@@ -147,7 +147,7 @@ class Parser(val lexer: Lexer)
 
         if(token !is LexerToken.NameIdent)
         {
-            throw ParserInvalidName(token)
+            throw ParserInvalidName(token, fileName)
         }
 
         val name = token
@@ -247,7 +247,7 @@ class Parser(val lexer: Lexer)
             when(val declaration = DeclarationParse()){
                 is Declaration.VariableDeclaration -> localVariables.add(declaration)
                 is Declaration.FunctionDeclare -> methodsList.getOrPut(declaration.functionName, ::mutableListOf).add(declaration)
-                else -> ParserUnsupportedDeclaration(declaration)
+                else -> ParserUnsupportedDeclaration(declaration, fileName)
             }
         }
 
@@ -350,7 +350,7 @@ class Parser(val lexer: Lexer)
             is LexerToken.Greater-> Operator.Greater
             is LexerToken.GreaterEqual -> Operator.GreaterEquals
 
-            else -> throw ParserOperatorUnknown(token)
+            else -> throw ParserOperatorUnknown(token, fileName)
         }
     }
 
@@ -418,7 +418,7 @@ class Parser(val lexer: Lexer)
             is LexerToken.Char_Literal -> { Expression.Value(ConstantValue.Char(token.c, Type.Char)) }
             is LexerToken.String_Literal -> { Expression.Value(ConstantValue.String(token.s, Type.String)) }
 
-            else -> throw ParserValueUnknown(token)
+            else -> throw ParserValueUnknown(token, fileName)
         }
 
         expression.BlockDepth = _currentBlockDepth
@@ -451,7 +451,7 @@ class Parser(val lexer: Lexer)
 
             if(token !is LexerToken.Comma)
             {
-                throw ParserStatementInvalid(token)
+                throw ParserStatementInvalid(token, fileName)
             }
         }
 
@@ -566,7 +566,7 @@ class Parser(val lexer: Lexer)
                     CalulationParse(expressionValue)
                 }
             }
-            else -> throw ParserTokenUnexpected(leftBracketAgain)
+            else -> throw ParserTokenUnexpected(leftBracketAgain, fileName)
         }
 
         val rightBracket = FetchNextExpectedToken<LexerToken.Rparen>("')'")
@@ -642,7 +642,7 @@ class Parser(val lexer: Lexer)
                 ExpressionParse()
             }
 
-            else -> throw ParserExpressionInvalid(nextToken)
+            else -> throw ParserExpressionInvalid(nextToken, fileName)
         }
 
         var expectedSemicolon = lexer.peek()
@@ -725,7 +725,7 @@ class Parser(val lexer: Lexer)
 
         if(nextToken is LexerToken.Rparen)
         {
-            throw ParserConditionEmpty(nextToken.LineOfCode)
+            throw ParserConditionEmpty(nextToken.LineOfCode, fileName)
         }
 
         val expression = ExpressionParse()
@@ -743,7 +743,7 @@ class Parser(val lexer: Lexer)
             is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus,Expression.UseVariable(name), ExpressionParse())
             is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply,Expression.UseVariable(name), ExpressionParse())
             is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide,Expression.UseVariable(name), ExpressionParse())
-            else -> throw ParserUnsupportedAssignment(tokenEquals)
+            else -> throw ParserUnsupportedAssignment(tokenEquals, fileName)
         }
 
         return Statement.AssignValue(name, expression, currentLineOfCode)
@@ -778,7 +778,7 @@ class Parser(val lexer: Lexer)
             }
             is LexerToken.FunctionIdent -> ProcedureCallParse()
 
-            else -> throw ParserStatementInvalid(token)
+            else -> throw ParserStatementInvalid(token, fileName)
         }
     }
 
@@ -786,7 +786,7 @@ class Parser(val lexer: Lexer)
     {
         val variableType = GetNextToken()
 
-        val identifier = variableType as? LexerToken.TypeIdent ?: throw ParserTypeLowerCase(variableType as LexerToken.NameIdent)
+        val identifier = variableType as? LexerToken.TypeIdent ?: throw ParserTypeLowerCase(variableType as LexerToken.NameIdent, fileName)
 
         return when (identifier.identify)
         {

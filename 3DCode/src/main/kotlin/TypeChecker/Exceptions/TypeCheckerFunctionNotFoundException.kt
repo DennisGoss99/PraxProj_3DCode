@@ -1,3 +1,3 @@
 package TypeChecker.Exceptions
 
-class TypeCheckerFunctionNotFoundException(lineOfCode : Int,functionName : String) : TypeCheckerBaseException(lineOfCode, "Couldn't find function: '$functionName'")
+class TypeCheckerFunctionNotFoundException(lineOfCode : Int, fileName : String,functionName : String) : TypeCheckerBaseException(lineOfCode, fileName, "Couldn't find function: '$functionName'")

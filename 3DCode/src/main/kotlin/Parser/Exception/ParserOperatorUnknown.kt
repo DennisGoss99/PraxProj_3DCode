@@ -2,4 +2,4 @@ package Parser.Exception
 
 import Lexer.LexerToken
 
-class ParserOperatorUnknown(val token : LexerToken) : ParserBaseException(token.LineOfCode, "Operator unkown. <$token>")
+class ParserOperatorUnknown(val token : LexerToken, fileName : String) : ParserBaseException(token.LineOfCode, fileName, "Operator unkown. <$token>")

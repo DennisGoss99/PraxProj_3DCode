@@ -1,3 +1,3 @@
 package TypeChecker.Exceptions
 
-class TypeCheckerDuplicateClassException(lineOfCode : Int, className :String, ) : TypeCheckerBaseException(lineOfCode, "Duplicate Classes aren't allowed. class :'$className'")
+class TypeCheckerDuplicateClassException(lineOfCode : Int, fileName : String, className :String, ) : TypeCheckerBaseException(lineOfCode, fileName, "Duplicate Classes aren't allowed. class :'$className'")

@@ -7,7 +7,7 @@ sealed class LexerToken() {
         }
 
         open val LineOfCode : Int = -1
-
+        open val FileName : String = "-1"
 
 
         // Keywords

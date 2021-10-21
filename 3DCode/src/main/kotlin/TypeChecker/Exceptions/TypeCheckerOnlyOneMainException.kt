@@ -1,3 +1,3 @@
 package TypeChecker.Exceptions
 
-class TypeCheckerOnlyOneMainException(lineOfCode : Int) : TypeCheckerBaseException(lineOfCode, "Only one main is allowed to exists")
+class TypeCheckerOnlyOneMainException(lineOfCode : Int, fileName : String) : TypeCheckerBaseException(lineOfCode, fileName, "Only one main is allowed to exists")

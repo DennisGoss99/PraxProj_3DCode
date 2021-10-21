@@ -1,3 +1,3 @@
 package Lexer.Exceptions
 
-class LexerConstCharException(lineOfCode: Int, message : String): LexerBaseException(lineOfCode, message)
+class LexerConstCharException(lineOfCode: Int, fileName : String, message : String): LexerBaseException(lineOfCode, fileName, message)

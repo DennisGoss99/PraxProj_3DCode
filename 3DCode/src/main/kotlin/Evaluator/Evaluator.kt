@@ -31,7 +31,7 @@ class Evaluator {
     private fun evalFunction(functions : MutableList<Declaration.FunctionDeclare>?, functionName : String, rawParameter: List<Expression>?, environment: HashMap<String, Expression.Value>, file : File) : Expression.Value? {
 
         val parameter = rawParameter?.map { evalExpression(it,environment, file) }
-        val function = functions?.firstOrNull{ functionAcceptsParameter(it, parameter) } ?: throw FunctionNotFoundRuntimeException(functionName)
+        val function = functions?.firstOrNull{ functionAcceptsParameter(it, parameter) } ?: throw FunctionNotFoundRuntimeException(-1, file.name, functionName)
 
         val localEnvironment = function.parameters?.zip(parameter.orEmpty()){ fp, p -> fp.name to p }?.associateTo(HashMap()){it.first to it.second} ?: HashMap()
 
@@ -40,23 +40,23 @@ class Evaluator {
             return null
         }
 
-        return evalBody(function.body, localEnvironment, file) ?: throw ReturnNotFoundRuntimeException(function.functionName)
+        return evalBody(function.body, localEnvironment, file) ?: throw ReturnNotFoundRuntimeException(function.LineOfCode, file.name, function.functionName)
     }
 
     private fun evalMethod(functions : MutableList<Declaration.FunctionDeclare>?, functionName : String, rawParameter: List<Expression>?, environment: HashMap<String, Expression.Value>, file : File): Expression.Value?{
         val parameter = rawParameter?.map { evalExpression(it,environment, file) }
-        val function = functions?.firstOrNull{ functionAcceptsParameter(it, parameter) } ?: throw FunctionNotFoundRuntimeException(functionName)
+        val function = functions?.firstOrNull{ functionAcceptsParameter(it, parameter) } ?: throw FunctionNotFoundRuntimeException(rawParameter?.get(0)?.LineOfCode ?: -1, file.name, functionName)
 
         var returnValue : Expression.Value? = null
 
         val localEnvironment = function.parameters?.zip(parameter.orEmpty()){ fp, p -> fp.name to p }?.associateTo(HashMap()){it.first to it.second} ?: HashMap()
 
-        val methodEnvironment = combineEnvironments(environment,localEnvironment)
+        val methodEnvironment = combineEnvironments(environment,localEnvironment, file)
 
         if(function.returnType == Type.Void){
             evalBody(function.body, methodEnvironment, file)
         }else{
-            returnValue = evalBody(function.body, methodEnvironment, file) ?: throw ReturnNotFoundRuntimeException(function.functionName)
+            returnValue = evalBody(function.body, methodEnvironment, file) ?: throw ReturnNotFoundRuntimeException(function.LineOfCode, file.name, function.functionName)
         }
 
         changeEnvironment(environment,methodEnvironment,localEnvironment.keys.toList())
@@ -68,7 +68,7 @@ class Evaluator {
         val classEnvironment = HashMap<String, Expression.Value>()
 
         classDefinition.classBody.variables?.forEach {
-            classEnvironment[it.name] = evalExpression(it.expression, combineEnvironments(file.globalEnvironment,classEnvironment), file)
+            classEnvironment[it.name] = evalExpression(it.expression, combineEnvironments(file.globalEnvironment,classEnvironment, file), file)
         }
 
         evalMethod(classDefinition.classBody.functions[classDefinition.className], classDefinition.className, parameter, classEnvironment, file)
@@ -85,7 +85,7 @@ class Evaluator {
             if(localEnvironment.containsKey(variable.name))
                 throw Exception("Variable can't be initialized twice '${variable.name}'")
 
-            localEnvironment[variable.name] = evalExpression(variable.expression, combineEnvironments(environment,localEnvironment), file)
+            localEnvironment[variable.name] = evalExpression(variable.expression, combineEnvironments(environment,localEnvironment, file), file)
         }
 
         environment.forEach{ v->
@@ -107,14 +107,14 @@ class Evaluator {
                              when {
                                 localEnvironment.containsKey(statement.variableName) -> localEnvironment[statement.variableName] = evalExpression(statement.expression, localEnvironment, file)
                                 file.globalEnvironment.containsKey(statement.variableName) -> file.globalEnvironment[statement.variableName] = evalExpression(statement.expression, localEnvironment, file)
-                                else -> throw VariableNotFoundRuntimeException(statement.variableName)
+                                else -> throw VariableNotFoundRuntimeException(statement.LineOfCode, file.name, statement.variableName)
                             }
                         }
                     }
                 }
                 is Statement.If -> {
                     val condition = evalExpression(statement.condition, localEnvironment, file).value as? ConstantValue.Boolean
-                        ?: throw TypeMismatchRuntimeException("If condition must be of type", Type.Boolean)
+                        ?: throw TypeMismatchRuntimeException(statement.LineOfCode, file.name, "If condition must be of type", Type.Boolean)
                     if(condition.value){
                         evalBody(statement.ifBody, localEnvironment, file)?.let {
                             changeEnvironment(environment, localEnvironment, shadowMap)
@@ -126,7 +126,7 @@ class Evaluator {
                     }
                 }
                 is Statement.While -> {
-                    while ((evalExpression(statement.condition, localEnvironment, file).value as? ConstantValue.Boolean)?.value ?: throw TypeMismatchRuntimeException("While condition must be of type", Type.Boolean))
+                    while ((evalExpression(statement.condition, localEnvironment, file).value as? ConstantValue.Boolean)?.value ?: throw TypeMismatchRuntimeException(statement.LineOfCode, file.name, "While condition must be of type", Type.Boolean))
                     {
                         evalBody(statement.body, localEnvironment, file)?.let {
                             changeEnvironment(environment, localEnvironment, shadowMap)
@@ -156,7 +156,7 @@ class Evaluator {
     }
 
     private fun statementUseClass(statement : Statement.UseClass, environment: HashMap<String, Expression.Value>, file : File){
-        val obj = environment.getOrDefault(statement.variableName,null) ?: file.globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.variableName)
+        val obj = environment.getOrDefault(statement.variableName,null) ?: file.globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.LineOfCode, file.name, statement.variableName)
         val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
 
         val action = { classDef : Declaration.ClassDeclare, importFile : File ->
@@ -164,7 +164,7 @@ class Evaluator {
                 is Statement.AssignValue -> {
                     when{
                         classObj.value.containsKey(statement.variableName) -> classObj.value[statement.variableName] = evalExpression(statement.expression, environment, file)
-                        else -> VariableNotFoundRuntimeException(statement.variableName)
+                        else -> VariableNotFoundRuntimeException(statement.LineOfCode, file.name, statement.variableName)
                     }
                 }
                 is Statement.ProcedureCall -> {
@@ -191,8 +191,8 @@ class Evaluator {
         throw Exception("Couldn't find class named: ${classObj.type.name}")
     }
 
-    private fun combineEnvironments(upperEnvironment : HashMap<String, Expression.Value>,lowerEnvironment : HashMap<String, Expression.Value>) : HashMap<String, Expression.Value>{
-        return HashMap((upperEnvironment.keys + lowerEnvironment.keys).associateWith { k -> lowerEnvironment[k] ?: upperEnvironment[k] ?: throw VariableNotFoundRuntimeException(k) })
+    private fun combineEnvironments(upperEnvironment : HashMap<String, Expression.Value>,lowerEnvironment : HashMap<String, Expression.Value>, file: File) : HashMap<String, Expression.Value>{
+        return HashMap((upperEnvironment.keys + lowerEnvironment.keys).associateWith { k -> lowerEnvironment[k] ?: upperEnvironment[k] ?: throw VariableNotFoundRuntimeException(-1, file.name, k) })
     }
 
     private fun changeEnvironment(environment : HashMap<String, Expression.Value>, localEnvironment : HashMap<String, Expression.Value>, shadowMap : List<String>){
@@ -210,9 +210,9 @@ class Evaluator {
             is Expression.Operation -> {
                 if(expression.expressionB == null){
                     return when(expression.operator){
-                        Operator.Not -> Expression.Value(ConstantValue.Boolean(!(evalExpression(expression.expressionA, environment, file).value as?  ConstantValue.Boolean ?: throw TypeMismatchRuntimeException("This type can't be negated",Type.Boolean)).value))
-                        Operator.Minus-> negateNumber(evalExpression(expression.expressionA, environment, file))
-                        else -> throw OperationRuntimeException("Needs more then one Argument", expression.operator)
+                        Operator.Not -> Expression.Value(ConstantValue.Boolean(!(evalExpression(expression.expressionA, environment, file).value as?  ConstantValue.Boolean ?: throw TypeMismatchRuntimeException(expression.LineOfCode, file.name, "This type can't be negated",Type.Boolean)).value))
+                        Operator.Minus-> negateNumber(evalExpression(expression.expressionA, environment, file), file)
+                        else -> throw OperationRuntimeException(expression.LineOfCode, file.name, "Needs more then one Argument", expression.operator)
                     }
                 }
                 else{
@@ -265,8 +265,8 @@ class Evaluator {
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) >= numberToFloat(v2)))
                             else -> throw Exception("Can't use lessEqual operation on [${v1::class} >= ${v2::class}]")
                         }
-                        Operator.Not -> throw OperationRuntimeException("Needs only one Argument", expression.operator)
-                        Operator.Equals -> throw OperationRuntimeException("In this position operator isn't allowed", expression.operator)
+                        Operator.Not -> throw OperationRuntimeException(expression.LineOfCode, file.name, "Needs only one Argument", expression.operator)
+                        Operator.Equals -> throw OperationRuntimeException(expression.LineOfCode, file.name, "In this position operator isn't allowed", expression.operator)
 
                     }
                 }
@@ -287,10 +287,10 @@ class Evaluator {
 
                         file.functionDeclarations[expression.functionName]?.let { funcs ->
                             return evalFunction(funcs, expression.functionName, expression.parameterList, environment, file)
-                                ?: throw ReturnNotFoundRuntimeException(expression.functionName)
+                                ?: throw ReturnNotFoundRuntimeException(expression.LineOfCode, file.name, expression.functionName)
                         }
 
-                        throw FunctionNotFoundRuntimeException(expression.functionName)
+                        throw FunctionNotFoundRuntimeException(expression.LineOfCode, file.name, expression.functionName)
                     }
                 }
 
@@ -320,11 +320,11 @@ class Evaluator {
     }
 
     private fun getVariableValue( expression: Expression.UseVariable, environment: HashMap<String, Expression.Value>, file : File) =
-        environment.getOrDefault(expression.variableName, null) ?: file.globalEnvironment.getOrDefault(expression.variableName, null) ?: throw VariableNotFoundRuntimeException(expression.variableName)
+        environment.getOrDefault(expression.variableName, null) ?: file.globalEnvironment.getOrDefault(expression.variableName, null) ?: throw VariableNotFoundRuntimeException(expression.LineOfCode, file.name, expression.variableName)
 
     private fun evalDotVariable(expression: Expression.UseDotVariable, environment : HashMap<String, Expression.Value>, file : File) : Expression.Value{
 
-        val obj = environment.getOrDefault(expression.variableName,null) ?: file.globalEnvironment.getOrDefault(expression.variableName,null) ?: throw VariableNotFoundRuntimeException(expression.variableName)
+        val obj = environment.getOrDefault(expression.variableName,null) ?: file.globalEnvironment.getOrDefault(expression.variableName,null) ?: throw VariableNotFoundRuntimeException(expression.LineOfCode, file.name, expression.variableName)
         val classObj = (obj.value as? DynamicValue.Class)
 
         return when(val expression2 = expression.expression){
@@ -338,7 +338,7 @@ class Evaluator {
 
                         val action = {  classDec : Declaration.ClassDeclare, importFile : File ->
                             val parameters = expression2.parameterList?.map { evalExpression(it,environment, file) }
-                            evalMethod(classDec.classBody.functions[expression2.functionName], expression2.functionName, parameters, classObj.value, importFile) ?: throw ReturnNotFoundRuntimeException(expression2.functionName)
+                            evalMethod(classDec.classBody.functions[expression2.functionName], expression2.functionName, parameters, classObj.value, importFile) ?: throw ReturnNotFoundRuntimeException(expression2.LineOfCode, file.name, expression2.functionName)
                         }
 
                         file.classDeclarations[classObj.type.name]?.let { classDeclare ->
@@ -373,11 +373,11 @@ class Evaluator {
         return Expression.Value(ConstantValue.String(value.value.getValueAsString()))
     }
 
-    private fun negateNumber(v1: Expression.Value): Expression.Value{
+    private fun negateNumber(v1: Expression.Value, file: File): Expression.Value{
         return when (val v1n = v1.value){
             is ConstantValue.Integer -> Expression.Value(ConstantValue.Integer(-v1n.value))
             is ConstantValue.Float -> Expression.Value(ConstantValue.Float(-v1n.value))
-                else -> throw TypeMismatchRuntimeException("This type can't be negated",v1.value.getType())
+                else -> throw TypeMismatchRuntimeException(v1.LineOfCode, file.name, "This type can't be negated",v1.value.getType())
         }
     }
 

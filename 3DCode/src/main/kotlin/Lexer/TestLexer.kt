@@ -1,6 +1,6 @@
 package Lexer
 
-class TestLexer(input: String) : Lexer(input) {
+class TestLexer(input: String) : Lexer(input, "Test") {
 
     override var currentLineOfCode: Int
         get() = -1

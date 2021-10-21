@@ -3,7 +3,7 @@ package Lexer
 import Lexer.Exceptions.*
 import PeekableIterator
 
-open class Lexer(input: String) {
+open class Lexer(input: String, val fileName : String) {
 
     private val iterator: PeekableIterator<Char> = PeekableIterator(input.iterator())
     private var lookahead: LexerToken? = null
@@ -70,14 +70,14 @@ open class Lexer(input: String) {
                     iterator.next()
                     LexerToken.And(currentLineOfCode)
                 }
-                else -> throw LexerUnexpectedCharException(currentLineOfCode, c,'&')
+                else -> throw LexerUnexpectedCharException(currentLineOfCode, fileName, c,'&')
             }
             '|' -> when (iterator.peek()) {
                 '|' -> {
                     iterator.next()
                     LexerToken.Or(currentLineOfCode)
                 }
-                else -> throw LexerUnexpectedCharException(currentLineOfCode, c,'|')
+                else -> throw LexerUnexpectedCharException(currentLineOfCode, fileName, c,'|')
             }
             '!' -> when (iterator.peek()) {
                 '=' -> {
@@ -106,7 +106,7 @@ open class Lexer(input: String) {
             else -> when {
                 c.isJavaIdentifierStart() -> ident(c)
                 c.isDigit() -> digit(c)
-                else -> throw LexerUnexpectedCharException(currentLineOfCode, c)
+                else -> throw LexerUnexpectedCharException(currentLineOfCode, fileName, c)
             }
         }
     }
@@ -165,12 +165,12 @@ open class Lexer(input: String) {
     private fun getChar(): LexerToken {
 
         return when(val c = iterator.peek()){
-            '\'' -> throw LexerConstCharException(currentLineOfCode, "Char can't be empty")
+            '\'' -> throw LexerConstCharException(currentLineOfCode, fileName, "Char can't be empty")
             else -> {
 
                 val c = iterator.next()
                 if(iterator.next() != '\'')
-                    throw LexerConstCharException(currentLineOfCode, "Char can only be a single char")
+                    throw LexerConstCharException(currentLineOfCode, fileName, "Char can only be a single char")
 
                 return LexerToken.Char_Literal(c, currentLineOfCode);
             }
@@ -190,7 +190,7 @@ open class Lexer(input: String) {
                 }
 
                 if(!iterator.hasNext())
-                    throw LexerConstStringException(currentLineOfCode, "Missing closing '\"' char")
+                    throw LexerConstStringException(currentLineOfCode, fileName, "Missing closing '\"' char")
 
                 iterator.next()
                 return LexerToken.String_Literal(result, currentLineOfCode);

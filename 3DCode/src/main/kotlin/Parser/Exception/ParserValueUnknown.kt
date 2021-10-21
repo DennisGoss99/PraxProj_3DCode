@@ -2,6 +2,6 @@ package Parser.Exception
 
 import Lexer.LexerToken
 
-class ParserValueUnknown(val invalidToken : LexerToken) : ParserBaseException(invalidToken.LineOfCode, "Unkown value (literal). Token:<$invalidToken>")
+class ParserValueUnknown(val invalidToken : LexerToken, fileName : String) : ParserBaseException(invalidToken.LineOfCode, fileName, "Unkown value (literal). Token:<$invalidToken>")
 {
 }

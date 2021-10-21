@@ -295,34 +295,46 @@ class TypeChecker() {
     }
 
     private fun useDotVariable(localVariables: HashMap<String, Type>, expression: Expression.UseDotVariable, file : File) : Type{
-        val classType = (localVariables[expression.variableName] ?: file.variableDeclaration[expression.variableName]?.type) as? Type.Custom //?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, expression.variableName)
-        val classObj = file.classDeclarations[classType?.name] ?: file.includes[classType?.name]?.classDeclarations?.get(classType?.name)
-        val classVariables = classObj?.classBody?.variables?.associateTo(HashMap()) { it.name to it.type } ?: HashMap()
+        if(!(localVariables.containsKey(expression.variableName) || localVariables.containsKey(expression.variableName)))
+            throw TypeCheckerVariableNotFoundException(expression.LineOfCode,file.name, expression.variableName)
 
-        return when (val expression2 = expression.expression){
-            is Expression.UseVariable -> {
-                classObj ?: throw TypeCheckerClassNotFoundException(expression.LineOfCode, file.name, expression.variableName)
-                classVariables[expression2.variableName] ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, file.name, expression.variableName)
-            }
-            is Expression.UseDotVariable -> useDotVariable(classVariables ,expression2, file)
-            is Expression.FunctionCall -> {
-                when(expression2.functionName){
-                    "ToString" -> {
-                        if(expression2.parameterList != null)
-                            throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, "Function: 'ToString' must have one or more transfer parameters")
-                        Type.String
-                    }
-                    else ->{
-                        classObj ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, file.name, expression.variableName)
-                        val functionList = classObj.classBody.functions[expression2.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, file.name, expression2.functionName)
-                        val parameterTypes = expression2.parameterList?.map{ getExpressionType(it, localVariables, file)}
-                        val function = functionList.firstOrNull { checkParameter(it, parameterTypes, file) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, expression2.functionName, parameterTypes)
-                        return function.returnType
-                    }
+        val classType = localVariables[expression.variableName] ?: file.variableDeclaration[expression.variableName]?.type
+
+        val action = { classObj : Declaration.ClassDeclare , importFile : File ->
+            when (val expression2 = expression.expression){
+                is Expression.UseVariable -> {
+                    classObj.classBody.variables?.associateTo(HashMap()) { it.name to it.type }?.get(expression2.variableName) ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, importFile.name, expression.variableName)
                 }
+                is Expression.UseDotVariable -> useDotVariable(classObj.classBody.variables?.associateTo(HashMap()) { it.name to it.type } ?: HashMap() ,expression2, importFile)
+                is Expression.FunctionCall -> {
+                        val functionList = classObj.classBody.functions[expression2.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, importFile.name, expression2.functionName)
+                        val parameterTypes = expression2.parameterList?.map{ getExpressionType(it, localVariables, importFile)}
+                        val function = functionList.firstOrNull { checkParameter(it, parameterTypes, importFile) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, importFile.name, expression2.functionName, parameterTypes)
+                        function.returnType
+                }
+                else -> throw TypeCheckerCantUseOperationOnDot(expression2.LineOfCode, file.name, expression2)
             }
-            else -> throw TypeCheckerCantUseOperationOnDot(expression2.LineOfCode, file.name, expression2)
         }
+
+        (classType as? Type.Custom)?.let {
+
+            file.classDeclarations[classType.name]?.let {
+                return action(it, file)
+            }
+
+            file.includes[classType.name]?.let { importFile ->
+                val classObj = importFile.classDeclarations[classType.name] ?: throw TypeCheckerClassNotFoundException(-1,importFile.name, classType.name)
+                return action(classObj, importFile)
+            }
+        }
+
+        if(expression.expression is Expression.FunctionCall && expression.expression.functionName == "ToString"){
+            if(expression.expression.parameterList != null)
+                throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, "Function: 'ToString' must have one or more transfer parameters")
+            return Type.String
+        }
+
+        throw TypeCheckerCantUseOperationOnDot(expression.LineOfCode, file.name, expression)
     }
 
     private fun numberOperation(typeA: Type, typeB: Type, expression: Expression.Operation, file : File)

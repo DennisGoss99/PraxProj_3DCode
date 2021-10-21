@@ -1156,7 +1156,6 @@ class DeepTest {
         code.add("App" to
                 """
                 import "B"
-                import "C"
                 
                 Int Main(){
                     B b = B();
@@ -1198,5 +1197,4 @@ class DeepTest {
 
         assertEquals(ConstantValue.Integer(15 ),executeCode(code))
     }
-
 }

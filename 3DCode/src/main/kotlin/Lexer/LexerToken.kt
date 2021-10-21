@@ -33,7 +33,7 @@ sealed class LexerToken() {
         data class LCurlyBrace(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}        // {
         data class RCurlyBrace(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}        // }
         data class Comma(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}              // ,
-        data class Dot(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}              // .
+        data class Dot(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}                // .
 
         // Operatoren
         data class Plus(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}               // +

@@ -15,7 +15,7 @@ class ParserTest
             returnType,
             "Main",
             Body(statementList, localVariables),
-            parameters
+            parameters, null
         ))
     }
 
@@ -346,11 +346,11 @@ class ParserTest
                                     )
                                 )
                             )
-                        ),null))),
+                        ),null, null))),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
-            )),
+            ), null),
             Declaration.FunctionDeclare(
                 Type.Void,
                 "Main",
@@ -358,7 +358,7 @@ class ParserTest
                     listOf<Statement>(),
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)))
                 ),
-                null
+                null, null
             )
         )
 
@@ -401,18 +401,18 @@ class ParserTest
                                     )
                                 )
                             )
-                        ),null))),
+                        ),null, null))),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
-            )),
+            ), null),
             Declaration.ClassDeclare("Aaaa", ClassBody(
                 hashMapOf(),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"a",Expression.Value(ConstantValue.String(""))),
                     Declaration.VariableDeclaration(Type.Float,"b",Expression.Value(ConstantValue.Float(0.0f)))
                 )
-            )),
+            ), null),
             Declaration.FunctionDeclare(
                 Type.Void,
                 "Main",
@@ -420,7 +420,7 @@ class ParserTest
                     listOf<Statement>(),
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)))
                 ),
-                null
+                null, null
             )
         )
 
@@ -465,7 +465,7 @@ class ParserTest
                                     )
                                 )
                             )
-                        ),null)),
+                        ),null, null)),
                     "B" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"B",
                     Body(
                         listOf<Statement>(
@@ -482,12 +482,12 @@ class ParserTest
                                 )
                             )
                         )
-                    ), listOf(Parameter("a",Type.Integer))))
+                    ), listOf(Parameter("a",Type.Integer)), null))
                 ),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
-            )),
+            ), null),
             Declaration.FunctionDeclare(
                 Type.Void,
                 "Main",
@@ -500,7 +500,7 @@ class ParserTest
                         Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
                 ),
-                null
+                null, null
             )
         )
 
@@ -538,5 +538,45 @@ class ParserTest
 
         TestIfTreeIsAsExpected(code, tree)
 
+    }
+
+    @Test
+    fun genericFunctionTest() {
+
+        val code = """
+            Int Math<A>(A a){
+            }
+    """.trimIndent()
+
+        val tree = listOf<Declaration>(
+            Declaration.FunctionDeclare(
+                Type.Integer,
+                "Math",
+                Body(listOf(),null),
+                listOf(Parameter("a", Type.Custom("A"))),
+                hashMapOf("A" to null)
+            )
+        )
+
+        TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun genericClassTest() {
+
+        val code = """
+            class <A>Math{
+            }
+    """.trimIndent()
+
+        val tree = listOf<Declaration>(
+            Declaration.ClassDeclare(
+                "Math",
+                ClassBody(hashMapOf(), listOf()),
+                hashMapOf("A" to null)
+            )
+        )
+
+        TestIfTreeIsAsExpected(code, tree)
     }
 }

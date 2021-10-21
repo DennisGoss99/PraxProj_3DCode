@@ -9,6 +9,7 @@ sealed class Declaration : ILineOfCode // Lila
     data class ClassDeclare(
         val className: String,
         val classBody: ClassBody,
+        val generics : HashMap<String,Type?>?,
         override val LineOfCode: Int = -1
     ) : Declaration()
 
@@ -17,6 +18,7 @@ sealed class Declaration : ILineOfCode // Lila
         val functionName: String,
         val body: Body,
         val parameters : List<Parameter>?,
+        val generics : HashMap<String,Type?>?,
         override val LineOfCode: Int = -1
     ) : Declaration()
 

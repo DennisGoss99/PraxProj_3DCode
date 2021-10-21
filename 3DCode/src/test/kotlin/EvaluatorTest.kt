@@ -22,7 +22,7 @@ class EvaluatorTest{
                         Statement.AssignValue("return",Expression.Value(ConstantValue.Integer(5)))
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -52,7 +52,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -74,7 +74,7 @@ class EvaluatorTest{
                     listOf<Statement>(
                         Statement.AssignValue("return",Expression.UseVariable("a")))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(
                 "a" to Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5))),
@@ -101,7 +101,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf("a" to Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5)))),
             hashMapOf())
@@ -135,7 +135,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf("b" to Declaration.VariableDeclaration(Type.Integer,"b",Expression.Value(ConstantValue.Integer(5)))),
             hashMapOf())
@@ -169,7 +169,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -208,7 +208,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -247,7 +247,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(1))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -289,7 +289,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -323,7 +323,7 @@ class EvaluatorTest{
                         )
                     ),null
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -347,7 +347,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ),
             Declaration.FunctionDeclare(
                 Type.Integer,
@@ -366,7 +366,7 @@ class EvaluatorTest{
                         Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(0)))
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -397,7 +397,7 @@ class EvaluatorTest{
                         Statement.AssignValue("return",Expression.Value(ConstantValue.Integer(5)))
                     ),
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -420,7 +420,7 @@ class EvaluatorTest{
                         Statement.AssignValue("return",Expression.Value(ConstantValue.Integer(5)))
                     ),
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -468,7 +468,7 @@ class EvaluatorTest{
                         Declaration.VariableDeclaration(Type.Integer,"cc",Expression.Value(ConstantValue.Boolean(false))),
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -489,7 +489,7 @@ class EvaluatorTest{
                     listOf<Statement>(
                         Statement.AssignValue("return",Expression.Value(ConstantValue.Integer(5))))
                 ),
-                null
+                null, null
             ),
             Declaration.FunctionDeclare(
                 Type.Integer,
@@ -498,7 +498,7 @@ class EvaluatorTest{
                     listOf<Statement>(
                         Statement.AssignValue("return",Expression.FunctionCall("A",null)))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -521,7 +521,7 @@ class EvaluatorTest{
                             listOf<Statement>(
                                 Statement.AssignValue("return",Expression.UseVariable("hallo")))
                         ),
-                        listOf(Parameter("hallo",Type.Integer))
+                        listOf(Parameter("hallo",Type.Integer)), null
                     )),
                 "Main" to mutableListOf( Declaration.FunctionDeclare(
                     Type.Integer,
@@ -531,7 +531,7 @@ class EvaluatorTest{
                             Statement.AssignValue("return",Expression.FunctionCall("A", listOf(Expression.Value(
                                 ConstantValue.Integer(5))))))
                     ),
-                null))
+                null, null))
             ), hashMapOf(), hashMapOf())
 
 
@@ -559,7 +559,7 @@ class EvaluatorTest{
                     )
                     )
                 ),
-                listOf(Parameter("hallo",Type.Integer))
+                listOf(Parameter("hallo",Type.Integer)), null
             )),"Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
@@ -583,7 +583,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -605,7 +605,7 @@ class EvaluatorTest{
                     listOf<Statement>(
                         Statement.AssignValue("a",Expression.Value(ConstantValue.Integer(10))))
                 ),
-                null
+                null, null
             )),"Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
@@ -616,7 +616,7 @@ class EvaluatorTest{
                         Statement.AssignValue("return",Expression.UseVariable("a"))
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf("a" to Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(5)))),
             hashMapOf())
@@ -653,7 +653,7 @@ class EvaluatorTest{
                         Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(2))),
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -715,7 +715,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                listOf(Parameter("n",Type.Integer))
+                listOf(Parameter("n",Type.Integer)), null
             )),"Main" to mutableListOf(
             Declaration.FunctionDeclare(
                 Type.Integer,
@@ -731,7 +731,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -808,7 +808,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                listOf(Parameter("n",Type.Integer))
+                listOf(Parameter("n",Type.Integer)), null
             )),
                 "Main" to mutableListOf(
             Declaration.FunctionDeclare(
@@ -825,7 +825,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))), hashMapOf(), hashMapOf())
 
         var evaluator = Evaluator()
@@ -862,7 +862,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(
                 "n" to Declaration.VariableDeclaration(Type.Integer,"n",Expression.Value(ConstantValue.Integer(10))),
@@ -918,7 +918,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 
@@ -957,7 +957,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
                ))
             ), hashMapOf(), hashMapOf())
 
@@ -988,7 +988,7 @@ class EvaluatorTest{
                         )
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
         var evaluator = Evaluator()
@@ -1019,7 +1019,7 @@ class EvaluatorTest{
                     listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Float,"a",Expression.Value(
                         ConstantValue.Float(15.7f))))
                 ),
-                null
+                null, null
             ))
             ), hashMapOf("b" to Declaration.VariableDeclaration(Type.Float,"b",Expression.Value(ConstantValue.Float(5.5f)))),
             hashMapOf())
@@ -1040,7 +1040,7 @@ class EvaluatorTest{
                     hashMapOf( "OpenGL" to mutableListOf(
                         Declaration.FunctionDeclare(Type.Void,"OpenGL",
                             Body(listOf(
-                            )),null)),
+                            )),null, null)),
                         "A" to mutableListOf(
                             Declaration.FunctionDeclare(Type.Void,"A",
                                 Body(
@@ -1052,7 +1052,7 @@ class EvaluatorTest{
                                             )
                                         )
                                     )
-                                ),null)),
+                                ),null, null)),
                         "B" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"B",
                             Body(
                                 listOf<Statement>(
@@ -1069,12 +1069,12 @@ class EvaluatorTest{
                                         )
                                     )
                                 )
-                            ), listOf(Parameter("a",Type.Integer))))
+                            ), listOf(Parameter("a",Type.Integer)), null))
                     ),
                     listOf(
                         Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                     )
-                ))
+                ), null)
             ),
             hashMapOf("Main" to mutableListOf(
             Declaration.FunctionDeclare(
@@ -1089,7 +1089,7 @@ class EvaluatorTest{
                         Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
                 ),
-                null
+                null, null
             ))
             ), hashMapOf(), hashMapOf())
 

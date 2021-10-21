@@ -151,7 +151,8 @@ open class Lexer(input: String, val fileName : String) {
             "include",
             "import" -> LexerToken.Import(currentLineOfCode)
             else -> {
-                if(iterator.peek() != '(')
+                val peek = iterator.peek()
+                if(peek != '(' && peek != '<')
                     if(result[0].isLowerCase())
                         LexerToken.NameIdent(result, currentLineOfCode)
                     else

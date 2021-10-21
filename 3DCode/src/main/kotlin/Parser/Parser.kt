@@ -270,22 +270,18 @@ class Parser(val lexer: Lexer, val fileName : String)
         val parameterList = mutableListOf<Parameter>()
         val expectedLBrace = FetchNextExpectedToken<LexerToken.Lparen>("Lparen")
 
-        while (true)
-        {
+        while (true) {
             val token = lexer.peek()
-            val isAtEndOfParameter = token is LexerToken.Rparen
-            val isSeperator = token is LexerToken.Comma
 
-            if (isAtEndOfParameter)
-            {
+            //isAtEndOfParameter
+            if (token is LexerToken.Rparen) {
                 GetNextToken()
                 break
             }
 
-            if(isSeperator)
-            {
+            //isSeperator
+            if(token is LexerToken.Comma)
                 GetNextToken()
-            }
 
             parameterList.add(ParameterParse())
         }
@@ -313,20 +309,39 @@ class Parser(val lexer: Lexer, val fileName : String)
     {
         val currentLineOfCode = lexer.peek().LineOfCode
         val name = FunctionIdentifyParse()
+        val generics = GenericsParse()
         val parameter = ParameterParseAsDeclaration()
         val body = BodyParse()
 
-        return Declaration.FunctionDeclare(type, name, body,parameter,currentLineOfCode)
+        return Declaration.FunctionDeclare(type, name, body,parameter, generics,currentLineOfCode)
     }
 
     private fun ClassParse(): Declaration.ClassDeclare{
 
         FetchNextExpectedToken<LexerToken.Class>("Class")
-
+        val generics = GenericsParse()
         val currentLineOfCode = lexer.peek().LineOfCode
         val name = ClassIdentifyParse()
         val body = ClassBodyParse()
-        return Declaration.ClassDeclare(name, body,currentLineOfCode)
+        return Declaration.ClassDeclare(name, body, generics,currentLineOfCode)
+    }
+
+    private fun GenericsParse() : HashMap<String,Type?>?{
+        if(lexer.peek() !is LexerToken.Less)
+            return null
+        val lessSymbol = FetchNextExpectedToken<LexerToken.Less>("<")
+
+        val generics = HashMap<String,Type?>()
+
+        while (true){
+            when(val nextToken = GetNextToken()){
+                is LexerToken.TypeIdent -> generics[nextToken.identify] = null
+                is LexerToken.Comma -> {}
+
+                is LexerToken.EOF -> throw ParserMissingGenericBracketException(lessSymbol.LineOfCode, fileName)
+                is LexerToken.Greater -> return generics
+            }
+        }
     }
 
     private fun OperatorParse() : Operator

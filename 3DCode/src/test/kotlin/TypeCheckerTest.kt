@@ -1,5 +1,6 @@
 import Lexer.Lexer
 import Parser.Parser
+import Parser.ParserManager
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import TypeChecker.Exceptions.*
@@ -11,8 +12,9 @@ import kotlin.test.assertFailsWith
 
 class TypeCheckerTest {
 
-    private fun parseCode(code : String): List<Declaration> {
-        return Parser(Lexer(code)).ParsingStart()
+    private fun checkCode(code : String, args : List<Expression.Value>? = null){
+
+        TypeChecker().check(ParserManager.loadFromString(mutableListOf("App" to code)) , args)
     }
 
     @Test
@@ -26,7 +28,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -40,7 +42,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -54,7 +56,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -68,7 +70,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -86,7 +88,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -101,7 +103,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -121,7 +123,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -139,7 +141,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -157,7 +159,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -175,7 +177,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        assertFailsWith<TypeCheckerReturnTypeException> { TypeChecker(parseCode(code)).check() }
+        assertFailsWith<TypeCheckerReturnTypeException> { checkCode(code) }
     }
 
     @Test
@@ -196,7 +198,7 @@ class TypeCheckerTest {
             
         """.trimIndent()
 
-        TypeChecker(parseCode(code)).check()
+        checkCode(code)
     }
 
     @Test
@@ -219,7 +221,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+        checkCode(code, listOf(Expression.Value(ConstantValue.Integer(9))))
 
         val code2 = """
             
@@ -238,7 +240,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code2), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+        checkCode(code, listOf(Expression.Value(ConstantValue.Integer(9))))
     }
 
     @Test
@@ -261,7 +263,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerFunctionParameterException::class) { TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check() }
+        assertFailsWith(TypeCheckerFunctionParameterException::class) { checkCode(code, listOf(Expression.Value(ConstantValue.Integer(9)))) }
     }
 
     @Test
@@ -284,7 +286,7 @@ class TypeCheckerTest {
         """.trimIndent()
 
 
-        TypeChecker(parseCode(code), listOf(Expression.Value(ConstantValue.Integer(9)))).check()
+        checkCode(code, listOf(Expression.Value(ConstantValue.Integer(9))))
     }
 
     @Test
@@ -306,7 +308,7 @@ class TypeCheckerTest {
         """.trimIndent()
 
 
-        TypeChecker(parseCode(code), null).check()
+        checkCode(code)
     }
 
     @Test
@@ -332,7 +334,7 @@ class TypeCheckerTest {
         """.trimIndent()
 
 
-        TypeChecker(parseCode(code), null).check()
+        checkCode(code)
     }
 
     @Test
@@ -359,7 +361,7 @@ class TypeCheckerTest {
         """.trimIndent()
 
 
-        TypeChecker(parseCode(code), null).check()
+        checkCode(code)
     }
 
     @Test
@@ -387,7 +389,7 @@ class TypeCheckerTest {
         """.trimIndent()
 
 
-        TypeChecker(parseCode(code), null).check()
+        checkCode(code)
     }
 
     @Test
@@ -419,7 +421,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateClassException::class){TypeChecker(parseCode(code), null).check()}
+        assertFailsWith(TypeCheckerDuplicateClassException::class){checkCode(code)}
 
     }
 
@@ -437,7 +439,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){checkCode(code)}
 
         val code2 = """
             Void A(Int a){
@@ -450,7 +452,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code2), null).check()}
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){checkCode(code2)}
 
         val code3 = """
             Void A(String b, Int a){
@@ -463,7 +465,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code3), null).check()
+        checkCode(code3)
 
         val code4 = """
             Void A(String b, Int a){
@@ -476,7 +478,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code4), null).check()}
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){checkCode(code4)}
 
         val code5 = """
             Void A(String b){
@@ -490,7 +492,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code5), null).check()
+        checkCode(code5)
     }
 
     @Test
@@ -508,7 +510,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){checkCode(code)}
 
     }
 
@@ -527,7 +529,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code), null).check()}
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){checkCode(code)}
 
         val code2 = """
             class A{
@@ -542,7 +544,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerDuplicateFunctionException::class){TypeChecker(parseCode(code2), null).check()}
+        assertFailsWith(TypeCheckerDuplicateFunctionException::class){checkCode(code2)}
 
         val code3 = """
             class A{
@@ -557,7 +559,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        TypeChecker(parseCode(code3), null).check()
+        checkCode(code3)
     }
 
     @Test
@@ -575,7 +577,7 @@ class TypeCheckerTest {
             }
         """.trimIndent()
 
-        assertFailsWith(TypeCheckerReturnTypeException::class) { TypeChecker(parseCode(code), null).check() }
+        assertFailsWith(TypeCheckerReturnTypeException::class) { checkCode(code) }
     }
 
 }

@@ -10,7 +10,7 @@ import TypeChecker.TypeChecker
 private fun executeCode(file: File, args: List<Expression.Value>? = null): IValue? {
 
 
-    //TypeChecker(file, args).check()
+    TypeChecker().check(file, args)
 
     return Evaluator().eval(file,args)?.value
 }
@@ -24,6 +24,5 @@ fun main(){
 //    println(executeCode(code))
 
     println(executeCode(ParserManager.loadFromDisk("C:/Users/Merdo/Desktop/TEST/App.c3d"), listOf()))
-//    println(executePath("C:/Users/Merdo/Desktop/TEST/App.c3d", listOf()))
 
 }

@@ -4,6 +4,7 @@ import Lexer.Lexer
 import Lexer.LexerToken
 import Parser.ParserToken.Declaration
 import Parser.ParserToken.File
+import TypeChecker.Exceptions.TypeCheckerDuplicateClassException
 import java.util.HashMap
 
 class ParserManager{
@@ -62,7 +63,11 @@ class ParserManager{
 
             Parser(lexer).ParsingStart().forEach { d ->
                 when(d){
-                    is Declaration.ClassDeclare -> classDeclarations[d.className] = d
+                    is Declaration.ClassDeclare -> {
+                        if(classDeclarations.containsKey(d.className))
+                            throw TypeCheckerDuplicateClassException(d.LineOfCode,d.className)
+                        classDeclarations[d.className] = d
+                    }
                     is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
                     is Declaration.VariableDeclaration -> variableDeclarations[d.name] = d
                 }
@@ -101,7 +106,11 @@ class ParserManager{
 
             parserOutput.forEach { d ->
                 when(d){
-                    is Declaration.ClassDeclare -> classDeclarations[d.className] = d
+                    is Declaration.ClassDeclare -> {
+                        if(classDeclarations.containsKey(d.className))
+                            throw TypeCheckerDuplicateClassException(d.LineOfCode,d.className)
+                        classDeclarations[d.className] = d
+                    }
                     is Declaration.FunctionDeclare -> functionDeclarations.getOrPut(d.functionName, ::mutableListOf).add(d)
                     is Declaration.VariableDeclaration -> variableDeclarations[d.name] = d
                 }

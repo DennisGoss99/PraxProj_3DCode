@@ -20,7 +20,7 @@ class DeepTest {
     private fun executeCode(code : MutableList<Pair<String, String>>, args: List<Expression.Value>? = null): IValue? {
 
         val mainFile = ParserManager.loadFromString(code)
-        //TypeChecker(mainFile, args).check()
+        TypeChecker().check(mainFile, args)
 
         return Evaluator().eval(mainFile,args)?.value
     }

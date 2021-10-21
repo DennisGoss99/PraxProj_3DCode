@@ -92,9 +92,9 @@ class ParserManager{
             loadedFiles[file.nameWithoutExtension] = null
 
             rawImports.forEach {
-                val name = it.substringAfterLast('/').substringBeforeLast('.')
+                val name = it.substringAfterLast('.')
                 if(!loadedFiles.containsKey(name)){
-                    val loadedFile = loadImportsFile(file.path.substringBeforeLast('\\') + '\\' + it)
+                    val loadedFile = loadImportsFile(file.path.substringBeforeLast('\\') + '\\' + it.replace('.','/') +".c3d")
                     includes[name] = loadedFile
                     loadedFiles[name] = loadedFile
                 }else{
@@ -123,11 +123,11 @@ class ParserManager{
             val fileNames = mutableListOf<String>()
 
             while (lexer.peek() is LexerToken.Import){
-                val importToken = lexer.next()
+                lexer.next()
 
                 val fileName = (lexer.next() as? LexerToken.String_Literal) ?: throw Exception("")
 
-                fileNames.add(fileName.s.replace('.','/') + ".c3d")
+                fileNames.add(fileName.s)
             }
             return fileNames
         }

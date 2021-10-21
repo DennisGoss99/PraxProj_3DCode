@@ -1067,4 +1067,136 @@ class DeepTest {
 
         assertEquals(ConstantValue.Float(((6.0f + 34 * 6) / 3) + (5/3) + 0.6f / 89 ),executeCode(code))
     }
+
+    @Test
+    fun multipleFileTest() {
+        val code = mutableListOf<Pair<String,String>>()
+
+        code.add("App" to
+            """
+                import "B"
+                
+                Void App(){
+                
+                }
+                
+                Int Main(){
+                    B b = B();
+                    Int a = 5 + b.Bb()
+                    App()
+                    b.b = 10;
+                    return a + b.b
+                }
+        """.trimIndent())
+
+        code.add("B" to
+        """
+            import "App"
+            import "C"
+            
+            class B{
+            
+                C c = C()
+            
+                Int b = 0
+            
+                B(){
+                }
+            
+                Int Bb(){
+                    return c.GetF();
+                }
+            }
+        """.trimIndent())
+
+        code.add("C" to
+        """
+            import "D"
+            import "F"
+            
+            class C{
+            
+                F f = F()
+            
+                C(){
+                }
+                
+                Int GetF(){
+                    return f.f;
+                }
+            
+            
+            }
+        """.trimIndent())
+
+        code.add("D" to
+                """
+        """.trimIndent())
+
+        code.add("F" to
+            """
+            class F{
+            
+                Int f = 0
+            
+                F(){
+                    f = 12
+                }
+            
+            }
+        """.trimIndent())
+
+        assertEquals(ConstantValue.Integer(27 ),executeCode(code))
+    }
+
+    @Test
+    fun multipleFile2Test() {
+        val code = mutableListOf<Pair<String,String>>()
+
+        code.add("App" to
+                """
+                import "B"
+                import "C"
+                
+                Int Main(){
+                    B b = B();
+                    B bb = B(5);
+                
+                    return b.c.c + bb.c.c;
+                }
+        """.trimIndent())
+
+        code.add("B" to
+                """
+            import "C"
+            
+            class B{
+                C c = C();
+            
+                B(){
+                }
+                
+                B(Int a){
+                    c = C(a);
+                }
+            }
+        """.trimIndent())
+
+        code.add("C" to
+                """            
+            class C{ 
+                Int c = 10
+                C(Int a){
+                    c = a
+                }
+                
+                C(){
+                }
+
+            }
+        """.trimIndent())
+
+        assertEquals(ConstantValue.Integer(15 ),executeCode(code))
+    }
+
 }

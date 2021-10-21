@@ -786,7 +786,7 @@ class Parser(val lexer: Lexer)
     {
         val variableType = GetNextToken()
 
-        val identifier = variableType as LexerToken.TypeIdent
+        val identifier = variableType as? LexerToken.TypeIdent ?: throw ParserTypeLowerCase(variableType as LexerToken.NameIdent)
 
         return when (identifier.identify)
         {

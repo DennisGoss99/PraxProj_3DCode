@@ -20,7 +20,7 @@ sealed class Expression : ILineOfCode
 
     data class UseDotVariable(val variableName : String, var expression: Expression, override val LineOfCode: Int = -1) : Expression()
 
-    data class FunctionCall(val functionName : String, val parameterList : List<Expression>?, val generics : List<Type>?, override val LineOfCode: Int = -1) : Expression()
+    data class FunctionCall(val functionName : String, var parameterList : List<Expression>?, val generics : List<Type>?, override val LineOfCode: Int = -1) : Expression()
 
     data class Value(val value: IValue, override val LineOfCode: Int = -1) : Expression()
 }

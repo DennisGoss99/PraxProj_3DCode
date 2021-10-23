@@ -814,8 +814,8 @@ class TypeCheckerTest {
                 Y y = null
                             
                 Pair(X xx, Y yy){
-                    x = x
-                    y = y
+                    x = xx
+                    y = yy
                 }
                 
                 X GetFirst(){

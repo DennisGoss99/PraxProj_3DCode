@@ -5,6 +5,7 @@ import Parser.ParserManager
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.IValue
+import TypeChecker.Exceptions.TypeCheckerFunctionParameterException
 import TypeChecker.Exceptions.TypeCheckerVariableNotFoundException
 import TypeChecker.TypeChecker
 import org.junit.jupiter.api.Test
@@ -25,6 +26,9 @@ class DeepTest {
         return Evaluator().eval(mainFile,args)?.value
     }
 
+    private fun withoutTypeCheckerExecuteCode(code : String, args: List<Expression.Value>? = null): IValue? {
+        return withoutTypeCheckerExecuteCode(mutableListOf("App" to code), args)
+    }
     private fun withoutTypeCheckerExecuteCode(code : MutableList<Pair<String, String>>, args: List<Expression.Value>? = null): IValue? {
 
         val mainFile = ParserManager.loadFromString(code)
@@ -1196,5 +1200,311 @@ class DeepTest {
         """.trimIndent())
 
         assertEquals(ConstantValue.Integer(15 ),executeCode(code))
+    }
+
+    @Test
+    fun genericsFunctionTest() {
+
+        val code = """
+            String Fun<A>(A a){
+                A b = a
+                return a.ToString()
+            }
+            
+            String Main()
+            {
+                String s = ToString(Fun<Int>(5)) + Fun<String>("Hallo")
+                return s
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("5Hallo" ),executeCode(code))
+    }
+
+    @Test
+    fun genericsFunction2Test() {
+
+        val code = """
+            A Fun<A>(A a){
+                return Fun<A>(a, 5)
+            }
+            
+            B Fun<B>(B a, Int b){
+                return a
+            }
+            
+            String Main()
+            {
+                Int i = Fun<Int>(5)
+                String s = Fun<String>("Hallo")
+                
+                return i.ToString() + s
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("5Hallo" ),executeCode(code))
+    }
+
+    @Test
+    fun genericsFunction3Test() {
+
+        val code = """
+            B Fun<A,B>(A a, B b){
+                return Fun<B>(b)
+            }
+
+            A Fun<A>(A a){
+                return a
+            }
+
+            String Main()
+            {
+                Int i = Fun<Int>(5)
+                String s = Fun<Float, String>(12.0, "Hallo")
+                
+                return i.ToString() + s
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("5Hallo" ),executeCode(code))
+    }
+
+    @Test
+    fun genericsClassTest() {
+
+        val code = """
+            class <T> A{
+                
+                A(T t){}  
+                        
+                X B<X>(X a){
+                    return a
+                }
+            }
+            
+            String Main()
+            {
+                A objA<String> = A<String>("Hallo")
+                String s = ToString(objA.B<Int>(5))
+                return s
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("5" ),executeCode(code))
+    }
+
+    @Test
+    fun genericsClass2Test() {
+
+        val code = """
+            
+            class <T> List{
+                T a = null
+                
+                List(T b){
+                    a = b
+                }  
+                
+            }
+            
+            Int Main()
+            {
+                List objA<Int> = List<Int>(3)
+                objA.a = 4 + 1
+                return objA.a
+                
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(5 ),executeCode(code))
+    }
+
+    @Test
+    fun genericsClass3Test() {
+
+        val code = """
+            class <X,Y> Pair{
+                X x = null
+                Y y = null
+                            
+                Pair(X xx, Y yy){
+                    x = xx
+                    y = yy
+                }
+                
+                X GetFirst(){
+                    return x
+                }
+                
+                Y GetSecond(){
+                    return y
+                }
+                
+                A Test<A>(A a){
+                    return a
+                }
+            }
+            
+            String Main()
+            {
+                Pair p<Int,String> = Pair<Int,String>(5, "70")
+                String a = "A"
+               
+                a = p.Test<String>(a)
+               
+                p.x += 5
+                p.y = p.x.ToString() + p.y
+                return p.GetSecond() + a
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("1070A" ),executeCode(code))
+    }
+
+    @Test
+    fun genericsClass4Test() {
+
+        val code = """
+            class Pair{
+            
+                Pair(){}
+                
+                A Test<A>(A a){
+                    return a
+                }
+            }
+            
+            A Test<A>(A a){
+                return a
+            }
+            
+            String Main()
+            {
+                Pair p = Pair()
+                String a = "A"
+               
+                a = p.Test<String>(a)
+                return a
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("A" ),executeCode(code))
+    }
+
+    @Test
+    fun genericsClass5Test() {
+
+        val code = """
+            class <X,Y,Z> Triple{
+                Z z = null
+                Pair p<X,Y> = null
+                            
+                Triple(X xx, Y yy, Z zz){
+                    p = Pair<X,Y>(xx, yy)
+                    z = zz
+                }
+                
+                X GetFirst(){
+                    return p.GetFirst()
+                }
+                
+                Y GetSecond(){
+                    return p.GetSecond()
+                }
+                
+                Z GetThird(){
+                    return z
+                }
+                
+                String ToString(){
+                    return GetFirst().ToString() + GetSecond().ToString() + z.ToString()
+                }
+            }
+           
+            class <X,Y> Pair{
+                X x = null
+                Y y = null
+                            
+                Pair(X xx, Y yy){
+                    x = xx
+                    y = yy
+                }
+                
+                X GetFirst(){
+                    return x
+                }
+                
+                Y GetSecond(){
+                    return y
+                }
+               
+            }
+            
+            String Main()
+            {
+                Triple p<Int, Float, String> = Triple<Int, Float, String>(5, 4.0, "Test")
+                Int x = p.GetFirst()
+                Float xx = p.GetSecond()
+                String xxx = p.GetThird()
+                
+                return x.ToString() + xx.ToString() + xxx + p.ToString()
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("54.0Test54.0Test" ), executeCode(code))
+    }
+
+    @Test
+    fun toStringTest(){
+        val code = """   
+            class A{
+                Int a = 0
+                
+                A(){}
+                
+                Int B(){
+                    return a
+                }
+                
+                String C(){
+                    return B().ToString()
+                }
+                            
+            }              
+                             
+            String Main(){
+                A a = A()
+                return a.C()
+                
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("0") , executeCode(code))
+    }
+
+    @Test
+    fun toString2Test(){
+        val code = """   
+            class A{
+                Int a = 0
+                
+                A(){}
+               
+                String ToString(){
+                    return a.ToString()
+                }            
+            }              
+                             
+            String Main(){
+                A a = A()
+                return a.ToString()
+                
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("0") , executeCode(code))
+
     }
 }

@@ -1,6 +1,7 @@
 package Parser.ParserToken.Values
 
 import Parser.ParserToken.Type
+import kotlin.jvm.internal.Intrinsics
 
 sealed class ConstantValue : IValue {
 
@@ -79,11 +80,11 @@ sealed class ConstantValue : IValue {
         override fun getType(): Type = type
     }
 
-    data class Null(val type: Type.Null = Type.Null): ConstantValue()
+    data class Null(val type: Type.Null = Type.Null ): ConstantValue()
     {
-        override val value : Nothing
+        override val value: Nothing
             get() {
-                value
+                throw Exception("Can't get Value of Type <Null>")
             }
 
         override fun toString(): kotlin.String

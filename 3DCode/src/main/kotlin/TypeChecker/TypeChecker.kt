@@ -177,6 +177,8 @@ class TypeChecker() {
                 is Statement.UseClass -> statementUseClass(statement, combinedVariables, file)
             }
         }
+
+
     }
 
     private fun combineVariables(upperEnvironment : HashMap<String, Type>?,lowerEnvironment : HashMap<String, Type>, file: File) : HashMap<String, Type>{

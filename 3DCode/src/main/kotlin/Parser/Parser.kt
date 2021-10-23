@@ -18,7 +18,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         val next = GetNextToken()
 
         if (next !is A) {
-            throw Exception("Unexpected token: expected $expectedType, but got $next")
+            throw ParserTokenUnexpected(expectedType, next, fileName)
         }
 
         return next
@@ -168,18 +168,7 @@ class Parser(val lexer: Lexer, val fileName : String)
                 break
             }
 
-            var type = TypeParse()
-            val name = NameParse()
-            val generics = GenericCall()
-            val expression = ExpressionParse()
-
-            if(generics != null){
-                type as? Type.Custom ?: throw ParserBaseException(currentLineOfCode ,fileName, "Can't use generics with base types")
-                type = Type.CustomWithGenerics(type.name, generics)
-            }
-
-
-            val variableDeclaration = Declaration.VariableDeclaration(type, name, expression,currentLineOfCode)
+            val variableDeclaration = VariableDeclaration(TypeParse())
 
             localVariableList.add(variableDeclaration)
         }
@@ -507,11 +496,20 @@ class Parser(val lexer: Lexer, val fileName : String)
         return expressionList
     }
 
+
     private fun FunctionCallParse() : Expression.FunctionCall
     {
         val name = FunctionIdentifyParse()
         val generics = GenericCall()
         val parameter = ParameterParseAsExpression()
+
+        //use for function.function operations
+        if(lexer.peek() is LexerToken.Dot){
+            FetchNextExpectedToken<LexerToken.Dot>("'.'")
+            val upperFunction = FunctionCallParse()
+            upperFunction.parameterList = listOf(Expression.FunctionCall(name, parameter, generics, currentLineOfCode)).union(upperFunction.parameterList ?: listOf()).toList()
+            return upperFunction
+        }
 
         return Expression.FunctionCall(name, parameter, generics, currentLineOfCode)
     }
@@ -880,8 +878,15 @@ class Parser(val lexer: Lexer, val fileName : String)
 
     private fun VariableDeclaration(type: Type) : Declaration.VariableDeclaration
     {
+        var type = type
         val variableName = NameParse()
+        val generics = GenericCall()
         val expression = ExpressionParse()
+
+        if(generics != null){
+            type as? Type.Custom ?: throw ParserBaseException(currentLineOfCode ,fileName, "Can't use generics with base types")
+            type = Type.CustomWithGenerics(type.name, generics)
+        }
 
         return Declaration.VariableDeclaration(type, variableName, expression, currentLineOfCode)
     }

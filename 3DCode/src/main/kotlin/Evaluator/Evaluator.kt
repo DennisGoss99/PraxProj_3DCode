@@ -6,6 +6,7 @@ import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
 import TypeChecker.Exceptions.TypeCheckerDuplicateClassException
+import TypeChecker.Exceptions.TypeCheckerGenericsMissingException
 
 class Evaluator {
 
@@ -73,7 +74,7 @@ class Evaluator {
 
         evalMethod(classDefinition.classBody.functions[classDefinition.className], classDefinition.className, parameter, classEnvironment, file)
 
-        return Expression.Value(DynamicValue.Class(classEnvironment , Type.Custom(classDefinition.className)))
+        return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))
     }
 
     private fun evalBody(body: Body, environment: HashMap<String, Expression.Value>, file : File) : Expression.Value? {

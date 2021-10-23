@@ -611,4 +611,31 @@ class LexerTest : BaseLexerTest() {
 
         assertEqualLexerList(expectedLexerTokenList, lexer)
     }
+
+    @Test
+    fun genericsClass2LexerTest(){
+        val code = """
+            A a<Int> = A<Int>()
+        """.trimIndent()
+
+        val lexer = TestLexer(code);
+
+        val expectedLexerTokenList = listOf<LexerToken>(
+            LexerToken.TypeIdent("A"),
+            LexerToken.NameIdent("a"),
+            LexerToken.Less(),
+            LexerToken.TypeIdent("Int"),
+            LexerToken.Greater(),
+            LexerToken.AssignEquals(),
+            LexerToken.FunctionIdent("A"),
+            LexerToken.Less(),
+            LexerToken.TypeIdent("Int"),
+            LexerToken.Greater(),
+            LexerToken.Lparen(),
+            LexerToken.Rparen(),
+            LexerToken.EOF
+        )
+
+        assertEqualLexerList(expectedLexerTokenList, lexer)
+    }
 }

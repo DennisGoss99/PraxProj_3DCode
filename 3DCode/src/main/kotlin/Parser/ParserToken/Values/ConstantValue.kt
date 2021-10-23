@@ -78,4 +78,24 @@ sealed class ConstantValue : IValue {
 
         override fun getType(): Type = type
     }
+
+    data class Null(val type: Type.Null = Type.Null): ConstantValue()
+    {
+        override val value : Nothing
+            get() {
+                value
+            }
+
+        override fun toString(): kotlin.String
+        {
+            return "null"
+        }
+
+        override fun getValueAsString() : kotlin.String {
+            return "null"
+        }
+
+        override fun getType(): Type = type
+    }
+
 }

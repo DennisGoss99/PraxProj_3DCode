@@ -148,17 +148,25 @@ open class Lexer(input: String, val fileName : String) {
             "while" -> LexerToken.While(currentLineOfCode)
             "return" -> LexerToken.Return(currentLineOfCode)
             "class" -> LexerToken.Class(currentLineOfCode)
+            "null" -> LexerToken.Null(currentLineOfCode)
             "include",
             "import" -> LexerToken.Import(currentLineOfCode)
             else -> {
                 val peek = iterator.peek()
-                if(peek != '(' && peek != '<')
-                    if(result[0].isLowerCase())
+
+                if(peek != '(' && peek != '<') {
+                    if (result[0].isLowerCase())
                         LexerToken.NameIdent(result, currentLineOfCode)
                     else
                         LexerToken.TypeIdent(result, currentLineOfCode)
-                else
-                    LexerToken.FunctionIdent(result, currentLineOfCode)
+                }
+                else{
+                    if (result[0].isLowerCase())
+                        LexerToken.NameIdent(result, currentLineOfCode)
+                    else
+                        LexerToken.FunctionIdent(result, currentLineOfCode)
+                }
+
             }
         }
     }

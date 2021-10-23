@@ -16,6 +16,8 @@ sealed class LexerToken() {
         data class While(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class Return(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
 
+        data class Null(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
+
         data class Class(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class Import(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
 

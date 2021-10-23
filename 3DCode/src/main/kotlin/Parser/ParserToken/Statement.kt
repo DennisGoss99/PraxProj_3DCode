@@ -9,7 +9,7 @@ sealed class Statement : ILineOfCode // Grün
 
     data class AssignValue(val variableName : String, val expression: Expression, override val LineOfCode: Int = -1) : Statement()
 
-    data class ProcedureCall(val procedureName : String, val parameterList : List<Expression>? , override val LineOfCode: Int = -1) : Statement()
+    data class ProcedureCall(val procedureName : String, val parameterList : List<Expression>?, val generics : List<Type>? , override val LineOfCode: Int = -1) : Statement()
 
     data class UseClass(val variableName : String, val statement: Statement , override val LineOfCode: Int = -1) : Statement()
 

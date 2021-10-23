@@ -358,7 +358,7 @@ class EvaluatorTest{
                             "return",
                             Expression.FunctionCall(
                                 "A",
-                                null
+                                null, null
                             )
                         )
                     ),
@@ -496,7 +496,7 @@ class EvaluatorTest{
                 "Main",
                 Body(
                     listOf<Statement>(
-                        Statement.AssignValue("return",Expression.FunctionCall("A",null)))
+                        Statement.AssignValue("return",Expression.FunctionCall("A",null, null)))
                 ),
                 null, null
             ))
@@ -529,7 +529,7 @@ class EvaluatorTest{
                     Body(
                         listOf<Statement>(
                             Statement.AssignValue("return",Expression.FunctionCall("A", listOf(Expression.Value(
-                                ConstantValue.Integer(5))))))
+                                ConstantValue.Integer(5))), null)))
                     ),
                 null, null))
             ), hashMapOf(), hashMapOf())
@@ -576,9 +576,9 @@ class EvaluatorTest{
                                         listOf(Expression.Value(
                                             ConstantValue.Integer(
                                             5
-                                        )))
+                                        ))), null
                                     )
-                                )
+                                ), null
                             )
                         )
                     )
@@ -612,7 +612,7 @@ class EvaluatorTest{
                 "Main",
                 Body(
                     listOf<Statement>(
-                        Statement.ProcedureCall("A",null),
+                        Statement.ProcedureCall("A",null, null),
                         Statement.AssignValue("return",Expression.UseVariable("a"))
                     )
                 ),
@@ -700,14 +700,14 @@ class EvaluatorTest{
                                                     Expression.UseVariable("n"),
                                                     Expression.Value(ConstantValue.Integer(1))
                                                 )
-                                            )),
+                                            ), null),
                                             Expression.FunctionCall("F", listOf(
                                                 Expression.Operation(
                                                     Operator.Minus,
                                                     Expression.UseVariable("n"),
                                                     Expression.Value(ConstantValue.Integer(2))
                                                 )
-                                            ))
+                                            ), null)
                                         )
                                     )
                                 )
@@ -726,7 +726,7 @@ class EvaluatorTest{
                             "return",
                             Expression.FunctionCall(
                                 "F",
-                                listOf(Expression.Value(ConstantValue.Integer(9)))
+                                listOf(Expression.Value(ConstantValue.Integer(9))), null
                             )
                         )
                     )
@@ -791,14 +791,14 @@ class EvaluatorTest{
                                                             Expression.UseVariable("n"),
                                                             Expression.Value(ConstantValue.Integer(1))
                                                         )
-                                                    )),
+                                                    ), null),
                                                     Expression.FunctionCall("F", listOf(
                                                         Expression.Operation(
                                                             Operator.Minus,
                                                             Expression.UseVariable("n"),
                                                             Expression.Value(ConstantValue.Integer(2))
                                                         )
-                                                    ))
+                                                    ), null)
                                                 )
                                             )
                                         ))
@@ -820,7 +820,8 @@ class EvaluatorTest{
                             "return",
                             Expression.FunctionCall(
                                 "F",
-                                listOf(Expression.Value(ConstantValue.Integer(9)))
+                                listOf(Expression.Value(ConstantValue.Integer(9))),
+                                null
                             )
                         )
                     )
@@ -1049,7 +1050,7 @@ class EvaluatorTest{
                                             "Println",
                                             listOf<Expression>(
                                                 Expression.Value(ConstantValue.String("Hallo"))
-                                            )
+                                            ), null
                                         )
                                     )
                                 ),null, null)),
@@ -1060,13 +1061,13 @@ class EvaluatorTest{
                                         "Println",
                                         listOf<Expression>(
                                             Expression.Operation(Operator.Plus,
-                                                Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a"))),
+                                                Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a")), null),
                                                 Expression.Operation(Operator.Plus,
                                                     Expression.Value(ConstantValue.String("Hallo")),
                                                     Expression.UseVariable("name")
                                                 ),
                                             )
-                                        )
+                                        ), null
                                     )
                                 )
                             ), listOf(Parameter("a",Type.Integer)), null))
@@ -1082,10 +1083,10 @@ class EvaluatorTest{
                 "Main",
                 Body(
                     listOf<Statement>(
-                        Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
+                        Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5))), null))
                     ),
                     listOf<Declaration.VariableDeclaration>(
-                        Declaration.VariableDeclaration(Type.Custom("openGl"),"b",Expression.FunctionCall("OpenGL",null)),
+                        Declaration.VariableDeclaration(Type.Custom("openGl"),"b",Expression.FunctionCall("OpenGL",null, null)),
                         Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
                 ),

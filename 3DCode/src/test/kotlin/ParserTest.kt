@@ -205,7 +205,8 @@ class ParserTest
                         listOf<Expression>(
                             Expression.Value(ConstantValue.Integer(3)),
                             Expression.Value(ConstantValue.Integer(5))
-                        )
+                        ),
+                        null
                     )
                 )
             )
@@ -343,7 +344,8 @@ class ParserTest
                                     "Println",
                                     listOf<Expression>(
                                         Expression.Value(ConstantValue.String("Hallo"))
-                                    )
+                                    ),
+                                    null
                                 )
                             )
                         ),null, null))),
@@ -356,7 +358,7 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)))
                 ),
                 null, null
             )
@@ -398,7 +400,8 @@ class ParserTest
                                     "Println",
                                     listOf<Expression>(
                                         Expression.Value(ConstantValue.String("Hallo"))
-                                    )
+                                    ),
+                                    null
                                 )
                             )
                         ),null, null))),
@@ -418,7 +421,7 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)))
+                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)))
                 ),
                 null, null
             )
@@ -462,7 +465,7 @@ class ParserTest
                                     "Println",
                                     listOf<Expression>(
                                         Expression.Value(ConstantValue.String("Hallo"))
-                                    )
+                                    ), null
                                 )
                             )
                         ),null, null)),
@@ -473,13 +476,14 @@ class ParserTest
                                 "Println",
                                 listOf<Expression>(
                                     Expression.Operation(Operator.Plus,
-                                        Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a"))),
+                                        Expression.FunctionCall("ToString", listOf(Expression.UseVariable("a")), null),
                                         Expression.Operation(Operator.Plus,
                                             Expression.Value(ConstantValue.String("Hallo")),
                                             Expression.UseVariable("name")
                                         ),
                                     )
-                                )
+                                ),
+                                null
                             )
                         )
                     ), listOf(Parameter("a",Type.Integer)), null))
@@ -493,10 +497,10 @@ class ParserTest
                 "Main",
                 Body(
                     listOf<Statement>(
-                        Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5)))))
+                        Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5))), null))
                     ),
                     listOf<Declaration.VariableDeclaration>(
-                        Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null)),
+                        Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)),
                         Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
                 ),
@@ -554,9 +558,35 @@ class ParserTest
                 "Math",
                 Body(listOf(),null),
                 listOf(Parameter("a", Type.Custom("A"))),
-                hashMapOf("A" to null)
+                listOf("A")
             )
         )
+
+        TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun genericFunctionCallTest() {
+
+        val code = """
+            Int Main()
+            {
+                return Fun<Int>()
+            }
+        """.trimIndent()
+
+        val statementList = listOf<Statement>(
+            Statement.AssignValue(
+                "return",
+                Expression.FunctionCall(
+                    "Fun",
+                    null,
+                    listOf(Type.Integer)
+                )
+            )
+        )
+
+        val tree = CallMain(statementList, null, null)
 
         TestIfTreeIsAsExpected(code, tree)
     }
@@ -567,15 +597,98 @@ class ParserTest
         val code = """
             class <A>Math{
             }
-    """.trimIndent()
+        """.trimIndent()
 
         val tree = listOf<Declaration>(
             Declaration.ClassDeclare(
                 "Math",
                 ClassBody(hashMapOf(), listOf()),
-                hashMapOf("A" to null)
+                listOf("A")
             )
         )
+
+        TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun genericClass2Test() {
+
+        val code = """
+            class <A>Math{
+                Math<A>(A t){}
+            }
+        """.trimIndent()
+
+        val tree = listOf<Declaration>(
+            Declaration.ClassDeclare(
+                "Math",
+                ClassBody(hashMapOf(
+                   "Math" to mutableListOf(Declaration.FunctionDeclare(
+                       Type.Void, "Math", Body(listOf(),null),
+                       listOf(Parameter("t", Type.Custom("A"))),
+                       listOf("A")
+                   )
+                ))
+                    , listOf()),
+                listOf("A")
+            )
+        )
+
+        TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun genericClass3Test() {
+
+        val code = """
+            Void Main()
+            {
+                A objA<String> = A<String>("Hallo")
+            }
+        """.trimIndent()
+
+        val localVariables = listOf(
+            Declaration.VariableDeclaration(
+                Type.CustomWithGenerics("A", listOf(Type.String)),
+                "objA",
+                Expression.FunctionCall(
+                    "A",
+                    listOf(Expression.Value(ConstantValue.String("Hallo"))),
+                    listOf(Type.String)
+                )
+            )
+        )
+
+        val tree = CallMain(listOf(), localVariables, null,Type.Void)
+
+        TestIfTreeIsAsExpected(code, tree)
+    }
+
+    @Test
+    fun genericClassPlusEqualsTest() {
+
+        val code = """
+            Void Main()
+            {
+                p.x += 5
+            }
+        """.trimIndent()
+
+        val statements = listOf(
+            Statement.UseClass(
+                "p",
+                Statement.AssignValue(
+                    "x",
+                    Expression.Operation(
+                        Operator.Plus,
+                        Expression.UseDotVariable("p",Expression.UseVariable("x")),
+                        Expression.Value(ConstantValue.Integer(5))
+                    )
+                )
+            )
+        )
+
+        val tree = CallMain(statements, null, null,Type.Void)
 
         TestIfTreeIsAsExpected(code, tree)
     }

@@ -580,4 +580,301 @@ class TypeCheckerTest {
         assertFailsWith(TypeCheckerReturnTypeException::class) { checkCode(code) }
     }
 
+    @Test
+    fun genericsFunctionTest() {
+
+        val code = """
+            String Fun<A>(A a){
+                A b = a
+                return a.ToString()
+            }
+            
+            Void Main()
+            {
+                String s = ToString(Fun<Int>(5)) + Fun<String>("Hallo")
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsFunction2Test() {
+
+        val code = """
+            A Fun<A>(A a){
+                return a
+            }
+            
+            Void Main()
+            {
+                Int i = Fun<Int>(5)
+                String s = Fun<String>("Hallo")
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsFunction3Test() {
+
+        val code = """
+            A Fun<A>(A a){
+                return Fun<A>(a, 5)
+            }
+            
+            B Fun<B>(B a, Int b){
+                return a
+            }
+            
+            Void Main()
+            {
+                Int i = Fun<Int>(5)
+                String s = Fun<String>("Hallo")
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsFunction4Test() {
+
+        val code = """
+            B Fun<A,B>(A a, B b){
+                return Fun<B>(b)
+            }
+
+            A Fun<A>(A a){
+                return a
+            }
+
+            Void Main()
+            {
+                Int i = Fun<Int>(5)
+                String s = Fun<Float, String>(12.0, "Hallo")
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsClassTest() {
+
+        val code = """
+            class <T> A{
+                
+                A(){}          
+            }
+            
+            Void Main()
+            {
+                A objA<String> = A<String>()
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsClass2Test() {
+
+        val code = """
+            class <T> A{
+                
+                A(T t){}          
+            }
+            
+            Void Main()
+            {
+                A objA<String> = A<String>("Hallo")
+            }
+        """.trimIndent()
+
+        checkCode(code)
+
+        val code2 = """
+            class A{
+                
+                A<T>(T t){}          
+            }
+            
+            Void Main()
+            {
+                A objA = A<String>("Hallo")
+            }
+        """.trimIndent()
+
+        checkCode(code2)
+
+        val code3 = """
+            class A{
+                
+                A(T t){}          
+            }
+            
+            Void Main()
+            {
+                A objA = A<String>("Hallo")
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerFunctionParameterException::class) { checkCode(code3) }
+    }
+
+    @Test
+    fun genericsClass3Test() {
+
+        val code = """
+            class <T> A{
+                
+                A(T t){}  
+                        
+                T B<X>(X a){
+                }
+            }
+            
+            Void Main()
+            {
+                A objA<String> = A<String>("Hallo")
+                String s = objA.B<Int>(5)
+                
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsClass4Test() {
+
+        val code = """
+            
+            class <T> List{
+                T a = null
+                
+                List(T b){
+                    a = b
+                }  
+                
+            }
+            
+            Void Main()
+            {
+                List objA<Int> = List<Int>(3)
+                objA.a = 4 + 1
+                
+                
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsClass5Test() {
+
+        val code = """
+            class <X> D{
+                X a = null
+                            
+                D(X d){
+                    a = d
+                }
+            }
+            
+            class <T> A{
+                
+                A(T t){}  
+                        
+                T B<X>(X a){
+                }
+            }
+            
+            Void Main()
+            {
+                A objA<String> = A<String>("Hallo")
+                D objD<A> = D<A>(objA)
+                String s = objA.B<Int>(5)
+                
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsClass6Test() {
+
+        val code = """
+            class <X,Y> Pair{
+                X x = null
+                Y y = null
+                            
+                Pair(X xx, Y yy){
+                    x = x
+                    y = y
+                }
+                
+                X GetFirst(){
+                    return x
+                }
+                
+                Y GetSecond(){
+                    return y
+                }
+                
+                A Test<A>(A a){
+                    return a
+                }
+            }
+            
+            String Main()
+            {
+                Pair p<Int,String> = Pair<Int,String>(5, 70)
+                Int i = p.x
+                String a = ""
+               
+                a = p.Test<String>(a)
+               
+                p.x += 5
+                p.y = p.x.ToString() + p.y
+                return p.GetSecond()
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
+    @Test
+    fun genericsClass7Test() {
+
+        val code = """
+            class Pair{
+            
+                Pair(){}
+                
+                A Test<A>(A a){
+                    return a
+                }
+            }
+            
+            A Test<A>(A a){
+                return a
+            }
+            
+            String Main()
+            {
+                Pair p = Pair()
+                String a = ""
+               
+                a = p.Test<String>(a)
+                return a
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
 }

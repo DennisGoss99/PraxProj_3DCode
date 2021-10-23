@@ -168,9 +168,15 @@ class Parser(val lexer: Lexer, val fileName : String)
                 break
             }
 
-            val type = TypeParse()
+            var type = TypeParse()
             val name = NameParse()
+            val generics = GenericCall()
             val expression = ExpressionParse()
+
+            if(generics != null){
+                type as? Type.Custom ?: throw ParserBaseException(currentLineOfCode ,fileName, "Can't use generics with base types")
+                type = Type.CustomWithGenerics(type.name, generics)
+            }
 
 
             val variableDeclaration = Declaration.VariableDeclaration(type, name, expression,currentLineOfCode)
@@ -326,16 +332,38 @@ class Parser(val lexer: Lexer, val fileName : String)
         return Declaration.ClassDeclare(name, body, generics,currentLineOfCode)
     }
 
-    private fun GenericsParse() : HashMap<String,Type?>?{
+    private fun GenericCall() : List<Type>?{
+        if(lexer.peek() !is LexerToken.Less)
+            return null
+
+        val lessSymbol = FetchNextExpectedToken<LexerToken.Less>("<")
+
+        val generics = mutableListOf<Type>()
+
+        while (true){
+            when(lexer.peek()){
+                is LexerToken.TypeIdent -> generics.add(TypeParse())
+                is LexerToken.Comma -> FetchNextExpectedToken<LexerToken.Comma>(",")
+
+                is LexerToken.EOF -> throw ParserMissingGenericBracketException(lessSymbol.LineOfCode, fileName)
+                is LexerToken.Greater -> {
+                    FetchNextExpectedToken<LexerToken.Greater>(">")
+                    return generics
+                }
+            }
+        }
+    }
+
+    private fun GenericsParse() : List<String>?{
         if(lexer.peek() !is LexerToken.Less)
             return null
         val lessSymbol = FetchNextExpectedToken<LexerToken.Less>("<")
 
-        val generics = HashMap<String,Type?>()
+        val generics = mutableListOf<String>()
 
         while (true){
             when(val nextToken = GetNextToken()){
-                is LexerToken.TypeIdent -> generics[nextToken.identify] = null
+                is LexerToken.TypeIdent -> generics.add(nextToken.identify)
                 is LexerToken.Comma -> {}
 
                 is LexerToken.EOF -> throw ParserMissingGenericBracketException(lessSymbol.LineOfCode, fileName)
@@ -432,6 +460,7 @@ class Parser(val lexer: Lexer, val fileName : String)
             is LexerToken.Boolean_Literal -> { Expression.Value(ConstantValue.Boolean(token.b, Type.Boolean)) }
             is LexerToken.Char_Literal -> { Expression.Value(ConstantValue.Char(token.c, Type.Char)) }
             is LexerToken.String_Literal -> { Expression.Value(ConstantValue.String(token.s, Type.String)) }
+            is LexerToken.Null -> { Expression.Value(ConstantValue.Null(Type.Null)) }
 
             else -> throw ParserValueUnknown(token, fileName)
         }
@@ -481,9 +510,10 @@ class Parser(val lexer: Lexer, val fileName : String)
     private fun FunctionCallParse() : Expression.FunctionCall
     {
         val name = FunctionIdentifyParse()
+        val generics = GenericCall()
         val parameter = ParameterParseAsExpression()
 
-        return Expression.FunctionCall(name, parameter, currentLineOfCode)
+        return Expression.FunctionCall(name, parameter, generics, currentLineOfCode)
     }
 
     private fun UseVariableParse() : Expression
@@ -638,7 +668,8 @@ class Parser(val lexer: Lexer, val fileName : String)
             is LexerToken.Char_Literal,
             is LexerToken.String_Literal,
             is LexerToken.Float_Literal,
-            is LexerToken.Number_Literal -> ValueParse()
+            is LexerToken.Number_Literal,
+            is LexerToken.Null, -> ValueParse()
 
             is LexerToken.FunctionIdent -> FunctionCallParse()
             is LexerToken.NameIdent -> UseVariableParse()
@@ -750,14 +781,14 @@ class Parser(val lexer: Lexer, val fileName : String)
         return expression
     }
 
-    private fun AssignParse(name: String) : Statement.AssignValue
+    private fun AssignParse(name : String, useVariable: Expression) : Statement.AssignValue
     {
         val expression = when(val tokenEquals = GetNextToken()){
             is LexerToken.AssignEquals -> ExpressionParse()
-            is LexerToken.AssignPlusEquals -> Expression.Operation(Operator.Plus,Expression.UseVariable(name), ExpressionParse())
-            is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus,Expression.UseVariable(name), ExpressionParse())
-            is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply,Expression.UseVariable(name), ExpressionParse())
-            is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide,Expression.UseVariable(name), ExpressionParse())
+            is LexerToken.AssignPlusEquals -> Expression.Operation(Operator.Plus, useVariable, ExpressionParse())
+            is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus, useVariable, ExpressionParse())
+            is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply, useVariable, ExpressionParse())
+            is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide, useVariable, ExpressionParse())
             else -> throw ParserUnsupportedAssignment(tokenEquals, fileName)
         }
 
@@ -767,12 +798,13 @@ class Parser(val lexer: Lexer, val fileName : String)
     private fun ProcedureCallParse() : Statement.ProcedureCall
     {
         val name = FunctionIdentifyParse()
+        val generics = GenericCall()
         val parameter = ParameterParseAsExpression()
 
         if(lexer.peek() == LexerToken.Semicolon())
             FetchNextExpectedToken<LexerToken.Semicolon>("';'")
 
-        return Statement.ProcedureCall(name, parameter, currentLineOfCode)
+        return Statement.ProcedureCall(name, parameter, generics, currentLineOfCode)
     }
 
     private fun StatementParse(): Statement
@@ -784,12 +816,35 @@ class Parser(val lexer: Lexer, val fileName : String)
             is LexerToken.LCurlyBrace ->  BlockParse()
             is LexerToken.Return -> AssignmentParse()
             is LexerToken.NameIdent ->{
-                val token = NameParse()
+                val name = NameParse()
                 if(lexer.peek() is LexerToken.Dot) {
                     FetchNextExpectedToken<LexerToken.Dot>("'.'")
-                    Statement.UseClass(token, StatementParse())
+                    val statement = Statement.UseClass(name, DotStatementParse(Expression.UseDotVariable(name, Expression.Value(ConstantValue.Null()),currentLineOfCode)), currentLineOfCode)
+                    statement
                 }else
-                    AssignParse(token)
+                    AssignParse(name, Expression.UseVariable(name, currentLineOfCode))
+            }
+            is LexerToken.FunctionIdent -> ProcedureCallParse()
+
+            else -> throw ParserStatementInvalid(token, fileName)
+        }
+    }
+
+    private fun DotStatementParse(expression: Expression.UseDotVariable): Statement
+    {
+        return when(val token = lexer.peek())
+        {
+            is LexerToken.NameIdent ->{
+                val name = NameParse()
+                if(lexer.peek() is LexerToken.Dot) {
+                    FetchNextExpectedToken<LexerToken.Dot>("'.'")
+                    expression.expression = Expression.UseDotVariable(name,Expression.Value(ConstantValue.Null()),currentLineOfCode)
+                    Statement.UseClass(name, DotStatementParse(expression))
+                }else{
+                    expression.expression = Expression.UseVariable(name, currentLineOfCode)
+                    AssignParse(name, expression)
+                }
+
             }
             is LexerToken.FunctionIdent -> ProcedureCallParse()
 
@@ -813,7 +868,13 @@ class Parser(val lexer: Lexer, val fileName : String)
             "Double" -> Type.Double
             "Void" -> Type.Void
 
-            else -> Type.Custom(identifier.identify)
+            else ->{
+                val generics = GenericCall()
+                if(generics != null)
+                    Type.CustomWithGenerics(identifier.identify, generics)
+                else
+                    Type.Custom(identifier.identify)
+            }
         }
     }
 

@@ -12,23 +12,10 @@ class ParserManager{
 
         private var loadedFiles = HashMap<String,File?>()
 
-        fun loadFromDisk(path: String): File {
-            loadedFiles = HashMap<String, File?>()
-
-            var file = loadImportsFile(path)
-            loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
-
-            loadedFiles.forEach { (_, f) ->
-                f?.includes?.forEach { (n, i) ->
-                    if (i == null)
-                        f.includes[n] = loadedFiles[n]
-                }
-            }
-            return file
-        }
-
         fun loadFromString(list: MutableList<Pair<String , String>>) : File {
             loadedFiles = HashMap<String, File?>()
+
+            loadedFiles["Array"] = ArrayImplementation.file
 
             if(list.size == 0)
                 throw Exception("No code files found")
@@ -74,6 +61,22 @@ class ParserManager{
             }
 
             return File(file.first, includes ,classDeclarations , functionDeclarations ,variableDeclarations, hashMapOf())
+        }
+
+
+        fun loadFromDisk(path: String): File {
+            loadedFiles = HashMap<String, File?>()
+
+            var file = loadImportsFile(path)
+            loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
+
+            loadedFiles.forEach { (_, f) ->
+                f?.includes?.forEach { (n, i) ->
+                    if (i == null)
+                        f.includes[n] = loadedFiles[n]
+                }
+            }
+            return file
         }
 
         private fun loadImportsFile(filePath: String) : File {

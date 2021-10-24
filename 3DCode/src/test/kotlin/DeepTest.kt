@@ -849,6 +849,24 @@ class DeepTest {
     }
 
     @Test
+    fun bugfix3Test(){
+        val code = """                               
+            Int Main(){
+                Int a = 5
+                
+                if(a > 6){}
+                if(a > 6){}
+                while(a == 0){}
+                
+                return a
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(5) ,executeCode(code))
+    }
+
+    @Test
     fun classTest(){
         val code = """   
             
@@ -1506,5 +1524,85 @@ class DeepTest {
 
         assertEquals(ConstantValue.String("0") , executeCode(code))
 
+    }
+
+    @Test
+    fun linkedListTest(){
+        val code = """   
+            class <T> A{
+                
+                A a<T> = null
+                T value = null
+                
+                A(T tempValue){
+                    value = tempValue
+                }
+                       
+                Void Add(T tempValue){
+//                    if(a != null){
+//                        a.Add(tempValue)
+//                    }
+                
+                    a = A<T>(tempValue)
+                }
+            }              
+                             
+            Int Main(){
+                A a<Int> = A<Int>(5)
+                a.Add(10)
+                a.a.Add(100)
+                return a.value + a.a.value + a.a.a.value
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(115) , executeCode(code))
+    }
+
+    @Test
+    fun procedureClassTest(){
+        val code = """   
+            class A{
+                Int a = 0
+                
+                A(){
+                    B()
+                }
+               
+                Void B(){
+                    a = 78
+                }            
+            }              
+                             
+            Int Main(){
+                A a = A()
+                return a.a
+            }
+            
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(78) , withoutTypeCheckerExecuteCode(code))
+
+    }
+
+    @Test
+    fun arrayTest(){
+
+        val code = """   
+            include "Array"
+            
+            Int Main(){
+                Array a<Int> = Array<Int>(5)
+                a.Set(0,5)
+                a.Set(1,6)
+                a.Set(2,7)
+                a.Set(3,8)
+                a.Set(4,9)
+                
+                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3) + a.Get(4)            
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(35) , withoutTypeCheckerExecuteCode(code))
     }
 }

@@ -262,6 +262,9 @@ class Parser(val lexer: Lexer, val fileName : String)
 
     private fun ParameterParseAsDeclaration(): List<Parameter>?
     {
+        if(lexer.peek() is LexerToken.NameIdent)
+            throw ParserBaseException(currentLineOfCode, fileName, "Generic class variables must have <> after the name. 'Maybe try: TYPE name<TYPE,..> = ..'")
+
         val parameterList = mutableListOf<Parameter>()
         val expectedLBrace = FetchNextExpectedToken<LexerToken.Lparen>("Lparen")
 
@@ -330,7 +333,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         val generics = mutableListOf<Type>()
 
         while (true){
-            when(lexer.peek()){
+            when(val token = lexer.peek()){
                 is LexerToken.TypeIdent -> generics.add(TypeParse())
                 is LexerToken.Comma -> FetchNextExpectedToken<LexerToken.Comma>(",")
 
@@ -339,6 +342,9 @@ class Parser(val lexer: Lexer, val fileName : String)
                     FetchNextExpectedToken<LexerToken.Greater>(">")
                     return generics
                 }
+
+                is LexerToken.GreaterEqual -> throw ParserBaseException(currentLineOfCode,fileName, "Token <GreaterEqual> was not expected. 'Maybe put space between > and ='")
+                else -> throw ParserTokenUnexpected(token, fileName)
             }
         }
     }

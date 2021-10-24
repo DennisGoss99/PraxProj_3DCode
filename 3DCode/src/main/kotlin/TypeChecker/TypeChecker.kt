@@ -220,7 +220,8 @@ class TypeChecker() {
                 is Statement.ProcedureCall -> {
                     val functionList = classObj.classBody.functions[statement2.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement2.LineOfCode, importFile.name, statement2.procedureName)
                     val parameterTypes = statement2.parameterList?.map{ getExpressionType(it, localVariables, importFile)}
-                    val function = functionList.firstOrNull { checkParameter(it.parameters, it.generics, parameterTypes, importFile) } ?: throw TypeCheckerFunctionParameterException(statement2.LineOfCode, importFile.name, statement2.procedureName, parameterTypes, "method")
+
+                    val function = functionList.firstOrNull { checkParameter(it.parameters, combineGenerics(it.generics, classObj.generics), parameterTypes, importFile) } ?: throw TypeCheckerFunctionParameterException(statement2.LineOfCode, importFile.name, statement2.procedureName, parameterTypes, "method")
                 }
                 is Statement.UseClass ->{
                     statementUseClass(statement2, classObj.classBody.variables?.associateTo(hashMapOf()) { it.name to it.type } ?: hashMapOf(), importFile)
@@ -262,7 +263,7 @@ class TypeChecker() {
                             val methodList = classDec.classBody.functions[classDec.className] ?: throw TypeCheckerConstructorNotFoundException(expression.LineOfCode, file.name, expression.functionName, classDec.className)
                             val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables, file)}
                             val method = methodList.firstOrNull { functionDeclaration ->
-                                val generics : List<String> = listOf<String>().union(functionDeclaration.generics ?: listOf()).union(classDec.generics ?: listOf()).toList()
+                                val generics  = combineGenerics(functionDeclaration.generics, classDec.generics)
                                 checkParameter(functionDeclaration.parameters, generics, parameterTypes, file) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, expression.functionName, parameterTypes, "constructor" )
 
                             if(classDec.generics?.size != expression.generics?.size && method.generics?.size != expression.generics?.size)
@@ -311,7 +312,7 @@ class TypeChecker() {
                 localVariables[expression.variableName] ?: file.variableDeclaration[expression.variableName]?.type ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, file.name, expression.variableName)
             }
             is Expression.UseDotVariable -> {
-                useDotVariable(localVariables, expression, file)
+                useDotVariable(localVariables, expression, null, file)
             }
             is Expression.Operation -> {
                 if(expression.operator == Operator.Equals)
@@ -349,7 +350,7 @@ class TypeChecker() {
 
                         Operator.Plus -> when{
                                 typeA is Type.Integer && typeB is Type.Integer -> Type.Integer
-                                typeA is Type.Integer || typeA is Type.Float && typeB is Type.Integer || typeB is Type.Float -> Type.Float
+                                (typeA is Type.Integer || typeA is Type.Float) && (typeB is Type.Integer || typeB is Type.Float) -> Type.Float
                                 typeA is Type.String && typeB is Type.String -> Type.String
                                 else -> throw TypeCheckerOperatorTypeException(expression.LineOfCode, file.name ,expression.operator, typeA, typeB)
                         }
@@ -366,7 +367,7 @@ class TypeChecker() {
         }
     }
 
-    private fun useDotVariable(localVariables: HashMap<String, Type>, expression: Expression.UseDotVariable, file : File) : Type{
+    private fun useDotVariable(localVariables: HashMap<String, Type>, expression: Expression.UseDotVariable, upperType: Type.CustomWithGenerics?, file : File) : Type{
         if(!(localVariables.containsKey(expression.variableName) || file.variableDeclaration.containsKey(expression.variableName)))
             throw TypeCheckerVariableNotFoundException(expression.LineOfCode,file.name, expression.variableName)
 
@@ -376,14 +377,22 @@ class TypeChecker() {
         {
             return when (val expression2 = expression.expression){
                 is Expression.UseVariable -> {
-                    val returnType = classObj.classBody.variables?.associateTo(HashMap()) { it.name to it.type }?.get(expression2.variableName) ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, importFile.name, expression.variableName)
+                    var returnType = classObj.classBody.variables?.associateTo(HashMap()) { it.name to it.type }?.get(expression2.variableName) ?: throw TypeCheckerVariableNotFoundException(expression.LineOfCode, importFile.name, expression.variableName)
 
-                    if(returnType is Type.AbstractCustom && classType is Type.CustomWithGenerics && classObj.generics?.contains(returnType.name) == true)
-                        return getClassGenericType(classType,returnType,classObj,file) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
+                    if(returnType is Type.AbstractCustom && classType is Type.CustomWithGenerics && classObj.generics?.contains(returnType.name) == true){
+
+                        returnType = getClassGenericType(classType,returnType,classObj,file) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
+
+                        if(upperType != null && returnType is Type.Custom)
+                            returnType = getClassGenericType(upperType, returnType, classObj, file) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
+
+                    }
 
                     return returnType
                 }
-                is Expression.UseDotVariable -> useDotVariable(classObj.classBody.variables?.associateTo(HashMap()) { it.name to it.type } ?: HashMap() ,expression2, importFile)
+                is Expression.UseDotVariable -> {
+                    useDotVariable(classObj.classBody.variables?.associateTo(HashMap()) { it.name to it.type } ?: HashMap() ,expression2, upperType?: classType as? Type.CustomWithGenerics, importFile)
+                }
                 is Expression.FunctionCall -> {
                     val functionList = classObj.classBody.functions[expression2.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, importFile.name, expression2.functionName)
                     val parameterTypes = expression2.parameterList?.map{ getExpressionType(it, localVariables, importFile)}
@@ -424,6 +433,12 @@ class TypeChecker() {
         throw TypeCheckerCantUseOperationOnDot(expression.LineOfCode, file.name, expression)
     }
 
+    private fun combineGenerics(generics1 : List<String>?,generics2 : List<String>?) : List<String>?{
+        if(generics1.isNullOrEmpty() && generics2.isNullOrEmpty())
+            return null
+        return listOf<String>().union(generics1 ?: listOf()).union(generics2 ?: listOf()).toList()
+    }
+
     private fun getClassGenericType(type :Type.CustomWithGenerics, functionReturnType : Type.AbstractCustom, classDef: Declaration.ClassDeclare , file: File) : Type?{
 
         val genericPosition = classDef.generics?.indexOf(functionReturnType.name) ?: return null
@@ -435,7 +450,7 @@ class TypeChecker() {
     private fun numberOperation(typeA: Type, typeB: Type, expression: Expression.Operation, file : File)
     = when {
         typeA is Type.Integer && typeB is Type.Integer -> Type.Integer
-        typeA is Type.Integer || typeA is Type.Float && typeB is Type.Integer || typeB is Type.Float -> Type.Float
+        (typeA is Type.Integer || typeA is Type.Float) && (typeB is Type.Integer || typeB is Type.Float) -> Type.Float
         else -> throw TypeCheckerOperatorTypeException(expression.LineOfCode, file.name, expression.operator, typeA, typeB)
     }
 
@@ -452,7 +467,7 @@ class TypeChecker() {
     }
 
     private fun checkOperatorAllTypes(outputType : Type ,typeA : Type, typeB : Type, expression: Expression.Operation, file : File): Type {
-        if(typeA == typeB)
+        if(typeA == typeB || typeA is Type.Null || typeB is Type.Null)
             return outputType
         throw TypeCheckerOperatorTypeException(expression.LineOfCode, file.name, expression.operator, typeA, typeB)
     }

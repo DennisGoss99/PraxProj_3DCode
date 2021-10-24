@@ -79,6 +79,17 @@ class Evaluator {
             classEnvironment[it.name] = evalExpression(it.expression, combineEnvironments(file.globalEnvironment,classEnvironment, file), classDefinition, file)
         }
 
+        if(classDefinition.className == "Array"){
+            if(parameter.isNullOrEmpty() || parameter.size != 1 || parameter[0].value !is ConstantValue.Integer)
+                throw EvaluatorBaseException(parameter?.getOrNull(0)?.LineOfCode ?: -1, file.name, "Array constructor must look like: Array<TYPE>(INT)")
+
+            classDefinition.classBody.variables!!.forEach {
+                if(it.name == "array")
+                        (it.expression as Expression.Value).value = DynamicValue.Array(Array( parameter[0].value.value as Int){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf())) }
+            return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))
+        }
+
+
         evalMethod(classDefinition, classDefinition.className, parameter, classEnvironment, file)
 
         return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))
@@ -147,7 +158,21 @@ class Evaluator {
                         "Print" -> {
                             statement.parameterList?.map { evalExpression(it,localEnvironment, currentClass, file) }?.forEach { p -> print(p.value.getValueAsString())}
                         }
-                        else -> evalFunction(file.functionDeclarations[statement.procedureName],statement.procedureName,statement.parameterList,localEnvironment, currentClass, file)
+                        "_integratedFunctionSetArray" -> arraySetProcedureCall(statement, localEnvironment, currentClass, file)
+                        else ->{
+                            currentClass?.classBody?.functions?.get(statement.procedureName)?.let { _ ->
+                                evalMethod(currentClass, statement.procedureName, statement.parameterList,localEnvironment, file)
+                                changeEnvironment(environment, localEnvironment, shadowMap)
+                                return@forEach
+                            }
+
+                            file.functionDeclarations[statement.procedureName]?.let { functionDeclarations ->
+                                 evalFunction(functionDeclarations,statement.procedureName,statement.parameterList,localEnvironment, currentClass, file)
+                                return@forEach
+                            }
+
+                            throw FunctionNotFoundRuntimeException(statement.LineOfCode, file.name, statement.procedureName)
+                        }
                     }
                 }
                 is Statement.UseClass -> statementUseClass(statement, localEnvironment, file)
@@ -162,6 +187,7 @@ class Evaluator {
         changeEnvironment(environment, localEnvironment, shadowMap)
         return null
     }
+
 
     private fun statementUseClass(statement : Statement.UseClass, environment: HashMap<String, Expression.Value>, file : File){
         val obj = environment.getOrDefault(statement.variableName,null) ?: file.globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.LineOfCode, file.name, statement.variableName)
@@ -283,6 +309,7 @@ class Evaluator {
             is Expression.FunctionCall ->{
                 return when(expression.functionName){
                     "ToString" -> toStringImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) } )
+                    "_integratedFunctionGetArray" -> arrayGetFunctionCall(expression, environment, currentClass, file)
                     else -> {
                         file.classDeclarations[expression.functionName]?.let { classDec ->
                             return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment, currentClass, file) }, file)
@@ -384,6 +411,21 @@ class Evaluator {
             ?: throw Exception("Can't ToString Expression: ${parameterList.first()}")
 
         return Expression.Value(ConstantValue.String(value.value.getValueAsString()))
+    }
+
+    private fun arraySetProcedureCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
+        val parameter = statement.parameterList?.map { evalExpression(it, localEnvironment, currentClass, file) }
+        val index = parameter?.get(0)?.value as? ConstantValue.Integer ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "First parameter of Set must be an Integer. 'Set(Int index, T Value)'")
+        val value = parameter[1].value
+
+        (localEnvironment["array"]?.value as? DynamicValue.Array)!!.value[index.value] =
+            Expression.Value(value, statement.LineOfCode)
+    }
+
+    private fun arrayGetFunctionCall( expression: Expression.FunctionCall, environment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File): Expression.Value {
+        val parameter = expression.parameterList?.map { evalExpression(it, environment, currentClass, file) }
+        val index = parameter?.get(0)?.value as? ConstantValue.Integer ?: throw EvaluatorBaseException( expression.LineOfCode, file.name, "First parameter of Get must be an Integer. 'Get(Int index)'")
+        return (environment["array"]?.value as? DynamicValue.Array)!!.value[index.value]
     }
 
     private fun negateNumber(v1: Expression.Value, file: File): Expression.Value{

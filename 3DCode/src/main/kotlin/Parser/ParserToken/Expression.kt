@@ -22,5 +22,5 @@ sealed class Expression : ILineOfCode
 
     data class FunctionCall(val functionName : String, var parameterList : List<Expression>?, val generics : List<Type>?, override val LineOfCode: Int = -1) : Expression()
 
-    data class Value(val value: IValue, override val LineOfCode: Int = -1) : Expression()
+    data class Value(var value: IValue, override val LineOfCode: Int = -1) : Expression()
 }

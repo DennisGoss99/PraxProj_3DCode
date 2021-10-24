@@ -11,8 +11,8 @@ sealed class DynamicValue : IValue  {
         return this.javaClass.simpleName
     }
 
-    data class Class(override val value : HashMap<String, Expression.Value>, val type: Type.Custom) : DynamicValue()
-    {
+    data class Class(override val value : HashMap<String, Expression.Value>, val type: Type.Custom) : DynamicValue(){
+
         override fun toString(): kotlin.String
         {
             return "$value : $type"
@@ -23,5 +23,31 @@ sealed class DynamicValue : IValue  {
         }
 
         override fun getType(): Type = type
+    }
+
+    data class Array(override val value: kotlin.Array<Expression.Value>, val type: Type.CustomWithGenerics): DynamicValue(){
+        override fun getValueAsString(): String {
+            return "[" + value.fold(""){acc, value ->  acc + value.value.getValueAsString() } + "]"
+        }
+
+        override fun getType(): Type = type
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Array
+
+            if (!value.contentEquals(other.value)) return false
+            if (type != other.type) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = value.contentHashCode()
+            result = 31 * result + type.hashCode()
+            return result
+        }
     }
 }

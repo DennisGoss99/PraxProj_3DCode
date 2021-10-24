@@ -1,11 +1,8 @@
 import Evaluator.Evaluator
-import Lexer.Lexer
-import Parser.Parser
 import Parser.ParserManager
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.IValue
-import TypeChecker.Exceptions.TypeCheckerFunctionParameterException
 import TypeChecker.Exceptions.TypeCheckerVariableNotFoundException
 import TypeChecker.TypeChecker
 import org.junit.jupiter.api.Test

@@ -7,9 +7,7 @@ import kotlin.test.assertEquals
 
 class ParserTest
 {
-    private val _debugOutPut = false
-
-    fun CallMain(statementList: List<Statement>, localVariables: List<Declaration.VariableDeclaration>? = null, parameters: List<Parameter>? = null, returnType : Type = Type.Integer): List<Declaration>
+    private fun callMain(statementList: List<Statement>, localVariables: List<Declaration.VariableDeclaration>? = null, parameters: List<Parameter>? = null, returnType : Type = Type.Integer): List<Declaration>
     {
         return listOf<Declaration>(Declaration.FunctionDeclare(
             returnType,
@@ -19,18 +17,18 @@ class ParserTest
         ))
     }
 
-    fun TestIfTreeIsAsExpected(code : String, declaration: List<Declaration>)
+    private fun testIfTreeIsAsExpected(code : String, declaration: List<Declaration>)
     {
         val lexer = TestLexer(code)
         val parser = Parser(lexer, "Test")
-        val parserTokenTree = parser.ParsingStart()
+        val parserTokenTree = parser.parsingStart()
 
         assertEquals(declaration.toString(), parserTokenTree.toString())
     }
 
 
     @Test
-    fun ReturnDirectTest()
+    fun returnDirectTest()
     {
         val code = """
             Int Main()
@@ -43,13 +41,13 @@ class ParserTest
             Statement.AssignValue("return", Expression.Value(ConstantValue.Integer(5)))
         )
 
-        val tree = CallMain(statementList,null, null)
+        val tree = callMain(statementList,null, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun ReturnWithAdditionTest()
+    fun returnWithAdditionTest()
     {
         val code = """
             Int Main()
@@ -68,13 +66,13 @@ class ParserTest
                 ))
         )
 
-        val tree = CallMain(statementList, null, null)
+        val tree = callMain(statementList, null, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun ReturnWithDeclarationTest()
+    fun returnWithDeclarationTest()
     {
         val code = """
             Int Main()
@@ -85,7 +83,7 @@ class ParserTest
             }
         """.trimIndent()
 
-        val localVariables = listOf<Declaration.VariableDeclaration>(
+        val localVariables = listOf(
             Declaration.VariableDeclaration(Type.Integer, "a", Expression.Value(ConstantValue.Integer(0)))
         )
 
@@ -96,13 +94,13 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statementList, localVariables, null)
+        val tree = callMain(statementList, localVariables, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun ReturnWithLoopTest()
+    fun returnWithLoopTest()
     {
         val code = """
             Int Main()
@@ -118,11 +116,11 @@ class ParserTest
             }
         """.trimIndent()
 
-        val localVariables = listOf<Declaration.VariableDeclaration>(
+        val localVariables = listOf(
             Declaration.VariableDeclaration(Type.Integer, "a", Expression.Value(ConstantValue.Integer(1)))
         )
 
-        val statementList = listOf<Statement>(
+        val statementList = listOf(
             Statement.While(
                 Expression.Operation(
                     Operator.DoubleEquals,
@@ -148,13 +146,13 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statementList, localVariables, null)
+        val tree = callMain(statementList, localVariables, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun ReturnWithParametersTest()
+    fun returnWithParametersTest()
     {
         val code = """
             Int Main(Int a, Int b)
@@ -163,7 +161,7 @@ class ParserTest
             }
         """.trimIndent()
 
-        val parameters = listOf<Parameter>(
+        val parameters = listOf(
             Parameter("a", Type.Integer),
             Parameter("b", Type.Integer)
         )
@@ -179,13 +177,13 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statementList,null, parameters)
+        val tree = callMain(statementList,null, parameters)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun ReturnWithFuncitonCallTest()
+    fun returnWithFunctionCallTest()
     {
         val code = """
             Int Main()
@@ -212,13 +210,13 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statementList, null, null)
+        val tree = callMain(statementList, null, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun ReturnWithIFTest()
+    fun returnWithIFTest()
     {
         val code = """
             Int Main()
@@ -235,13 +233,13 @@ class ParserTest
             }
         """.trimIndent()
 
-        val localVariables = listOf<Declaration.VariableDeclaration>(
+        val localVariables = listOf(
             Declaration.VariableDeclaration(Type.Integer, "w", Expression.Value(ConstantValue.Integer(3))),
             Declaration.VariableDeclaration(Type.Boolean, "f", Expression.Operation(Operator.LessEqual, Expression.UseVariable("w"), Expression.Value(
                 ConstantValue.Integer(3))))
         )
 
-        val statementList = listOf<Statement>(
+        val statementList = listOf(
             Statement.If(
                 Expression.UseVariable("f"),
                 Body(listOf<Statement>(
@@ -259,13 +257,13 @@ class ParserTest
 
         )
 
-        val tree = CallMain(statementList, localVariables, null)
+        val tree = callMain(statementList, localVariables, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
-    fun FloatReturnWithLoopTest()
+    fun floatReturnWithLoopTest()
     {
         val code = """
             Float Main()
@@ -281,11 +279,11 @@ class ParserTest
             }
         """.trimIndent()
 
-        val localVariables = listOf<Declaration.VariableDeclaration>(
+        val localVariables = listOf(
             Declaration.VariableDeclaration(Type.Float, "a", Expression.Value(ConstantValue.Float(1.0f)))
         )
 
-        val statementList = listOf<Statement>(
+        val statementList = listOf(
             Statement.While(
                 Expression.Operation(
                     Operator.DoubleEquals,
@@ -311,9 +309,9 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statementList, localVariables, null, Type.Float)
+        val tree = callMain(statementList, localVariables, null, Type.Float)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -334,7 +332,7 @@ class ParserTest
             
         """.trimIndent()
 
-        val declarations = listOf<Declaration>(
+        val declarations = listOf(
             Declaration.ClassDeclare("OpenGL", ClassBody(
                 hashMapOf(
                     "A" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"A",
@@ -357,14 +355,14 @@ class ParserTest
                 Type.Void,
                 "Main",
                 Body(
-                    listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)))
+                    listOf(),
+                    listOf(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)))
                 ),
                 null, null
             )
         )
 
-        TestIfTreeIsAsExpected(code, declarations)
+        testIfTreeIsAsExpected(code, declarations)
     }
 
     @Test
@@ -379,7 +377,7 @@ class ParserTest
                 }
             }
             
-            class Aaaa{           
+            class Aa{           
                 String a = ""
                 Float b = 0.0
             }
@@ -390,7 +388,7 @@ class ParserTest
             
         """.trimIndent()
 
-        val declarations = listOf<Declaration>(
+        val declarations = listOf(
             Declaration.ClassDeclare("OpenGL", ClassBody(
                 hashMapOf(
                     "A" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"A",
@@ -409,7 +407,7 @@ class ParserTest
                     Declaration.VariableDeclaration(Type.String,"name",Expression.Value(ConstantValue.String("")))
                 )
             ), null),
-            Declaration.ClassDeclare("Aaaa", ClassBody(
+            Declaration.ClassDeclare("Aa", ClassBody(
                 hashMapOf(),
                 listOf(
                     Declaration.VariableDeclaration(Type.String,"a",Expression.Value(ConstantValue.String(""))),
@@ -420,14 +418,14 @@ class ParserTest
                 Type.Void,
                 "Main",
                 Body(
-                    listOf<Statement>(),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)))
+                    listOf(),
+                    listOf(Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)))
                 ),
                 null, null
             )
         )
 
-        TestIfTreeIsAsExpected(code, declarations)
+        testIfTreeIsAsExpected(code, declarations)
     }
 
     @Test
@@ -455,7 +453,7 @@ class ParserTest
             
         """.trimIndent()
 
-        val declarations = listOf<Declaration>(
+        val declarations = listOf(
             Declaration.ClassDeclare("OpenGL", ClassBody(
                 hashMapOf(
                     "A" to mutableListOf(Declaration.FunctionDeclare(Type.Void,"A",
@@ -499,7 +497,7 @@ class ParserTest
                     listOf<Statement>(
                         Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5))), null))
                     ),
-                    listOf<Declaration.VariableDeclaration>(
+                    listOf(
                         Declaration.VariableDeclaration(Type.Custom("OpenGL"),"b",Expression.FunctionCall("OpenGL",null, null)),
                         Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
@@ -508,7 +506,7 @@ class ParserTest
             )
         )
 
-        TestIfTreeIsAsExpected(code, declarations)
+        testIfTreeIsAsExpected(code, declarations)
 
     }
 
@@ -526,7 +524,7 @@ class ParserTest
             }
         """.trimIndent()
 
-        val localVariables = listOf<Declaration.VariableDeclaration>(
+        val localVariables = listOf(
             Declaration.VariableDeclaration(Type.Integer, "b", Expression.Value(ConstantValue.Integer(5)))
         )
 
@@ -538,9 +536,9 @@ class ParserTest
 
         )
 
-        val tree = CallMain(statementList, localVariables, null,Type.Void)
+        val tree = callMain(statementList, localVariables, null,Type.Void)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
 
     }
 
@@ -562,7 +560,7 @@ class ParserTest
             )
         )
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -586,9 +584,9 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statementList, null, null)
+        val tree = callMain(statementList, null, null)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -607,7 +605,7 @@ class ParserTest
             )
         )
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -634,7 +632,7 @@ class ParserTest
             )
         )
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -659,9 +657,9 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(listOf(), localVariables, null,Type.Void)
+        val tree = callMain(listOf(), localVariables, null,Type.Void)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 
     @Test
@@ -688,8 +686,8 @@ class ParserTest
             )
         )
 
-        val tree = CallMain(statements, null, null,Type.Void)
+        val tree = callMain(statements, null, null,Type.Void)
 
-        TestIfTreeIsAsExpected(code, tree)
+        testIfTreeIsAsExpected(code, tree)
     }
 }

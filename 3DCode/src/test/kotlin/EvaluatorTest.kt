@@ -26,7 +26,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(5)),evaluator.eval(declarations,null))
 
@@ -56,7 +56,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(10)),evaluator.eval(declarations,null))
 
@@ -81,7 +81,7 @@ class EvaluatorTest{
             ), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(5)),evaluator.eval(declarations,null))
 
@@ -98,7 +98,7 @@ class EvaluatorTest{
                 Body(
                     listOf<Statement>(
                         Statement.AssignValue("return",Expression.UseVariable("a"))),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
                 null, null
@@ -107,7 +107,7 @@ class EvaluatorTest{
             hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(15)),evaluator.eval(declarations,null))
 
@@ -132,7 +132,7 @@ class EvaluatorTest{
                             )
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
                 null, null
@@ -141,7 +141,7 @@ class EvaluatorTest{
             hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(20)),evaluator.eval(declarations,null))
 
@@ -166,7 +166,7 @@ class EvaluatorTest{
                             Expression.UseVariable("a")
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
                 null, null
@@ -174,7 +174,7 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(20)),evaluator.eval(declarations,null))
 
@@ -188,7 +188,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.AssignValue(
                             "a",
                             Expression.Value(ConstantValue.Integer(20))
@@ -205,7 +205,7 @@ class EvaluatorTest{
                         )
 
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
                 null, null
@@ -213,7 +213,7 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(20)),evaluator.eval(declarations,null))
     }
@@ -226,7 +226,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.Block(
                             Body(
                                 listOf<Statement>(
@@ -235,7 +235,7 @@ class EvaluatorTest{
                                         Expression.Value(ConstantValue.Integer(2))
                                     )
                                 ),
-                                listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                                listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                                     ConstantValue.Integer(3))))
                             )
                         ),
@@ -244,7 +244,7 @@ class EvaluatorTest{
                             Expression.UseVariable("a")
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(1))))
                 ),
                 null, null
@@ -252,7 +252,7 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(1)),evaluator.eval(declarations,null))
     }
@@ -265,7 +265,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.AssignValue(
                             "a",
                             Expression.Value(ConstantValue.Integer(20))
@@ -286,7 +286,7 @@ class EvaluatorTest{
                         )
 
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(
                         ConstantValue.Integer(15))))
                 ),
                 null, null
@@ -294,7 +294,7 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(10)),evaluator.eval(declarations,null))
     }
@@ -308,7 +308,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.Block(
                             Body(
                                 listOf(),
@@ -327,7 +327,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertFailsWith<VariableNotFoundRuntimeException>(block = {evaluator.eval(declarations,null)})
     }
@@ -370,7 +370,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertFailsWith<VariableNotFoundRuntimeException>(block = {evaluator.eval(declarations,null)})
     }
@@ -384,7 +384,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.If(
                             Expression.Value(ConstantValue.Boolean(true)),
                             Body(
@@ -407,7 +407,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.If(
                             Expression.Value(ConstantValue.Boolean(false)),
                             Body(
@@ -425,10 +425,10 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
         assertEquals(Expression.Value(ConstantValue.Integer(10)),evaluator.eval(declarations,null))
 
-        var evaluator2 = Evaluator()
+        val evaluator2 = Evaluator()
         assertEquals(Expression.Value(ConstantValue.Integer(5)),evaluator2.eval(declarations2,null))
     }
 
@@ -441,7 +441,7 @@ class EvaluatorTest{
                 Type.Boolean,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.AssignValue(
                             "cc",
                             Expression.Operation(Operator.Greater, Expression.Operation(Operator.Multiply,Expression.UseVariable("a"),Expression.Value(
@@ -472,7 +472,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
         assertEquals(Expression.Value(ConstantValue.Boolean(true)),evaluator.eval(declarations,null))
 
     }
@@ -503,7 +503,7 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(5)),evaluator.eval(declarations,null))
 
@@ -535,7 +535,7 @@ class EvaluatorTest{
             ), hashMapOf(), hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(5)),evaluator.eval(declarations,null))
 
@@ -587,7 +587,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(125)),evaluator.eval(declarations,null))
 
@@ -611,7 +611,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.ProcedureCall("A",null, null),
                         Statement.AssignValue("return",Expression.UseVariable("a"))
                     )
@@ -622,7 +622,7 @@ class EvaluatorTest{
             hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(10)),evaluator.eval(declarations,null))
 
@@ -637,7 +637,7 @@ class EvaluatorTest{
                 Type.Boolean,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.While(
                             Expression.Operation(Operator.Less,Expression.UseVariable("a"),Expression.Value(
                                 ConstantValue.Integer(100))),
@@ -657,7 +657,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
         assertEquals(Expression.Value(ConstantValue.Integer(256)),evaluator.eval(declarations,null))
 
     }
@@ -735,7 +735,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(34)),evaluator.eval(declarations,null))
     }
@@ -829,7 +829,7 @@ class EvaluatorTest{
                 null, null
             ))), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(34)),evaluator.eval(declarations,null))
     }
@@ -843,7 +843,7 @@ class EvaluatorTest{
                 Type.Integer,
                 "Main",
                 Body(
-                    listOf<Statement>(
+                    listOf(
                         Statement.While(
                             Expression.Operation(Operator.Greater, Expression.UseVariable("n"), Expression.Value(
                                 ConstantValue.Integer(0))),
@@ -873,7 +873,7 @@ class EvaluatorTest{
             ),
             hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(34)),evaluator.eval(declarations,null))
     }
@@ -923,7 +923,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Integer(64)),evaluator.eval(declarations,null))
     }
@@ -962,7 +962,7 @@ class EvaluatorTest{
                ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Boolean(true)),evaluator.eval(declarations,null))
 
@@ -992,7 +992,7 @@ class EvaluatorTest{
                 null, null
             ))
             ), hashMapOf(), hashMapOf())
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.String("TEST:OK")),evaluator.eval(declarations,null))
 
@@ -1017,7 +1017,7 @@ class EvaluatorTest{
                             )
                         )
                     ),
-                    listOf<Declaration.VariableDeclaration>(Declaration.VariableDeclaration(Type.Float,"a",Expression.Value(
+                    listOf(Declaration.VariableDeclaration(Type.Float,"a",Expression.Value(
                         ConstantValue.Float(15.7f))))
                 ),
                 null, null
@@ -1026,7 +1026,7 @@ class EvaluatorTest{
             hashMapOf())
 
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         assertEquals(Expression.Value(ConstantValue.Float(21.2f)),evaluator.eval(declarations,null))
 
@@ -1085,7 +1085,7 @@ class EvaluatorTest{
                     listOf<Statement>(
                         Statement.UseClass("b", Statement.ProcedureCall("B", listOf(Expression.Value(ConstantValue.Integer(5))), null))
                     ),
-                    listOf<Declaration.VariableDeclaration>(
+                    listOf(
                         Declaration.VariableDeclaration(Type.Custom("openGl"),"b",Expression.FunctionCall("OpenGL",null, null)),
                         Declaration.VariableDeclaration(Type.String,"a", Expression.UseDotVariable("b",Expression.UseVariable("name"))),
                     )
@@ -1094,7 +1094,7 @@ class EvaluatorTest{
             ))
             ), hashMapOf(), hashMapOf())
 
-        var evaluator = Evaluator()
+        val evaluator = Evaluator()
 
         evaluator.eval(declarations,null)
 

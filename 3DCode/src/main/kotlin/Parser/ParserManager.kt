@@ -48,7 +48,7 @@ class ParserManager{
                 includes[it] = null
             }
 
-            Parser(lexer, file.first).ParsingStart().forEach { d ->
+            Parser(lexer, file.first).parsingStart().forEach { d ->
                 when(d){
                     is Declaration.ClassDeclare -> {
                         if(classDeclarations.containsKey(d.className))
@@ -67,7 +67,7 @@ class ParserManager{
         fun loadFromDisk(path: String): File {
             loadedFiles = HashMap<String, File?>()
 
-            var file = loadImportsFile(path)
+            val file = loadImportsFile(path)
             loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
 
             loadedFiles.forEach { (_, f) ->
@@ -105,7 +105,7 @@ class ParserManager{
                 }
             }
 
-            val parserOutput = Parser(lexer, file.name).ParsingStart()
+            val parserOutput = Parser(lexer, file.name).parsingStart()
 
             parserOutput.forEach { d ->
                 when(d){

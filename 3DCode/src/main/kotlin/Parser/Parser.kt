@@ -9,13 +9,10 @@ import Parser.ParserToken.Values.ConstantValue
 class Parser(val lexer: Lexer, val fileName : String)
 {
     private var currentLineOfCode = 1
-
-    private val aplTree: Declaration.FunctionDeclare? = null
-    private val _debugOutPut = false
     private var _currentBlockDepth = 0
 
-    private inline fun <reified A> FetchNextExpectedToken(expectedType: String): A {
-        val next = GetNextToken()
+    private inline fun <reified A> fetchNextExpectedToken(expectedType: String): A {
+        val next = getNextToken()
 
         if (next !is A) {
             throw ParserTokenUnexpected(expectedType, next, fileName)
@@ -24,7 +21,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         return next
     }
 
-    private fun GetNextToken() : LexerToken
+    private fun getNextToken() : LexerToken
     {
         val token = lexer.next()
         currentLineOfCode = token.LineOfCode
@@ -32,13 +29,13 @@ class Parser(val lexer: Lexer, val fileName : String)
         return token
     }
 
-    fun ParsingStart() : List<Declaration>
+    fun parsingStart() : List<Declaration>
     {
-        var declarationList : MutableList<Declaration> = mutableListOf()
+        val declarationList : MutableList<Declaration> = mutableListOf()
 
         try
         {
-            DeclarationListParse().forEach { declarationList.add(it) }
+            declarationListParse().forEach { declarationList.add(it) }
         }
         catch(e : Exception)
         {
@@ -47,49 +44,46 @@ class Parser(val lexer: Lexer, val fileName : String)
 
         if(lexer.peek() is LexerToken.EOF)
         {
-            val token = GetNextToken()
+            getNextToken()
         }
         else
         {
 
             while(true)
             {
-                val token = GetNextToken()
+                val token = getNextToken()
 
                 if(token is LexerToken.EOF)
-                    break;
+                    break
             }
         }
-
-        if(declarationList == null)
-            throw ParserNoData()
 
         return declarationList
     }
 
-    private fun DeclarationParse() : Declaration
+    private fun declarationParse() : Declaration
     {
         return when(val nextToken = lexer.peek()){
-            is LexerToken.Class -> ClassParse()
+            is LexerToken.Class -> classParse()
             is LexerToken.TypeIdent->{
-                val type = TypeParse()
-                when(val nextToken = lexer.peek())
+                val type = typeParse()
+                when(val nextToken2 = lexer.peek())
                 {
-                    is LexerToken.NameIdent -> VariableDeclaration(type)
-                    is LexerToken.FunctionIdent -> FuncitonParse(type)
+                    is LexerToken.NameIdent -> variableDeclaration(type)
+                    is LexerToken.FunctionIdent -> functionParse(type)
 
-                    else -> throw ParserDeclarationTokenInvalid(nextToken, fileName)
+                    else -> throw ParserDeclarationTokenInvalid(nextToken2, fileName)
                 }
             }
             // Constructor Parse
-            is LexerToken.FunctionIdent -> FuncitonParse(Type.Void)
+            is LexerToken.FunctionIdent -> functionParse(Type.Void)
 
             is LexerToken.NameIdent -> throw ParserTypeLowerCase(nextToken, fileName)
             else -> throw ParserTypeUnknown(nextToken, fileName)
         }
     }
 
-    private fun DeclarationListParse() : List<Declaration>
+    private fun declarationListParse() : List<Declaration>
     {
         val declarationList = mutableListOf<Declaration>()
 
@@ -102,13 +96,13 @@ class Parser(val lexer: Lexer, val fileName : String)
                 break
             }
 
-            declarationList.add(DeclarationParse())
+            declarationList.add(declarationParse())
         }
 
         return declarationList
     }
 
-    private fun OperatorStength(operator: Operator) : Pair<Int, Int>
+    private fun operatorStrength(operator: Operator) : Pair<Int, Int>
     {
         return when(operator)
         {
@@ -136,26 +130,21 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun NameParse(): String
-    {
-        val token = GetNextToken()
+    private fun nameParse(): String {
+        val token = getNextToken()
 
-        if(token is LexerToken.Return)
-        {
+        if (token is LexerToken.Return) {
             return "return"
         }
 
-        if(token !is LexerToken.NameIdent)
-        {
+        if (token !is LexerToken.NameIdent) {
             throw ParserInvalidName(token, fileName)
         }
 
-        val name = token
-
-        return "${name.identify}"
+        return token.identify
     }
 
-    private fun LocalVariablesParse() : List<Declaration.VariableDeclaration>?
+    private fun localVariablesParse() : List<Declaration.VariableDeclaration>?
     {
         val localVariableList = mutableListOf<Declaration.VariableDeclaration>()
 
@@ -168,7 +157,7 @@ class Parser(val lexer: Lexer, val fileName : String)
                 break
             }
 
-            val variableDeclaration = VariableDeclaration(TypeParse())
+            val variableDeclaration = variableDeclaration(typeParse())
 
             localVariableList.add(variableDeclaration)
         }
@@ -181,50 +170,47 @@ class Parser(val lexer: Lexer, val fileName : String)
         return localVariableList
     }
 
-    private fun StatementListParse(): List<Statement>
+    private fun statementListParse(): List<Statement>
     {
         val statementList = mutableListOf<Statement>()
 
         while(true)
         {
-            val token = lexer.peek()
-
-            when(token)
+            when(lexer.peek())
             {
                 is LexerToken.Semicolon, // Expresion ended
                 is LexerToken.RCurlyBrace -> break // Body has ended
                 is LexerToken.Rparen ->
                 {
-                    GetNextToken()
+                    getNextToken()
 
                     while(lexer.peek() is LexerToken.Semicolon)
                     {
-                        GetNextToken()
+                        getNextToken()
                     }
 
                     break
                 }
+                else -> statementList.add(statementParse())
             }
-
-            statementList.add(StatementParse())
         }
 
         return statementList
     }
 
-    private fun BodyParse(): Body
+    private fun bodyParse(): Body
     {
-        val expectedLCurly = FetchNextExpectedToken<LexerToken.LCurlyBrace>("LCurlyBrace")
-        val localVariables = LocalVariablesParse()
-        val statementList = StatementListParse()
-        val expectedRCurly = FetchNextExpectedToken<LexerToken.RCurlyBrace>("RCurlyBrace")
+        fetchNextExpectedToken<LexerToken.LCurlyBrace>("LCurlyBrace")
+        val localVariables = localVariablesParse()
+        val statementList = statementListParse()
+        fetchNextExpectedToken<LexerToken.RCurlyBrace>("RCurlyBrace")
 
         return Body(statementList, localVariables)
     }
 
-    private fun ClassBodyParse(): ClassBody
+    private fun classBodyParse(): ClassBody
     {
-        FetchNextExpectedToken<LexerToken.LCurlyBrace>("LCurlyBrace")
+        fetchNextExpectedToken<LexerToken.LCurlyBrace>("LCurlyBrace")
 
         val localVariables = mutableListOf<Declaration.VariableDeclaration>()
         val methodsList = HashMap<String, MutableList<Declaration.FunctionDeclare>>()
@@ -239,49 +225,49 @@ class Parser(val lexer: Lexer, val fileName : String)
                 break
             }
 
-            when(val declaration = DeclarationParse()){
+            when(val declaration = declarationParse()){
                 is Declaration.VariableDeclaration -> localVariables.add(declaration)
                 is Declaration.FunctionDeclare -> methodsList.getOrPut(declaration.functionName, ::mutableListOf).add(declaration)
                 else -> ParserUnsupportedDeclaration(declaration, fileName)
             }
         }
 
-        FetchNextExpectedToken<LexerToken.RCurlyBrace>("RCurlyBrace")
+        fetchNextExpectedToken<LexerToken.RCurlyBrace>("RCurlyBrace")
 
         return ClassBody(methodsList, localVariables)
     }
 
 
-    private fun ParameterParse() : Parameter
+    private fun parameterParse() : Parameter
     {
-        val type = TypeParse()
-        val name = NameParse()
+        val type = typeParse()
+        val name = nameParse()
 
         return Parameter(name, type)
     }
 
-    private fun ParameterParseAsDeclaration(): List<Parameter>?
+    private fun parameterParseAsDeclaration(): List<Parameter>?
     {
         if(lexer.peek() is LexerToken.NameIdent)
             throw ParserBaseException(currentLineOfCode, fileName, "Generic class variables must have <> after the name. 'Maybe try: TYPE name<TYPE,..> = ..'")
 
         val parameterList = mutableListOf<Parameter>()
-        val expectedLBrace = FetchNextExpectedToken<LexerToken.Lparen>("Lparen")
+        fetchNextExpectedToken<LexerToken.Lparen>("Lparen")
 
         while (true) {
             val token = lexer.peek()
 
             //isAtEndOfParameter
             if (token is LexerToken.Rparen) {
-                GetNextToken()
+                getNextToken()
                 break
             }
 
-            //isSeperator
+            //isSeparator
             if(token is LexerToken.Comma)
-                GetNextToken()
+                getNextToken()
 
-            parameterList.add(ParameterParse())
+            parameterList.add(parameterParse())
         }
 
         if (parameterList.size == 0) {
@@ -291,55 +277,55 @@ class Parser(val lexer: Lexer, val fileName : String)
         return parameterList
     }
 
-    private fun FunctionIdentifyParse() : String
+    private fun functionIdentifyParse() : String
     {
-        val name = FetchNextExpectedToken<LexerToken.FunctionIdent>("function identifier")
+        val name = fetchNextExpectedToken<LexerToken.FunctionIdent>("function identifier")
         return name.identify
     }
 
-    private fun ClassIdentifyParse() : String
+    private fun classIdentifyParse() : String
     {
-        val name = FetchNextExpectedToken<LexerToken.TypeIdent>("class identifier")
+        val name = fetchNextExpectedToken<LexerToken.TypeIdent>("class identifier")
         return name.identify
     }
 
-    private fun FuncitonParse(type : Type): Declaration.FunctionDeclare
+    private fun functionParse(type : Type): Declaration.FunctionDeclare
     {
         val currentLineOfCode = lexer.peek().LineOfCode
-        val name = FunctionIdentifyParse()
-        val generics = GenericsParse()
-        val parameter = ParameterParseAsDeclaration()
-        val body = BodyParse()
+        val name = functionIdentifyParse()
+        val generics = genericsParse()
+        val parameter = parameterParseAsDeclaration()
+        val body = bodyParse()
 
         return Declaration.FunctionDeclare(type, name, body,parameter, generics,currentLineOfCode)
     }
 
-    private fun ClassParse(): Declaration.ClassDeclare{
+    private fun classParse(): Declaration.ClassDeclare{
 
-        FetchNextExpectedToken<LexerToken.Class>("Class")
-        val generics = GenericsParse()
+        fetchNextExpectedToken<LexerToken.Class>("Class")
+        val generics = genericsParse()
         val currentLineOfCode = lexer.peek().LineOfCode
-        val name = ClassIdentifyParse()
-        val body = ClassBodyParse()
+        val name = classIdentifyParse()
+        val body = classBodyParse()
         return Declaration.ClassDeclare(name, body, generics,currentLineOfCode)
     }
 
-    private fun GenericCall() : List<Type>?{
+    private fun genericCall() : List<Type>?{
         if(lexer.peek() !is LexerToken.Less)
             return null
 
-        val lessSymbol = FetchNextExpectedToken<LexerToken.Less>("<")
+        val lessSymbol = fetchNextExpectedToken<LexerToken.Less>("<")
 
         val generics = mutableListOf<Type>()
 
         while (true){
             when(val token = lexer.peek()){
-                is LexerToken.TypeIdent -> generics.add(TypeParse())
-                is LexerToken.Comma -> FetchNextExpectedToken<LexerToken.Comma>(",")
+                is LexerToken.TypeIdent -> generics.add(typeParse())
+                is LexerToken.Comma -> fetchNextExpectedToken<LexerToken.Comma>(",")
 
                 is LexerToken.EOF -> throw ParserMissingGenericBracketException(lessSymbol.LineOfCode, fileName)
                 is LexerToken.Greater -> {
-                    FetchNextExpectedToken<LexerToken.Greater>(">")
+                    fetchNextExpectedToken<LexerToken.Greater>(">")
                     return generics
                 }
 
@@ -349,15 +335,15 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun GenericsParse() : List<String>?{
+    private fun genericsParse() : List<String>?{
         if(lexer.peek() !is LexerToken.Less)
             return null
-        val lessSymbol = FetchNextExpectedToken<LexerToken.Less>("<")
+        val lessSymbol = fetchNextExpectedToken<LexerToken.Less>("<")
 
         val generics = mutableListOf<String>()
 
         while (true){
-            when(val nextToken = GetNextToken()){
+            when(val nextToken = getNextToken()){
                 is LexerToken.TypeIdent -> generics.add(nextToken.identify)
                 is LexerToken.Comma -> {}
 
@@ -367,11 +353,9 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun OperatorParse() : Operator
+    private fun operatorParse() : Operator
     {
-        val token = GetNextToken()
-
-        return when(token)
+        return when(val token = getNextToken())
         {
             is LexerToken.Plus -> Operator.Plus
             is LexerToken.Minus -> Operator.Minus
@@ -392,17 +376,17 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun CalulationParse(leftExpression : Expression) : Expression.Operation
+    private fun calculationParse(leftExpression : Expression) : Expression.Operation
     {
-        val operator = OperatorParse()
-        val rightExpression = ExpressionParse()
+        val operator = operatorParse()
+        val rightExpression = expressionParse()
 
-       return CalculationSort(operator, leftExpression, rightExpression)
+       return calculationSort(operator, leftExpression, rightExpression)
     }
 
-    private fun CalculationSort(operator: Operator, expressionA: Expression, expressionB: Expression) : Expression.Operation
+    private fun calculationSort(operator: Operator, expressionA: Expression, expressionB: Expression) : Expression.Operation
     {
-        val operatorCurrentStrength = OperatorStength(operator)
+        val operatorCurrentStrength = operatorStrength(operator)
 
         val sameBlockDepth = (expressionA.BlockDepth == expressionB.BlockDepth)// || (expressionA.BlockDepth == -1)
         val bothExpressionsAreOperator =
@@ -415,13 +399,13 @@ class Parser(val lexer: Lexer, val fileName : String)
             val opB = expressionB as Expression.Operation
 
             val operatorB = opB.operator
-            val operatorBStrength = OperatorStength(operatorB)
+            val operatorBStrength = operatorStrength(operatorB)
 
-            var isAHigher = operatorCurrentStrength.first < operatorBStrength.first;
+            val isAHigher = operatorCurrentStrength.first < operatorBStrength.first
 
             if(isAHigher)
             {
-                val rotatedOperation = Expression.Operation(
+                return Expression.Operation(
                     operatorB,
                     Expression.Operation(
                         operator,
@@ -432,8 +416,6 @@ class Parser(val lexer: Lexer, val fileName : String)
                     expressionB.expressionB,
                     currentLineOfCode
                 )
-
-                return rotatedOperation
             }
         }
 
@@ -444,11 +426,9 @@ class Parser(val lexer: Lexer, val fileName : String)
 
     }
 
-    private fun ValueParse() : Expression.Value
+    private fun valueParse() : Expression.Value
     {
-        val token = GetNextToken()
-
-        val expression = when(token)
+        val expression = when(val token = getNextToken())
         {
             is LexerToken.Number_Literal -> { Expression.Value(ConstantValue.Integer(token.n, Type.Integer)) }
             is LexerToken.Float_Literal -> {Expression.Value(ConstantValue.Float(token.f, Type.Float))}
@@ -465,23 +445,23 @@ class Parser(val lexer: Lexer, val fileName : String)
         return expression
     }
 
-    private fun ParameterParseAsExpression() : List<Expression>?
+    private fun parameterParseAsExpression() : List<Expression>?
     {
         val expressionList = mutableListOf<Expression>()
-        val leftBracked = FetchNextExpectedToken<LexerToken.Lparen>("'('")
-        val isRightBracked = lexer.peek() is LexerToken.Rparen
+        fetchNextExpectedToken<LexerToken.Lparen>("'('")
+        val isRightBraked = lexer.peek() is LexerToken.Rparen
 
-        if(isRightBracked)
+        if(isRightBraked)
         {
-            FetchNextExpectedToken<LexerToken.Rparen>("')'")
+            fetchNextExpectedToken<LexerToken.Rparen>("')'")
             return null
         }
 
         while(true)
         {
-            expressionList.add(ExpressionParse())
+            expressionList.add(expressionParse())
 
-            val token = GetNextToken()
+            val token = getNextToken()
 
             if(token is LexerToken.Rparen)
             {
@@ -503,16 +483,16 @@ class Parser(val lexer: Lexer, val fileName : String)
     }
 
 
-    private fun FunctionCallParse() : Expression.FunctionCall
+    private fun functionCallParse() : Expression.FunctionCall
     {
-        val name = FunctionIdentifyParse()
-        val generics = GenericCall()
-        val parameter = ParameterParseAsExpression()
+        val name = functionIdentifyParse()
+        val generics = genericCall()
+        val parameter = parameterParseAsExpression()
 
         //use for function.function operations
         if(lexer.peek() is LexerToken.Dot){
-            FetchNextExpectedToken<LexerToken.Dot>("'.'")
-            val upperFunction = FunctionCallParse()
+            fetchNextExpectedToken<LexerToken.Dot>("'.'")
+            val upperFunction = functionCallParse()
             upperFunction.parameterList = listOf(Expression.FunctionCall(name, parameter, generics, currentLineOfCode)).union(upperFunction.parameterList ?: listOf()).toList()
             return upperFunction
         }
@@ -520,16 +500,16 @@ class Parser(val lexer: Lexer, val fileName : String)
         return Expression.FunctionCall(name, parameter, generics, currentLineOfCode)
     }
 
-    private fun UseVariableParse() : Expression
+    private fun useVariableParse() : Expression
     {
-        val name = NameParse()
+        val name = nameParse()
 
         val expression = if(lexer.peek() is LexerToken.Dot){
-            FetchNextExpectedToken<LexerToken.Dot>("'.'")
+            fetchNextExpectedToken<LexerToken.Dot>("'.'")
 
             val expression = when(val nextLexerToken = lexer.peek()){
-                is LexerToken.FunctionIdent -> FunctionCallParse()
-                is LexerToken.NameIdent -> UseVariableParse()
+                is LexerToken.FunctionIdent -> functionCallParse()
+                is LexerToken.NameIdent -> useVariableParse()
                 else -> throw Exception("$name.$nextLexerToken is not supported")
             }
 
@@ -542,9 +522,9 @@ class Parser(val lexer: Lexer, val fileName : String)
         return expression
     }
 
-    private fun BracketBlock() : Expression
+    private fun bracketBlock() : Expression
     {
-        val leftBracket = FetchNextExpectedToken<LexerToken.Lparen>("'('")
+        fetchNextExpectedToken<LexerToken.Lparen>("'('")
         val leftBracketAgain = lexer.peek()
 
         _currentBlockDepth++
@@ -553,25 +533,25 @@ class Parser(val lexer: Lexer, val fileName : String)
         {
             is LexerToken.Lparen ->
             {
-                val expression = BracketBlock()
+                val expression = bracketBlock()
                 val next = lexer.peek()
                 val hasSomethingAfter = next !is LexerToken.Rparen
 
                 if(hasSomethingAfter)
                 {
-                    CalulationParse(expression)
+                    calculationParse(expression)
                 }
                 else
                 {
                     expression
                 }
             }
-            is LexerToken.Not -> NotParse()
-            is LexerToken.Minus -> LoneMinusParse()
+            is LexerToken.Not -> notParse()
+            is LexerToken.Minus -> loneMinusParse()
 
             is LexerToken.FunctionIdent ->
             {
-                val expression = FunctionCallParse()
+                val expression = functionCallParse()
                 val next = lexer.peek()
 
                 if(next is LexerToken.Rparen)
@@ -580,12 +560,12 @@ class Parser(val lexer: Lexer, val fileName : String)
                 }
                 else
                 {
-                    CalulationParse(expression)
+                    calculationParse(expression)
                 }
             }
             is LexerToken.NameIdent ->
             {
-                val expression = UseVariableParse()
+                val expression = useVariableParse()
                 val next = lexer.peek()
 
                 if(next is LexerToken.Rparen)
@@ -594,7 +574,7 @@ class Parser(val lexer: Lexer, val fileName : String)
                 }
                 else
                 {
-                    CalulationParse(expression)
+                    calculationParse(expression)
                 }
             }
             is LexerToken.String_Literal,
@@ -603,7 +583,7 @@ class Parser(val lexer: Lexer, val fileName : String)
             is LexerToken.Number_Literal,
             is LexerToken.Float_Literal->
             {
-                val expressionValue = ValueParse()
+                val expressionValue = valueParse()
                 val next = lexer.peek()
 
                 if(next is LexerToken.Rparen)
@@ -612,13 +592,13 @@ class Parser(val lexer: Lexer, val fileName : String)
                 }
                 else
                 {
-                    CalulationParse(expressionValue)
+                    calculationParse(expressionValue)
                 }
             }
             else -> throw ParserTokenUnexpected(leftBracketAgain, fileName)
         }
 
-        val rightBracket = FetchNextExpectedToken<LexerToken.Rparen>("')'")
+        fetchNextExpectedToken<LexerToken.Rparen>("')'")
 
         expression.BlockDepth = _currentBlockDepth
 
@@ -627,79 +607,75 @@ class Parser(val lexer: Lexer, val fileName : String)
         return expression
     }
 
-    private fun NotParse() : Expression.Operation
+    private fun notParse() : Expression.Operation
     {
-        val notToken = FetchNextExpectedToken<LexerToken.Not>("Not '!'")
-        val expression = ExpressionParse()
+        fetchNextExpectedToken<LexerToken.Not>("Not '!'")
+        val expression = expressionParse()
 
         return  Expression.Operation(Operator.Not, expression,  null, currentLineOfCode)
     }
 
-    private fun LoneMinusParse() : Expression.Operation
+    private fun loneMinusParse() : Expression.Operation
     {
-        val minus = FetchNextExpectedToken<LexerToken.Minus>("Minus '-'")
+        fetchNextExpectedToken<LexerToken.Minus>("Minus '-'")
         val nextToken = lexer.peek()
 
         if(nextToken is LexerToken.Number_Literal)
         {
-            val value = ValueParse()
+            val value = valueParse()
 
             return Expression.Operation(Operator.Minus, value, null, currentLineOfCode)
         }
         else
         {
-            val expression = ExpressionParse()
+            val expression = expressionParse()
 
             if(expression is Expression.Operation)
             {
                 val newE =  Expression.Operation(Operator.Minus, expression.expressionA, null, currentLineOfCode)
-                val newF = Expression.Operation(expression.operator, newE, expression.expressionB, currentLineOfCode)
+                return Expression.Operation(expression.operator, newE, expression.expressionB, currentLineOfCode)
 
-                return newF
             }
 
             return Expression.Operation(Operator.Minus, expression, null, currentLineOfCode)
         }
     }
 
-    private fun ExpressionParse(): Expression
+    private fun expressionParse(): Expression
     {
-        var nextToken = lexer.peek()
 
-        var expression = when(nextToken)
+        var expression = when(val nextToken = lexer.peek())
         {
             is LexerToken.Boolean_Literal,
             is LexerToken.Char_Literal,
             is LexerToken.String_Literal,
             is LexerToken.Float_Literal,
             is LexerToken.Number_Literal,
-            is LexerToken.Null, -> ValueParse()
+            is LexerToken.Null, -> valueParse()
 
-            is LexerToken.FunctionIdent -> FunctionCallParse()
-            is LexerToken.NameIdent -> UseVariableParse()
+            is LexerToken.FunctionIdent -> functionCallParse()
+            is LexerToken.NameIdent -> useVariableParse()
 
             is LexerToken.Lparen ->
             {
-                BracketBlock()
+                bracketBlock()
             }
 
-            is LexerToken.Not -> NotParse()
-            is LexerToken.Minus -> LoneMinusParse()
+            is LexerToken.Not -> notParse()
+            is LexerToken.Minus -> loneMinusParse()
 
             is LexerToken.AssignEquals ->
             {
-                GetNextToken()
-                ExpressionParse()
+                getNextToken()
+                expressionParse()
             }
 
             else -> throw ParserExpressionInvalid(nextToken, fileName)
         }
 
-        var expectedSemicolon = lexer.peek()
-
-        when(expectedSemicolon)
+        when(lexer.peek())
         {
-            is LexerToken.Semicolon -> GetNextToken()
+            is LexerToken.Semicolon -> getNextToken()
 
             is LexerToken.Plus,
             is LexerToken.Minus,
@@ -713,64 +689,57 @@ class Parser(val lexer: Lexer, val fileName : String)
             is LexerToken.Less,
             is LexerToken.LessEqual,
             is LexerToken.Greater,
-            is LexerToken.GreaterEqual -> {expression = CalulationParse(expression)}
-
-//            is LexerToken.TypeIdent -> {}
-//            else -> throw Exception("Can't identify LexerToken ${expectedSemicolon::class}");
+            is LexerToken.GreaterEqual -> {expression = calculationParse(expression)}
         }
-
-
-
-        //expression.BlockDepth = _currentBlockDepth
 
         return expression
     }
 
-    private fun AssignmentParse() : Statement.AssignValue
+    private fun assignmentParse() : Statement.AssignValue
     {
-        val type = NameParse()
-        val expression = ExpressionParse()
+        val type = nameParse()
+        val expression = expressionParse()
 
         return Statement.AssignValue(type, expression, currentLineOfCode)
     }
 
-    private fun BlockParse() : Statement.Block
+    private fun blockParse() : Statement.Block
     {
-        val body = BodyParse()
+        val body = bodyParse()
 
         return Statement.Block(body, currentLineOfCode)
     }
 
-    private fun WhileParse() : Statement.While
+    private fun whileParse() : Statement.While
     {
-        val whileTag = FetchNextExpectedToken<LexerToken.While>("While")
-        val condition = ConditionParse()
-        val body = BodyParse()
+        fetchNextExpectedToken<LexerToken.While>("While")
+        val condition = conditionParse()
+        val body = bodyParse()
 
         return  Statement.While(condition, body, currentLineOfCode)
     }
 
-    private fun IfParse() : Statement.If
+    private fun ifParse() : Statement.If
     {
-        val ifTag = FetchNextExpectedToken<LexerToken.If>("if")
-        val condition = ConditionParse()
-        val ifBody = BodyParse()
+        fetchNextExpectedToken<LexerToken.If>("if")
+        val condition = conditionParse()
+        val ifBody = bodyParse()
         var elseBody : Body? = null
 
         val expectedElseToken = lexer.peek()
 
         if(expectedElseToken is LexerToken.Else)
         {
-            GetNextToken()
-            elseBody = BodyParse()
+            getNextToken()
+            elseBody = bodyParse()
         }
 
         return Statement.If(condition, ifBody, elseBody, currentLineOfCode)
     }
 
-    private fun ConditionParse() : Expression
+    private fun conditionParse() : Expression
     {
-        val variableType = FetchNextExpectedToken<LexerToken.Lparen>("LexerToken.TypeIdent")
+        fetchNextExpectedToken<LexerToken.Lparen>("LexerToken.TypeIdent")
         val nextToken = lexer.peek()
 
         if(nextToken is LexerToken.Rparen)
@@ -778,87 +747,87 @@ class Parser(val lexer: Lexer, val fileName : String)
             throw ParserConditionEmpty(nextToken.LineOfCode, fileName)
         }
 
-        val expression = ExpressionParse()
+        val expression = expressionParse()
 
-        val rightBrace = FetchNextExpectedToken<LexerToken.Rparen>("Rparen")
+        fetchNextExpectedToken<LexerToken.Rparen>("Rparen")
 
         return expression
     }
 
-    private fun AssignParse(name : String, useVariable: Expression) : Statement.AssignValue
+    private fun assignParse(name : String, useVariable: Expression) : Statement.AssignValue
     {
-        val expression = when(val tokenEquals = GetNextToken()){
-            is LexerToken.AssignEquals -> ExpressionParse()
-            is LexerToken.AssignPlusEquals -> Expression.Operation(Operator.Plus, useVariable, ExpressionParse())
-            is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus, useVariable, ExpressionParse())
-            is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply, useVariable, ExpressionParse())
-            is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide, useVariable, ExpressionParse())
+        val expression = when(val tokenEquals = getNextToken()){
+            is LexerToken.AssignEquals -> expressionParse()
+            is LexerToken.AssignPlusEquals -> Expression.Operation(Operator.Plus, useVariable, expressionParse())
+            is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus, useVariable, expressionParse())
+            is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply, useVariable, expressionParse())
+            is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide, useVariable, expressionParse())
             else -> throw ParserUnsupportedAssignment(tokenEquals, fileName)
         }
 
         return Statement.AssignValue(name, expression, currentLineOfCode)
     }
 
-    private fun ProcedureCallParse() : Statement.ProcedureCall
+    private fun procedureCallParse() : Statement.ProcedureCall
     {
-        val name = FunctionIdentifyParse()
-        val generics = GenericCall()
-        val parameter = ParameterParseAsExpression()
+        val name = functionIdentifyParse()
+        val generics = genericCall()
+        val parameter = parameterParseAsExpression()
 
         if(lexer.peek() == LexerToken.Semicolon())
-            FetchNextExpectedToken<LexerToken.Semicolon>("';'")
+            fetchNextExpectedToken<LexerToken.Semicolon>("';'")
 
         return Statement.ProcedureCall(name, parameter, generics, currentLineOfCode)
     }
 
-    private fun StatementParse(): Statement
+    private fun statementParse(): Statement
     {
         return when(val token = lexer.peek())
         {
-            is LexerToken.If -> IfParse()
-            is LexerToken.While -> WhileParse()
-            is LexerToken.LCurlyBrace ->  BlockParse()
-            is LexerToken.Return -> AssignmentParse()
+            is LexerToken.If -> ifParse()
+            is LexerToken.While -> whileParse()
+            is LexerToken.LCurlyBrace ->  blockParse()
+            is LexerToken.Return -> assignmentParse()
             is LexerToken.NameIdent ->{
-                val name = NameParse()
+                val name = nameParse()
                 if(lexer.peek() is LexerToken.Dot) {
-                    FetchNextExpectedToken<LexerToken.Dot>("'.'")
-                    val statement = Statement.UseClass(name, DotStatementParse(Expression.UseDotVariable(name, Expression.Value(ConstantValue.Null()),currentLineOfCode)), currentLineOfCode)
+                    fetchNextExpectedToken<LexerToken.Dot>("'.'")
+                    val statement = Statement.UseClass(name, dotStatementParse(Expression.UseDotVariable(name, Expression.Value(ConstantValue.Null()),currentLineOfCode)), currentLineOfCode)
                     statement
                 }else
-                    AssignParse(name, Expression.UseVariable(name, currentLineOfCode))
+                    assignParse(name, Expression.UseVariable(name, currentLineOfCode))
             }
-            is LexerToken.FunctionIdent -> ProcedureCallParse()
+            is LexerToken.FunctionIdent -> procedureCallParse()
 
             else -> throw ParserStatementInvalid(token, fileName)
         }
     }
 
-    private fun DotStatementParse(expression: Expression.UseDotVariable): Statement
+    private fun dotStatementParse(expression: Expression.UseDotVariable): Statement
     {
         return when(val token = lexer.peek())
         {
             is LexerToken.NameIdent ->{
-                val name = NameParse()
+                val name = nameParse()
                 if(lexer.peek() is LexerToken.Dot) {
-                    FetchNextExpectedToken<LexerToken.Dot>("'.'")
+                    fetchNextExpectedToken<LexerToken.Dot>("'.'")
                     expression.expression = Expression.UseDotVariable(name,Expression.Value(ConstantValue.Null()),currentLineOfCode)
-                    Statement.UseClass(name, DotStatementParse(expression))
+                    Statement.UseClass(name, dotStatementParse(expression))
                 }else{
                     expression.expression = Expression.UseVariable(name, currentLineOfCode)
-                    AssignParse(name, expression)
+                    assignParse(name, expression)
                 }
 
             }
-            is LexerToken.FunctionIdent -> ProcedureCallParse()
+            is LexerToken.FunctionIdent -> procedureCallParse()
 
             else -> throw ParserStatementInvalid(token, fileName)
         }
     }
 
-    private fun TypeParse(): Type
+    private fun typeParse(): Type
     {
-        val variableType = GetNextToken()
+        val variableType = getNextToken()
 
         val identifier = variableType as? LexerToken.TypeIdent ?: throw ParserTypeLowerCase(variableType as LexerToken.NameIdent, fileName)
 
@@ -873,7 +842,7 @@ class Parser(val lexer: Lexer, val fileName : String)
             "Void" -> Type.Void
 
             else ->{
-                val generics = GenericCall()
+                val generics = genericCall()
                 if(generics != null)
                     Type.CustomWithGenerics(identifier.identify, generics)
                 else
@@ -882,12 +851,12 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun VariableDeclaration(type: Type) : Declaration.VariableDeclaration
+    private fun variableDeclaration(typeUpper: Type) : Declaration.VariableDeclaration
     {
-        var type = type
-        val variableName = NameParse()
-        val generics = GenericCall()
-        val expression = ExpressionParse()
+        var type = typeUpper
+        val variableName = nameParse()
+        val generics = genericCall()
+        val expression = expressionParse()
 
         if(generics != null){
             type as? Type.Custom ?: throw ParserBaseException(currentLineOfCode ,fileName, "Can't use generics with base types")

@@ -12,9 +12,9 @@ class LexerTest : BaseLexerTest() {
             Int b = 5;
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
@@ -35,7 +35,7 @@ class LexerTest : BaseLexerTest() {
             //Int b = 5;
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
         assertEquals(LexerToken.EOF, lexer.next())
     }
@@ -47,13 +47,13 @@ class LexerTest : BaseLexerTest() {
             if(true){
                 Int b = 123;
             }else{
-                Int baaaFF = 523;
+                Int ba = 523;
             }
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             //if(true){
             LexerToken.If(),
             LexerToken.Lparen(),
@@ -70,9 +70,9 @@ class LexerTest : BaseLexerTest() {
             LexerToken.RCurlyBrace(),
             LexerToken.Else(),
             LexerToken.LCurlyBrace(),
-            // Int baaaFF = 523;
+            // Int ba = 523;
             LexerToken.TypeIdent("Int"),
-            LexerToken.NameIdent("baaaFF"),
+            LexerToken.NameIdent("ba"),
             LexerToken.AssignEquals(),
             LexerToken.Number_Literal(523),
             LexerToken.Semicolon(),
@@ -95,9 +95,9 @@ class LexerTest : BaseLexerTest() {
             }
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             // Int i = 5;
             LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("i"),
@@ -142,9 +142,9 @@ class LexerTest : BaseLexerTest() {
             Char c = 'h';
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("i"),
             LexerToken.AssignEquals(),
@@ -182,18 +182,18 @@ class LexerTest : BaseLexerTest() {
         if (false){
             // Huge if true
         6 + 4312;
-        // smol
+        // sol
         /* ich
-        bin auch
+        bin auth
         */
-        /* Ich /* bin geschachtelt */ */
+        /* Ich /* bin geocache */ */
         }else{ 3 + (4 + 5);}
         // Test
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             //if(true){
             LexerToken.If(),
             LexerToken.Lparen(),
@@ -236,9 +236,9 @@ class LexerTest : BaseLexerTest() {
             }
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Int"),
             LexerToken.FunctionIdent("Hallo"),
             LexerToken.Lparen(),
@@ -269,9 +269,9 @@ class LexerTest : BaseLexerTest() {
             }
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Void"),
             LexerToken.FunctionIdent("Hallo"),
             LexerToken.Lparen(),
@@ -298,9 +298,9 @@ class LexerTest : BaseLexerTest() {
             Float b = 5.0;
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Float"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
@@ -336,9 +336,9 @@ class LexerTest : BaseLexerTest() {
             
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.Class(),
             LexerToken.TypeIdent("OpenGL"),
             LexerToken.LCurlyBrace(),
@@ -425,9 +425,9 @@ class LexerTest : BaseLexerTest() {
             
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.Class(),
             LexerToken.TypeIdent("OpenGL"),
             LexerToken.LCurlyBrace(),
@@ -513,9 +513,9 @@ class LexerTest : BaseLexerTest() {
             b /= 5;
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Int"),
             LexerToken.NameIdent("b"),
             LexerToken.AssignEquals(),
@@ -551,9 +551,9 @@ class LexerTest : BaseLexerTest() {
             include "Test.A.Math"
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.Import(),
             LexerToken.String_Literal("Test.A.Math"),
             LexerToken.EOF
@@ -569,9 +569,9 @@ class LexerTest : BaseLexerTest() {
             }
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("Int"),
             LexerToken.FunctionIdent("Math"),
             LexerToken.Less(),
@@ -596,9 +596,9 @@ class LexerTest : BaseLexerTest() {
             }
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.Class(),
             LexerToken.FunctionIdent("Math"),
             LexerToken.Less(),
@@ -618,9 +618,9 @@ class LexerTest : BaseLexerTest() {
             A a<Int> = A<Int>()
         """.trimIndent()
 
-        val lexer = TestLexer(code);
+        val lexer = TestLexer(code)
 
-        val expectedLexerTokenList = listOf<LexerToken>(
+        val expectedLexerTokenList = listOf(
             LexerToken.TypeIdent("A"),
             LexerToken.NameIdent("a"),
             LexerToken.Less(),

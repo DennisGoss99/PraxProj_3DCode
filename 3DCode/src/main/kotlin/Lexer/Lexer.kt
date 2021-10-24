@@ -10,11 +10,11 @@ open class Lexer(input: String, val fileName : String) {
 
     protected open var currentLineOfCode = 1
 
-    public fun next(): LexerToken{
+    fun next(): LexerToken{
 
         lookahead?.let { lookahead = null; return it }
         consumeWhitespace()
-        var nextChar = consumeComments()
+        val nextChar = consumeComments()
 
         if (!iterator.hasNext())
             return LexerToken.EOF
@@ -111,7 +111,7 @@ open class Lexer(input: String, val fileName : String) {
         }
     }
 
-    public fun peek(): LexerToken {
+    fun peek(): LexerToken {
         val token = next()
         lookahead = token
         return token
@@ -134,13 +134,12 @@ open class Lexer(input: String, val fileName : String) {
         while (iterator.hasNext() && (iterator.peek().isJavaIdentifierPart() || iterator.peek() == '[' || iterator.peek() == ']')) {
             result += iterator.next()
         }
-        return result;
+        return result
     }
 
     private fun ident(c: Char): LexerToken {
-        var result = identBase(c);
 
-        return when (result) {
+        return when (val result = identBase(c)) {
             "true" -> LexerToken.Boolean_Literal(true, currentLineOfCode)
             "false" -> LexerToken.Boolean_Literal(false, currentLineOfCode)
             "if" -> LexerToken.If(currentLineOfCode)
@@ -173,7 +172,7 @@ open class Lexer(input: String, val fileName : String) {
 
     private fun getChar(): LexerToken {
 
-        return when(val c = iterator.peek()){
+        return when(iterator.peek()){
             '\'' -> throw LexerConstCharException(currentLineOfCode, fileName, "Char can't be empty")
             else -> {
 
@@ -181,7 +180,7 @@ open class Lexer(input: String, val fileName : String) {
                 if(iterator.next() != '\'')
                     throw LexerConstCharException(currentLineOfCode, fileName, "Char can only be a single char")
 
-                return LexerToken.Char_Literal(c, currentLineOfCode);
+                return LexerToken.Char_Literal(c, currentLineOfCode)
             }
         }
 
@@ -190,7 +189,7 @@ open class Lexer(input: String, val fileName : String) {
     private fun getString(): LexerToken {
 
         return when(val c = iterator.next()){
-            '\"' -> LexerToken.String_Literal("", currentLineOfCode);
+            '\"' -> LexerToken.String_Literal("", currentLineOfCode)
             else -> {
                 var result = c.toString()
 
@@ -202,7 +201,7 @@ open class Lexer(input: String, val fileName : String) {
                     throw LexerConstStringException(currentLineOfCode, fileName, "Missing closing '\"' char")
 
                 iterator.next()
-                return LexerToken.String_Literal(result, currentLineOfCode);
+                return LexerToken.String_Literal(result, currentLineOfCode)
             }
         }
 

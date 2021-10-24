@@ -5,9 +5,6 @@ import Evaluator.Exceptions.NotFound.*
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
-import TypeChecker.Exceptions.TypeCheckerDuplicateClassException
-import TypeChecker.Exceptions.TypeCheckerGenericsMissingException
-import java.lang.instrument.ClassDefinition
 
 class Evaluator {
 
@@ -15,11 +12,11 @@ class Evaluator {
 
         fun action(fileImport : File)
         {
-            fileImport.variableDeclaration.forEach { n, v ->
+            fileImport.variableDeclaration.forEach { (n, v) ->
                 fileImport.globalEnvironment[n] = evalExpression(v.expression, fileImport.globalEnvironment,null, fileImport)
             }
 
-            fileImport.includes.forEach { t, u ->
+            fileImport.includes.forEach { (_, u) ->
                 if(u != null && u.variablesEventuated)
                     action(u)
             }
@@ -194,21 +191,21 @@ class Evaluator {
         val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
 
         val action = { classDef : Declaration.ClassDeclare, importFile : File ->
-            when(val statement = statement.statement){
+            when(val statement2 = statement.statement){
                 is Statement.AssignValue -> {
                     when{
-                        classObj.value.containsKey(statement.variableName) -> classObj.value[statement.variableName] = evalExpression(statement.expression, environment, classDef, file)
-                        else -> VariableNotFoundRuntimeException(statement.LineOfCode, file.name, statement.variableName)
+                        classObj.value.containsKey(statement2.variableName) -> classObj.value[statement2.variableName] = evalExpression(statement2.expression, environment, classDef, file)
+                        else -> VariableNotFoundRuntimeException(statement2.LineOfCode, file.name, statement2.variableName)
                     }
                 }
                 is Statement.ProcedureCall -> {
-                    val parameters = statement.parameterList?.map { evalExpression(it,environment, classDef, file) }
-                    evalMethod(classDef,statement.procedureName,parameters,classObj.value, importFile)
+                    val parameters = statement2.parameterList?.map { evalExpression(it,environment, classDef, file) }
+                    evalMethod(classDef,statement2.procedureName,parameters,classObj.value, importFile)
                 }
                 is Statement.UseClass ->{
-                    statementUseClass(statement, classObj.value, importFile)
+                    statementUseClass(statement2, classObj.value, importFile)
                 }
-                else -> throw Exception("Can't use $statement in this context")
+                else -> throw Exception("Can't use $statement2 in this context")
             }
         }
 
@@ -320,12 +317,12 @@ class Evaluator {
                             return evalConstructor(classDec, expression.parameterList?.map { evalExpression(it,environment, currentClass, file) }, include)
                         }
 
-                        file.functionDeclarations[expression.functionName]?.let { funcs ->
-                            return evalFunction(funcs, expression.functionName, expression.parameterList, environment, currentClass, file)
+                        file.functionDeclarations[expression.functionName]?.let { functions ->
+                            return evalFunction(functions, expression.functionName, expression.parameterList, environment, currentClass, file)
                                 ?: throw ReturnNotFoundRuntimeException(expression.LineOfCode, file.name, expression.functionName)
                         }
 
-                        currentClass?.classBody?.functions?.get(expression.functionName)?.let { funcs ->
+                        currentClass?.classBody?.functions?.get(expression.functionName)?.let {
                             return evalMethod(currentClass, expression.functionName, expression.parameterList, environment, file)
                                 ?: throw ReturnNotFoundRuntimeException(expression.LineOfCode, file.name, expression.functionName)
                         }
@@ -393,7 +390,7 @@ class Evaluator {
 
                 throw Exception("Can't use dot operation on baseTypes")
             }
-            else -> throw Exception("Can't use ${expression2} on ${expression.variableName}.")
+            else -> throw Exception("Can't use $expression2 on ${expression.variableName}.")
         }
     }
 

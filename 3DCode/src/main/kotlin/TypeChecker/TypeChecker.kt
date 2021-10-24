@@ -3,7 +3,7 @@ package TypeChecker
 import Parser.ParserToken.*
 import TypeChecker.Exceptions.*
 
-class TypeChecker() {
+class TypeChecker {
 
     private val checkedFiles = mutableListOf<String>()
 
@@ -21,7 +21,7 @@ class TypeChecker() {
             val mainFunction = mainFunctionList.first()
 
             val a = args?.map { getExpressionType(it, HashMap(), mainFile)}
-            if(!checkParameter(mainFunction.parameters, null, a, mainFile))
+            if(!checkParameter(mainFunction.parameters, null, a))
                 throw TypeCheckerFunctionParameterException(mainFunction.LineOfCode, mainFile.name ,mainFunction.functionName,a,"function")
 
             checkFunctionDeclaration(mainFunction, mainFile)
@@ -31,7 +31,7 @@ class TypeChecker() {
 
     private fun checkFile(file: File){
 
-        file.includes.forEach { t, f ->
+        file.includes.forEach { (t, f) ->
             f ?: throw TypeCheckerFileNotFoundException(file.name)
             if(checkedFiles.contains(file.name))
                 checkFile(f)
@@ -41,29 +41,29 @@ class TypeChecker() {
             checkVariableDeclaration(d, HashMap(), file)
         }
 
-        file.functionDeclarations.forEach { (n, functions) ->
+        file.functionDeclarations.forEach { (_, functions) ->
             functions.forEach{ function ->
                 if(function.functionName != "Main"){
                     checkFunctionDeclaration(function, file)
 
-                    if(functions.count {
-                            if(it.parameters.isNullOrEmpty() || function.parameters.isNullOrEmpty())
-                                it.parameters.isNullOrEmpty() && function.parameters.isNullOrEmpty()
-                            else
-                                it.parameters.size == function.parameters.size &&
-                                        it.parameters.zip(function.parameters.orEmpty() ).all{ it.first.type == it.second.type }
-                        } >= 2) throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
+                    if(functions.count { functionLocal -> checkForDuplicateFunction(function, functionLocal) } >= 2)
+                        throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
                 }
             }
         }
 
-        file.classDeclarations.forEach { (n, c) ->
+        file.classDeclarations.forEach { (_, c) ->
             checkClassDeclaration(c, file)
         }
-
-
-
     }
+
+    private fun checkForDuplicateFunction(function : Declaration.FunctionDeclare, functionLocal : Declaration.FunctionDeclare) : Boolean {
+        return if(functionLocal.parameters.isNullOrEmpty() || function.parameters.isNullOrEmpty())
+            functionLocal.parameters.isNullOrEmpty() && function.parameters.isNullOrEmpty()
+        else
+            functionLocal.parameters.size == function.parameters.size && functionLocal.parameters.zip(function.parameters.orEmpty() ).all{ it.first.type == it.second.type }
+    }
+
 
     private fun checkClassDeclaration(classDef: Declaration.ClassDeclare, file : File) {
 
@@ -77,13 +77,7 @@ class TypeChecker() {
             functions.forEach{ function ->
                 checkMethodDeclaration(function, localVariables, file)
 
-                if(functions.count {
-                        if(it.parameters.isNullOrEmpty() || function.parameters.isNullOrEmpty())
-                            it.parameters.isNullOrEmpty() && function.parameters.isNullOrEmpty()
-                        else
-                            it.parameters.size == function.parameters.size &&
-                            it.parameters.zip(function.parameters.orEmpty() ).all{ it.first.type == it.second.type }
-                } >= 2) throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
+                if(functions.count { functionLocal -> checkForDuplicateFunction(function, functionLocal)} >= 2) throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
             }
         }
 
@@ -105,7 +99,7 @@ class TypeChecker() {
         checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, variables, file)
     }
 
-    private fun checkParameter(parameters : List<Parameter>?, generics : List<String>?, args : List<Type>?, file : File) : Boolean{
+    private fun checkParameter(parameters: List<Parameter>?, generics: List<String>?, args: List<Type>?) : Boolean{
         if(parameters.isNullOrEmpty() && args.isNullOrEmpty())
             return true
 
@@ -170,7 +164,10 @@ class TypeChecker() {
                     if(statement.procedureName != "Println" && statement.procedureName != "Print")
                     {
                         val procedureList = file.functionDeclarations[statement.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement.LineOfCode, file.name, statement.procedureName)
-                        procedureList.firstOrNull { checkParameter(it.parameters, it.generics, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}, file) }
+                        procedureList.firstOrNull { procedure -> checkParameter(
+                            procedure.parameters,
+                            procedure.generics,
+                            statement.parameterList?.map { getExpressionType(it, HashMap(), file)}) }
                             ?: throw TypeCheckerFunctionParameterException(statement.LineOfCode, file.name, statement.procedureName, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}, "procedure")
                     }
                 }
@@ -211,7 +208,7 @@ class TypeChecker() {
                     var type2 = variableDef.type
 
                     if(classType is Type.CustomWithGenerics && variableDef.type is Type.AbstractCustom)
-                        type2 = getClassGenericType(classType, variableDef.type, classObj, file) ?: throw TypeCheckerGenericsMissingException(statement.LineOfCode,file.name,"Procedure")
+                        type2 = getClassGenericType(classType, variableDef.type, classObj) ?: throw TypeCheckerGenericsMissingException(statement.LineOfCode,file.name,"Procedure")
 
                     if(type2 != type1){
                         throw TypeCheckerWrongTypeAssignmentException(statement2.LineOfCode, importFile.name, statement2.variableName, variableDef.type, type1)
@@ -221,7 +218,11 @@ class TypeChecker() {
                     val functionList = classObj.classBody.functions[statement2.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement2.LineOfCode, importFile.name, statement2.procedureName)
                     val parameterTypes = statement2.parameterList?.map{ getExpressionType(it, localVariables, importFile)}
 
-                    val function = functionList.firstOrNull { checkParameter(it.parameters, combineGenerics(it.generics, classObj.generics), parameterTypes, importFile) } ?: throw TypeCheckerFunctionParameterException(statement2.LineOfCode, importFile.name, statement2.procedureName, parameterTypes, "method")
+                    val function = functionList.firstOrNull { checkParameter(
+                        it.parameters,
+                        combineGenerics(it.generics, classObj.generics),
+                        parameterTypes
+                    ) } ?: throw TypeCheckerFunctionParameterException(statement2.LineOfCode, importFile.name, statement2.procedureName, parameterTypes, "method")
                 }
                 is Statement.UseClass ->{
                     statementUseClass(statement2, classObj.classBody.variables?.associateTo(hashMapOf()) { it.name to it.type } ?: hashMapOf(), importFile)
@@ -244,7 +245,7 @@ class TypeChecker() {
             }
         }
 
-        throw Exception("Couldn't find class named: ${classType}")
+        throw Exception("Couldn't find class named: $classType")
     }
 
     private fun getExpressionType(expression: Expression, localVariables : HashMap<String, Type>, file : File): Type {
@@ -259,12 +260,12 @@ class TypeChecker() {
                     }
                     else -> {
 
-                        val action = {  classDec : Declaration.ClassDeclare, importFile : File ->
+                        val action = { classDec : Declaration.ClassDeclare, _: File ->
                             val methodList = classDec.classBody.functions[classDec.className] ?: throw TypeCheckerConstructorNotFoundException(expression.LineOfCode, file.name, expression.functionName, classDec.className)
                             val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables, file)}
                             val method = methodList.firstOrNull { functionDeclaration ->
                                 val generics  = combineGenerics(functionDeclaration.generics, classDec.generics)
-                                checkParameter(functionDeclaration.parameters, generics, parameterTypes, file) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, expression.functionName, parameterTypes, "constructor" )
+                                checkParameter(functionDeclaration.parameters, generics, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, expression.functionName, parameterTypes, "constructor" )
 
                             if(classDec.generics?.size != expression.generics?.size && method.generics?.size != expression.generics?.size)
                                 throw TypeCheckerGenericsMissingException(expression.LineOfCode, file.name, "constructor")
@@ -286,10 +287,14 @@ class TypeChecker() {
                             return action(importFile.classDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, file.name, expression.functionName), importFile)
                         }
 
-                        file.functionDeclarations[expression.functionName]?.let { funcs ->
+                        file.functionDeclarations[expression.functionName]?.let { _ ->
                             val functionList = file.functionDeclarations[expression.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, file.name, expression.functionName)
                             val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables, file)}
-                            val function = functionList.firstOrNull { checkParameter(it.parameters,it.generics, parameterTypes, file) }
+                            val function = functionList.firstOrNull { checkParameter(
+                                it.parameters,
+                                it.generics,
+                                parameterTypes
+                            ) }
                                 ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, expression.functionName, parameterTypes, "function")
 
                             if(function.generics?.size != expression.generics?.size)
@@ -381,10 +386,10 @@ class TypeChecker() {
 
                     if(returnType is Type.AbstractCustom && classType is Type.CustomWithGenerics && classObj.generics?.contains(returnType.name) == true){
 
-                        returnType = getClassGenericType(classType,returnType,classObj,file) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
+                        returnType = getClassGenericType(classType, returnType, classObj) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
 
                         if(upperType != null && returnType is Type.Custom)
-                            returnType = getClassGenericType(upperType, returnType, classObj, file) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
+                            returnType = getClassGenericType(upperType, returnType, classObj) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
 
                     }
 
@@ -396,14 +401,14 @@ class TypeChecker() {
                 is Expression.FunctionCall -> {
                     val functionList = classObj.classBody.functions[expression2.functionName] ?: throw TypeCheckerFunctionNotFoundException(expression.LineOfCode, importFile.name, expression2.functionName)
                     val parameterTypes = expression2.parameterList?.map{ getExpressionType(it, localVariables, importFile)}
-                    val function = functionList.firstOrNull { checkParameter(it.parameters, it.generics, parameterTypes, importFile) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, importFile.name, expression2.functionName, parameterTypes, "method")
+                    val function = functionList.firstOrNull { checkParameter(it.parameters, it.generics, parameterTypes) } ?: throw TypeCheckerFunctionParameterException(expression.LineOfCode, importFile.name, expression2.functionName, parameterTypes, "method")
 
                     if(function.returnType is Type.AbstractCustom){
                         if (expression2.generics != null && function.generics != null && function.returnType is Type.Custom && function.generics.contains(function.returnType.name))
                             return expression2.generics[function.generics.indexOf(function.returnType.name)]
 
                         if(classType is Type.CustomWithGenerics )
-                            return getClassGenericType(classType,function.returnType, classObj, file) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Function")
+                            return getClassGenericType(classType, function.returnType, classObj) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Function")
                     }
 
                     return function.returnType
@@ -439,7 +444,11 @@ class TypeChecker() {
         return listOf<String>().union(generics1 ?: listOf()).union(generics2 ?: listOf()).toList()
     }
 
-    private fun getClassGenericType(type :Type.CustomWithGenerics, functionReturnType : Type.AbstractCustom, classDef: Declaration.ClassDeclare , file: File) : Type?{
+    private fun getClassGenericType(
+        type: Type.CustomWithGenerics,
+        functionReturnType: Type.AbstractCustom,
+        classDef: Declaration.ClassDeclare
+    ) : Type?{
 
         val genericPosition = classDef.generics?.indexOf(functionReturnType.name) ?: return null
         if(genericPosition == -1)

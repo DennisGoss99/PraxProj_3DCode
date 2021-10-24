@@ -1578,7 +1578,7 @@ class DeepTest {
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(78) , withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.Integer(78) , executeCode(code))
 
     }
 

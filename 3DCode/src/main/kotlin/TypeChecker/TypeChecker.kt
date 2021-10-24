@@ -75,7 +75,7 @@ class TypeChecker {
 
         classDef.classBody.functions.forEach{ (_, functions) ->
             functions.forEach{ function ->
-                checkMethodDeclaration(function, localVariables, file)
+                checkMethodDeclaration(function, localVariables, classDef, file)
 
                 if(functions.count { functionLocal -> checkForDuplicateFunction(function, functionLocal)} >= 2) throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
             }
@@ -91,12 +91,12 @@ class TypeChecker {
     }
 
     private fun checkFunctionDeclaration(functionDeclaration : Declaration.FunctionDeclare, file : File){
-        checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, functionDeclaration.parameters?.associate{it.name to it.type}?.let { HashMap(it)} ?: HashMap(), file)
+        checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, functionDeclaration.parameters?.associate{it.name to it.type}?.let { HashMap(it)} ?: HashMap(), null, file)
     }
 
-    private fun checkMethodDeclaration(functionDeclaration : Declaration.FunctionDeclare, classVariables : HashMap<String, Type>, file : File){
+    private fun checkMethodDeclaration(functionDeclaration : Declaration.FunctionDeclare, classVariables : HashMap<String, Type>, classDef: Declaration.ClassDeclare, file : File){
         val variables = combineVariables(classVariables,functionDeclaration.parameters?.associate{it.name to it.type}?.let { HashMap(it)} ?: HashMap(), file)
-        checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, variables, file)
+        checkBodyTypes(functionDeclaration.functionName ,functionDeclaration.body, functionDeclaration.returnType, variables, classDef, file)
     }
 
     private fun checkParameter(parameters: List<Parameter>?, generics: List<String>?, args: List<Type>?) : Boolean{
@@ -118,7 +118,7 @@ class TypeChecker {
         }
     }
 
-    private fun checkBodyTypes(functionName : String ,body: Body , returnType: Type? , upperVariables: HashMap<String, Type>?, file : File){
+    private fun checkBodyTypes(functionName : String ,body: Body , returnType: Type? , upperVariables: HashMap<String, Type>?, classDef: Declaration.ClassDeclare?, file : File){
 
         val localVariables = body.localVariables?.let { HashMap(body.localVariables.associate { it.name to it.type}) } ?: HashMap()
 
@@ -145,37 +145,45 @@ class TypeChecker {
                     }
                 }
                 is Statement.Block -> {
-                    checkBodyTypes(functionName, statement.body, returnType ,combinedVariables, file)
+                    checkBodyTypes(functionName, statement.body, returnType ,combinedVariables, classDef, file)
                 }
                 is Statement.If -> {
                     val conditionType = getExpressionType(statement.condition, combinedVariables, file)
                     conditionType as? Type.Boolean ?: throw TypeCheckerConditionException(statement.LineOfCode, file.name, conditionType)
 
-                    checkBodyTypes(functionName, statement.ifBody, returnType, combinedVariables, file)
-                    statement.elseBody?.let { checkBodyTypes(functionName, it, returnType, combinedVariables, file) }
+                    checkBodyTypes(functionName, statement.ifBody, returnType, combinedVariables, classDef, file)
+                    statement.elseBody?.let { checkBodyTypes(functionName, it, returnType, combinedVariables, classDef, file) }
                 }
                 is Statement.While -> {
                     val conditionType = getExpressionType(statement.condition, combinedVariables, file)
                     conditionType as? Type.Boolean ?: throw TypeCheckerConditionException(statement.LineOfCode, file.name, conditionType)
 
-                    checkBodyTypes(functionName, statement.body, returnType, combinedVariables, file)
+                    checkBodyTypes(functionName, statement.body, returnType, combinedVariables, classDef, file)
                 }
                 is Statement.ProcedureCall -> {
-                    if(statement.procedureName != "Println" && statement.procedureName != "Print")
-                    {
-                        val procedureList = file.functionDeclarations[statement.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement.LineOfCode, file.name, statement.procedureName)
-                        procedureList.firstOrNull { procedure -> checkParameter(
-                            procedure.parameters,
-                            procedure.generics,
-                            statement.parameterList?.map { getExpressionType(it, HashMap(), file)}) }
-                            ?: throw TypeCheckerFunctionParameterException(statement.LineOfCode, file.name, statement.procedureName, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}, "procedure")
+                    when(statement.procedureName){
+                        "Println",
+                        "Print" -> {}
+                        else ->{
+                            classDef?.classBody?.functions?.get(statement.procedureName)?.let {procedureList ->
+                                procedureList.firstOrNull { procedure -> checkParameter( procedure.parameters, procedure.generics, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}) }
+                                    ?: throw TypeCheckerFunctionParameterException(statement.LineOfCode, file.name, statement.procedureName, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}, "Method")
+                                return@forEach
+                            }
+
+                            file.functionDeclarations[statement.procedureName]?.let {procedureList ->
+                                procedureList.firstOrNull { procedure -> checkParameter( procedure.parameters, procedure.generics, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}) }
+                                    ?: throw TypeCheckerFunctionParameterException(statement.LineOfCode, file.name, statement.procedureName, statement.parameterList?.map { getExpressionType(it, HashMap(), file)}, "Procedure")
+                                return@forEach
+                            }
+
+                            throw TypeCheckerFunctionNotFoundException(statement.LineOfCode, file.name, statement.procedureName)
+                        }
                     }
                 }
                 is Statement.UseClass -> statementUseClass(statement, combinedVariables, file)
             }
         }
-
-
     }
 
     private fun combineVariables(upperEnvironment : HashMap<String, Type>?,lowerEnvironment : HashMap<String, Type>, file: File) : HashMap<String, Type>{

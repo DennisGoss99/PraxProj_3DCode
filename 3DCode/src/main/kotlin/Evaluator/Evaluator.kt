@@ -76,16 +76,15 @@ class Evaluator {
             classEnvironment[it.name] = evalExpression(it.expression, combineEnvironments(file.globalEnvironment,classEnvironment, file), classDefinition, file)
         }
 
-        if(classDefinition.className == "Array"){
-            if(parameter.isNullOrEmpty() || parameter.size != 1 || parameter[0].value !is ConstantValue.Integer)
-                throw EvaluatorBaseException(parameter?.getOrNull(0)?.LineOfCode ?: -1, file.name, "Array constructor must look like: Array<TYPE>(INT)")
-
-            classDefinition.classBody.variables!!.forEach {
-                if(it.name == "array")
-                        (it.expression as Expression.Value).value = DynamicValue.Array(Array( parameter[0].value.value as Int){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf())) }
-            return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))
-        }
-
+//        if(classDefinition.className == "Array"){
+//            if(parameter.isNullOrEmpty() || parameter.size != 1 || parameter[0].value !is ConstantValue.Integer)
+//                throw EvaluatorBaseException(parameter?.getOrNull(0)?.LineOfCode ?: -1, file.name, "Array constructor must look like: Array<TYPE>(INT)")
+//
+//            classDefinition.classBody.variables!!.forEach {
+//                if(it.name == "array")
+//                        (it.expression as Expression.Value).value = DynamicValue.Array(Array( parameter[0].value.value as Int){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf())) }
+//            return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))
+//        }
 
         evalMethod(classDefinition, classDefinition.className, parameter, classEnvironment, file)
 
@@ -156,6 +155,7 @@ class Evaluator {
                             statement.parameterList?.map { evalExpression(it,localEnvironment, currentClass, file) }?.forEach { p -> print(p.value.getValueAsString())}
                         }
                         "_integratedFunctionSetArray" -> arraySetProcedureCall(statement, localEnvironment, currentClass, file)
+                        "_integratedFunctionInitializeArray" -> arrayInitializeProcedureCall(statement, localEnvironment, currentClass, file)
                         else ->{
                             currentClass?.classBody?.functions?.get(statement.procedureName)?.let { _ ->
                                 evalMethod(currentClass, statement.procedureName, statement.parameterList,localEnvironment, file)
@@ -417,6 +417,13 @@ class Evaluator {
 
         (localEnvironment["array"]?.value as? DynamicValue.Array)!!.value[index.value] =
             Expression.Value(value, statement.LineOfCode)
+    }
+
+    private fun arrayInitializeProcedureCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
+        val parameter = statement.parameterList?.map { evalExpression(it, localEnvironment, currentClass, file) }
+        val size = parameter?.get(0)?.value as? ConstantValue.Integer ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "First parameter of Set must be an Integer. 'Array<T>(Int size)'")
+
+        localEnvironment["array"]?.value  = DynamicValue.Array(Array( size.value){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf()))
     }
 
     private fun arrayGetFunctionCall( expression: Expression.FunctionCall, environment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File): Expression.Value {

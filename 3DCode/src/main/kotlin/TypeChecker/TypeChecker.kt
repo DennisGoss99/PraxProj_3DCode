@@ -261,14 +261,6 @@ class TypeChecker {
             is Expression.Value -> expression.value.getType()
             is Expression.FunctionCall -> {
                 when(expression.functionName){
-                    "Array"->{
-                        val parameterTypes = expression.parameterList?.map { getExpressionType(it, localVariables, file)}
-                        if(parameterTypes.isNullOrEmpty() || parameterTypes.size != 1 || parameterTypes[0] !is Type.Integer)
-                            throw TypeCheckerFunctionParameterException(expression.LineOfCode,file.name, "${expression.functionName} constructor must be like Array<T>(Int size)")
-                        if(expression.generics.isNullOrEmpty() || expression.generics.size != 1)
-                            throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name, "Constructor")
-                        Type.CustomWithGenerics(expression.functionName,expression.generics)
-                    }
                     "ToString" -> {
                         if(expression.parameterList == null)
                             throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, "Function: 'ToString' must have one or more transfer parameters")

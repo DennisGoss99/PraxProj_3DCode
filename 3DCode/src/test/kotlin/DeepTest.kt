@@ -1596,10 +1596,72 @@ class DeepTest {
                 a.Set(3,8)
                 a.Set(4,9)
                 
-                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3) + a.Get(4)            
+                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3) + a.Get(4) + a.size          
             }
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(35) , executeCode(code))
+        assertEquals(ConstantValue.Integer(40) , executeCode(code))
+    }
+
+    @Test
+    fun listTest(){
+
+        val listFile =
+            "List" to """   
+            include "Array"
+            
+            class <T> List{
+                Array values<T> = null
+                
+                Int addPosition = 0
+                Int size = 0
+                
+                List(Int initialSize){
+                    values = Array<T>(initialSize)
+                }
+            
+                Void Add(T value){
+                    if(addPosition >= values.size){
+                        Array tempValues<T> = Array<T>(size * 2)
+                        Int i = values.size - 1
+                        
+                        while(i >=0){
+                            tempValues.Set(i,values.Get(i))
+                            i -= 1
+                        }
+                        
+                        values = tempValues
+                    }
+                   
+                    values.Set(addPosition, value)
+                    size += 1
+                    addPosition += 1
+                }
+            }
+        """.trimIndent()
+
+        val code =
+            "App" to """ include "List"
+            
+            Int Main(){
+                List a<Int> = List<Int>(5)     
+                
+                a.Add(0)
+                a.Add(1)
+                a.Add(2)
+                a.Add(3)
+                a.Add(4)
+                a.Add(5)
+                a.Add(6)
+                a.Add(7)
+                a.Add(8)
+                a.Add(9)
+                a.Add(10)
+                    
+                return a.values.size
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(20) ,executeCode(mutableListOf(code,listFile)))
     }
 }

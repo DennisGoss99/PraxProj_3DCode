@@ -15,6 +15,23 @@ class ArrayImplementation {
                     "Array",
                     ClassBody(
                         hashMapOf(
+                            "Array" to mutableListOf(
+                            Declaration.FunctionDeclare(
+                                Type.Void, "Array",
+                                Body(
+                                    listOf(
+                                        Statement.ProcedureCall(
+                                            "_integratedFunctionInitializeArray",
+                                            listOf(Expression.UseVariable("arraySize")),
+                                            null
+                                        ),
+                                        Statement.AssignValue("size", Expression.UseVariable("arraySize"))
+                                    )
+                                ),
+                                listOf(Parameter("arraySize",Type.Integer)),
+                                null
+                            )
+                            ),
                             "Set" to mutableListOf(
                                 Declaration.FunctionDeclare(
                                     Type.Void, "Set",
@@ -52,9 +69,8 @@ class ArrayImplementation {
                             )
                         ),
                         listOf(
-                            Declaration.VariableDeclaration(
-                                Type.CustomWithGenerics("T", listOf()),"array", Expression.Value(ConstantValue.Null())
-                            )
+                            Declaration.VariableDeclaration( Type.CustomWithGenerics("T", listOf()),"array", Expression.Value(ConstantValue.Null())),
+                            Declaration.VariableDeclaration( Type.Integer, "size", Expression.Value(ConstantValue.Integer(0)))
                         )
                     ),
                     listOf("T")

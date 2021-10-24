@@ -1600,6 +1600,6 @@ class DeepTest {
             }
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(35) , withoutTypeCheckerExecuteCode(code))
+        assertEquals(ConstantValue.Integer(35) , executeCode(code))
     }
 }

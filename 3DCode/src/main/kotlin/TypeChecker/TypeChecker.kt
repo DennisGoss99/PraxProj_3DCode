@@ -215,7 +215,7 @@ class TypeChecker {
                     val type1 = getExpressionType(statement2.expression, localVariables,importFile)
                     var type2 = variableDef.type
 
-                    if(classType is Type.CustomWithGenerics && variableDef.type is Type.AbstractCustom)
+                    if(type2 != type1 && classType is Type.CustomWithGenerics && variableDef.type is Type.AbstractCustom)
                         type2 = getClassGenericType(classType, variableDef.type, classObj) ?: throw TypeCheckerGenericsMissingException(statement.LineOfCode,file.name,"Procedure")
 
                     if(type2 != type1){

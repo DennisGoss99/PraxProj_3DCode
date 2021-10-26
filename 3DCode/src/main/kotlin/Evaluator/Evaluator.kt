@@ -98,7 +98,7 @@ class Evaluator {
 
         body.localVariables?.forEach { variable ->
             if(localEnvironment.containsKey(variable.name))
-                throw Exception("Variable can't be initialized twice '${variable.name}'")
+                throw EvaluatorBaseException(variable.LineOfCode, file.name, "Variable can't be initialized twice '${variable.name}'")
 
             localEnvironment[variable.name] = evalExpression(variable.expression, combineEnvironments(environment,localEnvironment, file), currentClass, file)
         }
@@ -188,7 +188,7 @@ class Evaluator {
 
     private fun statementUseClass(statement : Statement.UseClass, environment: HashMap<String, Expression.Value>, file : File){
         val obj = environment.getOrDefault(statement.variableName,null) ?: file.globalEnvironment.getOrDefault(statement.variableName,null) ?: throw VariableNotFoundRuntimeException(statement.LineOfCode, file.name, statement.variableName)
-        val classObj = (obj.value as? DynamicValue.Class) ?: throw Exception("Can't use dot operation on baseTypes")
+        val classObj = (obj.value as? DynamicValue.Class) ?: throw EvaluatorBaseException(statement.LineOfCode, file.name,"Can't use dot operation on baseTypes")
 
         val action = { classDef : Declaration.ClassDeclare, importFile : File ->
             when(val statement2 = statement.statement){
@@ -205,7 +205,7 @@ class Evaluator {
                 is Statement.UseClass ->{
                     statementUseClass(statement2, classObj.value, importFile)
                 }
-                else -> throw Exception("Can't use $statement2 in this context")
+                else -> throw EvaluatorBaseException(statement2.LineOfCode, file.name,"Can't use $statement2 in this context")
             }
         }
 
@@ -215,11 +215,11 @@ class Evaluator {
         }
 
         file.includes[classObj.type.name]?.let { fileImport ->
-            action(fileImport.classDeclarations[classObj.type.name] ?: throw Exception("Couldn't find class named: ${classObj.type.name}") , fileImport)
+            action(fileImport.classDeclarations[classObj.type.name] ?: throw EvaluatorBaseException(statement.LineOfCode,file.name, "Couldn't find class named: ${classObj.type.name}") , fileImport)
             return
         }
 
-        throw Exception("Couldn't find class named: ${classObj.type.name}")
+        throw EvaluatorBaseException(statement.LineOfCode,file.name,"Couldn't find class named: ${classObj.type.name}")
     }
 
     private fun combineEnvironments(upperEnvironment : HashMap<String, Expression.Value>,lowerEnvironment : HashMap<String, Expression.Value>, file: File) : HashMap<String, Expression.Value>{
@@ -259,22 +259,22 @@ class Evaluator {
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 + v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) + numberToFloat(v2)))
                             v1 is String && v2 is String -> Expression.Value(ConstantValue.String(v1 + v2))
-                            else -> throw Exception("Can't use add operation on [${v1?.let { v1::class }} + ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use add operation on [${v1?.let { v1::class }} + ${v2?.let { v2::class }}]")
                         }
                         Operator.Minus -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 - v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) - numberToFloat(v2)))
-                            else -> throw Exception("Can't use subtract operation on [${v1?.let { v1::class }} - ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use subtract operation on [${v1?.let { v1::class }} - ${v2?.let { v2::class }}]")
                         }
                         Operator.Multiply -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 * v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) * numberToFloat(v2)))
-                            else -> throw Exception("Can't use multiply operation on [${v1?.let { v1::class }} * ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use multiply operation on [${v1?.let { v1::class }} * ${v2?.let { v2::class }}]")
                         }
                         Operator.Divide -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 / v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) / numberToFloat(v2)))
-                            else -> throw Exception("Can't use division operation on [${v1?.let { v1::class }} * ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use division operation on [${v1?.let { v1::class }} * ${v2?.let { v2::class }}]")
                         }
                         Operator.And -> evalBinaryBoolean(v1,v2){x,y -> x&&y}
                         Operator.Or -> evalBinaryBoolean(v1,v2){x,y -> x||y}
@@ -282,22 +282,22 @@ class Evaluator {
                         Operator.Less -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 < v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) < numberToFloat(v2)))
-                            else -> throw Exception("Can't use less operation on [${v1?.let { v1::class }} < ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use less operation on [${v1?.let { v1::class }} < ${v2?.let { v2::class }}]")
                         }
                         Operator.LessEqual -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 <= v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) <= numberToFloat(v2)))
-                            else -> throw Exception("Can't use lessEqual operation on [${v1?.let { v1::class }} <= ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use lessEqual operation on [${v1?.let { v1::class }} <= ${v2?.let { v2::class }}]")
                         }
                         Operator.Greater -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 > v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) > numberToFloat(v2)))
-                            else -> throw Exception("Can't use less operation on [${v1?.let { v1::class }} > ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use less operation on [${v1?.let { v1::class }} > ${v2?.let { v2::class }}]")
                         }
                         Operator.GreaterEquals -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 >= v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) >= numberToFloat(v2)))
-                            else -> throw Exception("Can't use lessEqual operation on [${v1?.let { v1::class }} >= ${v2?.let { v2::class }}]")
+                            else -> throw EvaluatorBaseException(expression.LineOfCode,file.name,"Can't use lessEqual operation on [${v1?.let { v1::class }} >= ${v2?.let { v2::class }}]")
                         }
                         Operator.Not -> throw OperationRuntimeException(expression.LineOfCode, file.name, "Needs only one Argument", expression.operator)
                         Operator.Equals -> throw OperationRuntimeException(expression.LineOfCode, file.name, "In this position operator isn't allowed", expression.operator)
@@ -368,8 +368,8 @@ class Evaluator {
         val classObj = (obj.value as? DynamicValue.Class)
 
         return when(val expression2 = expression.expression){
-            is Expression.UseVariable -> getVariableValue(expression2, classObj?.value ?: throw Exception("Can't use dot operation on baseTypes"), file)
-            is Expression.UseDotVariable -> evalDotVariable(expression2,classObj?.value ?: throw Exception("Can't use dot operation on baseTypes"), currentClass, file)
+            is Expression.UseVariable -> getVariableValue(expression2, classObj?.value ?: throw EvaluatorBaseException(expression2.LineOfCode, file.name, "Can't use dot operation on baseTypes"), file)
+            is Expression.UseDotVariable -> evalDotVariable(expression2,classObj?.value ?: throw EvaluatorBaseException(expression2.LineOfCode, file.name, "Can't use dot operation on baseTypes"), currentClass, file)
             is Expression.FunctionCall -> {
                 classObj?.let {
 
@@ -383,7 +383,7 @@ class Evaluator {
                     }
 
                     file.includes[classObj.type.name]?.let{ importFile ->
-                        return action(importFile.classDeclarations[classObj.type.name] ?: throw Exception("Can't find corresponding class"), importFile)
+                        return action(importFile.classDeclarations[classObj.type.name] ?: throw EvaluatorBaseException(expression2.LineOfCode, file.name,"Can't find corresponding class"), importFile)
                     }
                 }
 
@@ -391,9 +391,9 @@ class Evaluator {
                 if(expression2.functionName == "ToString")
                    return toStringImplementation(evalExpression( Expression.UseVariable(expression.variableName, expression.LineOfCode) , environment, currentClass, file))
 
-                throw Exception("Can't use dot operation on baseTypes")
+                throw EvaluatorBaseException(expression2.LineOfCode, file.name,"Can't use dot operation on baseTypes")
             }
-            else -> throw Exception("Can't use $expression2 on ${expression.variableName}.")
+            else -> throw EvaluatorBaseException(expression2.LineOfCode, file.name,"Can't use $expression2 on ${expression.variableName}.")
         }
     }
 

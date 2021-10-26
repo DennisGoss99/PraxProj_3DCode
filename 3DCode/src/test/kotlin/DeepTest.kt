@@ -1536,24 +1536,49 @@ class DeepTest {
                 }
                        
                 Void Add(T tempValue){
-//                    if(a != null){
-//                        a.Add(tempValue)
-//                    }
-                
+                    if(a != null){
+                        a.Add(tempValue)
+                    } else {
                     a = A<T>(tempValue)
+                    }
+                }
+                
+                T Get(Int index){
+                    if(index == 0){
+                        return value
+                    }
+                    index -= 1
+                    return a.Get(index)
+                }
+                
+                Void InsertAt(Int index, T tempValue){
+                    if(index == 0){
+                        A newA<T> = A<T>(value)
+                        newA.a = a
+                        value = tempValue
+                        a = newA
+                    }
+                    else
+                    {
+                    index -= 1
+                    a.InsertAt(index, tempValue)
+                    }
                 }
             }              
                              
             Int Main(){
                 A a<Int> = A<Int>(5)
                 a.Add(10)
-                a.a.Add(100)
-                return a.value + a.a.value + a.a.a.value
+                a.Add(100)
+                a.Add(1000)
+                a.InsertAt(0,0)
+                a.InsertAt(2,1)
+                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3) + a.Get(4) + a.Get(5)
             }
             
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(115) , executeCode(code))
+        assertEquals(ConstantValue.Integer(1116) , executeCode(code))
     }
 
     @Test
@@ -1664,7 +1689,7 @@ class DeepTest {
             }
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(20) ,executeCode(mutableListOf(code,listFile)))
+        assertEquals(ConstantValue.Integer(5) ,executeCode(mutableListOf(code,listFile)))
     }
 
     @Test

@@ -21,6 +21,8 @@ sealed class LexerToken() {
         data class Class(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
         data class Import(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
 
+        data class Private(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}
+
         // Symbols
         data class AssignEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}       // =
         data class AssignPlusEquals(override val LineOfCode : Int = -1) : LexerToken(){ override fun toString(): String = super.toString()}   // +=

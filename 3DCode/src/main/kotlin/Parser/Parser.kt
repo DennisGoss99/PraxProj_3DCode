@@ -63,20 +63,22 @@ class Parser(val lexer: Lexer, val fileName : String)
 
     private fun declarationParse() : Declaration
     {
+        val isPrivate = isPrivateParse()
+
         return when(val nextToken = lexer.peek()){
-            is LexerToken.Class -> classParse()
+            is LexerToken.Class -> classParse(isPrivate)
             is LexerToken.TypeIdent->{
                 val type = typeParse()
                 when(val nextToken2 = lexer.peek())
                 {
-                    is LexerToken.NameIdent -> variableDeclaration(type)
-                    is LexerToken.FunctionIdent -> functionParse(type)
+                    is LexerToken.NameIdent -> variableDeclaration(isPrivate, type)
+                    is LexerToken.FunctionIdent -> functionParse(isPrivate, type)
 
                     else -> throw ParserDeclarationTokenInvalid(nextToken2, fileName)
                 }
             }
             // Constructor Parse
-            is LexerToken.FunctionIdent -> functionParse(Type.Void)
+            is LexerToken.FunctionIdent -> functionParse(isPrivate, Type.Void)
 
             is LexerToken.NameIdent -> throw ParserTypeLowerCase(nextToken, fileName)
             else -> throw ParserTypeUnknown(nextToken, fileName)
@@ -157,7 +159,8 @@ class Parser(val lexer: Lexer, val fileName : String)
                 break
             }
 
-            val variableDeclaration = variableDeclaration(typeParse())
+            val isPrivate = isPrivateParse()
+            val variableDeclaration = variableDeclaration(isPrivate, typeParse())
 
             localVariableList.add(variableDeclaration)
         }
@@ -289,7 +292,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         return name.identify
     }
 
-    private fun functionParse(type : Type): Declaration.FunctionDeclare
+    private fun functionParse(isPrivate : Boolean, type : Type): Declaration.FunctionDeclare
     {
         val currentLineOfCode = lexer.peek().LineOfCode
         val name = functionIdentifyParse()
@@ -297,17 +300,17 @@ class Parser(val lexer: Lexer, val fileName : String)
         val parameter = parameterParseAsDeclaration()
         val body = bodyParse()
 
-        return Declaration.FunctionDeclare(type, name, body,parameter, generics,currentLineOfCode)
+        return Declaration.FunctionDeclare(type, name, body,parameter, generics, isPrivate, currentLineOfCode)
     }
 
-    private fun classParse(): Declaration.ClassDeclare{
+    private fun classParse(isPrivate : Boolean): Declaration.ClassDeclare{
 
         fetchNextExpectedToken<LexerToken.Class>("Class")
         val generics = genericsParse()
         val currentLineOfCode = lexer.peek().LineOfCode
         val name = classIdentifyParse()
         val body = classBodyParse()
-        return Declaration.ClassDeclare(name, body, generics,currentLineOfCode)
+        return Declaration.ClassDeclare(name, body, generics, isPrivate, currentLineOfCode)
     }
 
     private fun genericCall() : List<Type>?{
@@ -333,6 +336,16 @@ class Parser(val lexer: Lexer, val fileName : String)
                 else -> throw ParserTokenUnexpected(token, fileName)
             }
         }
+    }
+
+    private fun isPrivateParse() : Boolean {
+        return if(lexer.peek() is LexerToken.Private)
+        {
+            fetchNextExpectedToken<LexerToken.Private>("private")
+            true
+        }else
+            false
+
     }
 
     private fun genericsParse() : List<String>?{
@@ -851,7 +864,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun variableDeclaration(typeUpper: Type) : Declaration.VariableDeclaration
+    private fun variableDeclaration(isPrivate : Boolean, typeUpper: Type) : Declaration.VariableDeclaration
     {
         var type = typeUpper
         val variableName = nameParse()
@@ -863,6 +876,6 @@ class Parser(val lexer: Lexer, val fileName : String)
             type = Type.CustomWithGenerics(type.name, generics)
         }
 
-        return Declaration.VariableDeclaration(type, variableName, expression, currentLineOfCode)
+        return Declaration.VariableDeclaration(type, variableName, expression, isPrivate, currentLineOfCode)
     }
 }

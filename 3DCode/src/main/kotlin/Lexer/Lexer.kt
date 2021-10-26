@@ -147,6 +147,7 @@ open class Lexer(input: String, val fileName : String) {
             "while" -> LexerToken.While(currentLineOfCode)
             "return" -> LexerToken.Return(currentLineOfCode)
             "class" -> LexerToken.Class(currentLineOfCode)
+            "private" -> LexerToken.Private(currentLineOfCode)
             "null" -> LexerToken.Null(currentLineOfCode)
             "include",
             "import" -> LexerToken.Import(currentLineOfCode)

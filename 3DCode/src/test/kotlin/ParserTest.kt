@@ -690,4 +690,33 @@ class ParserTest
 
         testIfTreeIsAsExpected(code, tree)
     }
+
+
+    @Test
+    fun privateTest() {
+
+        val code = """
+            private class Math{
+                private Int a = 0
+            
+                private Math(){}
+            }
+        """.trimIndent()
+
+        val tree = listOf<Declaration>(
+            Declaration.ClassDeclare(
+                "Math",
+                ClassBody(hashMapOf(
+                    "Math" to mutableListOf(Declaration.FunctionDeclare(
+                        Type.Void, "Math", Body(listOf(),null),
+                        null, null, true
+                    )))
+                    , listOf(
+                            Declaration.VariableDeclaration(Type.Integer,"a",Expression.Value(ConstantValue.Integer(0)),true)
+                    )), null, true
+            )
+        )
+
+        testIfTreeIsAsExpected(code, tree)
+    }
 }

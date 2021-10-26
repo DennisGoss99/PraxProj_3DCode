@@ -877,4 +877,212 @@ class TypeCheckerTest {
 
         checkCode(code)
     }
+
+    @Test
+    fun privateConstructorTest() {
+        val code = """
+            private class Math{
+                private Int a = 0
+            
+                Math(){}
+                private Math(Int b){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+                Math b = Math(5)
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerCantAccessPrivate::class) { checkCode(code) }
+
+        val code2 = """
+            private class Math{
+                private Int a = 0
+                Math c = null
+            
+                Math(){
+                    c = Math(3)
+                }
+                private Math(Int b){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+            }
+        """.trimIndent()
+
+        checkCode(code2)
+    }
+
+
+    @Test
+    fun privateClassVariableTest() {
+        val code = """
+            private class Math{
+                private Int a = 0
+                Math c = null
+            
+                Math(){
+                    c = Math(3)
+                }
+                private Math(Int b){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+                Int b = a.a 
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerCantAccessPrivate::class) { checkCode(code) }
+
+        val code2 = """
+            private class Math{
+                private Int a = 0
+                Math c = null
+            
+                Math(){
+                    c = Math(3)
+                    {
+                        Int x = c.a
+                    }
+                }
+                private Math(Int b){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+            }
+        """.trimIndent()
+
+        checkCode(code2)
+
+
+        val code3 = """
+            private class Math{
+                private Int a = 0
+                Math c = null
+            
+                Math(){
+                    c = Math(3)
+                    {
+                        Int x = c.a
+                    }
+                }
+                private Math(Int b){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+                Int x = a.c.a
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerCantAccessPrivate::class) { checkCode(code3) }
+    }
+
+    @Test
+    fun privateClassVoidMethodTest() {
+        val code = """
+            private class Math{
+                private Int a = 0
+            
+                Math(){}
+                private Math(Int b){}
+                
+                private Void A(){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+                a.A()
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerCantAccessPrivate::class) { checkCode(code) }
+
+        val code2 = """
+            private class Math{
+                private Int a = 0
+            
+                Math(){
+                    A()
+                }
+                private Math(Int b){}
+                
+                private Void A(){}
+            }
+            
+            Void Main(){
+                Math a = Math()
+            }
+        """.trimIndent()
+
+        checkCode(code2)
+    }
+
+    @Test
+    fun privateClassMethodTest() {
+        val code = """
+            private class Math{
+                private Int a = 0
+            
+                Math(){}
+                private Math(Int b){}
+                
+                private Int A(){
+                    return 0
+                }
+            }
+            
+            Void Main(){
+                Math a = Math()
+                Int b = a.A()
+            }
+        """.trimIndent()
+
+        assertFailsWith(TypeCheckerCantAccessPrivate::class) { checkCode(code) }
+
+        val code2 = """
+            private class Math{
+                private Int a = 0
+            
+                Math(){
+                    Int xx = A()
+                }
+                private Math(Int b){}
+                
+                private Int A(){
+                    return 0
+                }
+            }
+            
+            Void Main(){
+                Math a = Math()
+            }
+        """.trimIndent()
+
+        checkCode(code2)
+    }
+
+    @Test
+    fun privateFunVarTest() {
+        val code = """
+            private Int a = 6
+            private Int A(){
+                return 6
+            }
+            private Void B(){}
+            Void Main(){
+                Int b = A()
+                Int c = a
+                a = 6
+                B()
+            }
+        """.trimIndent()
+
+        checkCode(code)
+    }
+
 }

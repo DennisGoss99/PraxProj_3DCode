@@ -247,8 +247,11 @@ class Evaluator {
                     }
                 }
                 else{
-                    val v1 = evalExpression(expression.expressionA, environment, currentClass, file).value.value
-                    val v2 = evalExpression(expression.expressionB, environment, currentClass, file).value.value
+                    val v1raw = evalExpression(expression.expressionA, environment, currentClass, file).value
+                    val v2raw = evalExpression(expression.expressionB, environment, currentClass, file).value
+
+                    val v1 = if(v1raw is ConstantValue.Null) null else v1raw.value
+                    val v2 = if(v2raw is ConstantValue.Null) null else v2raw.value
 
                     return when(expression.operator){
                         Operator.DoubleEquals -> Expression.Value(ConstantValue.Boolean(v1 == v2))
@@ -256,22 +259,22 @@ class Evaluator {
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 + v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) + numberToFloat(v2)))
                             v1 is String && v2 is String -> Expression.Value(ConstantValue.String(v1 + v2))
-                            else -> throw Exception("Can't use add operation on [${v1::class} + ${v2::class}]")
+                            else -> throw Exception("Can't use add operation on [${v1?.let { v1::class }} + ${v2?.let { v2::class }}]")
                         }
                         Operator.Minus -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 - v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) - numberToFloat(v2)))
-                            else -> throw Exception("Can't use subtract operation on [${v1::class} - ${v2::class}]")
+                            else -> throw Exception("Can't use subtract operation on [${v1?.let { v1::class }} - ${v2?.let { v2::class }}]")
                         }
                         Operator.Multiply -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 * v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) * numberToFloat(v2)))
-                            else -> throw Exception("Can't use multiply operation on [${v1::class} * ${v2::class}]")
+                            else -> throw Exception("Can't use multiply operation on [${v1?.let { v1::class }} * ${v2?.let { v2::class }}]")
                         }
                         Operator.Divide -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Integer(v1 / v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Float(numberToFloat(v1) / numberToFloat(v2)))
-                            else -> throw Exception("Can't use division operation on [${v1::class} * ${v2::class}]")
+                            else -> throw Exception("Can't use division operation on [${v1?.let { v1::class }} * ${v2?.let { v2::class }}]")
                         }
                         Operator.And -> evalBinaryBoolean(v1,v2){x,y -> x&&y}
                         Operator.Or -> evalBinaryBoolean(v1,v2){x,y -> x||y}
@@ -279,22 +282,22 @@ class Evaluator {
                         Operator.Less -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 < v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) < numberToFloat(v2)))
-                            else -> throw Exception("Can't use less operation on [${v1::class} < ${v2::class}]")
+                            else -> throw Exception("Can't use less operation on [${v1?.let { v1::class }} < ${v2?.let { v2::class }}]")
                         }
                         Operator.LessEqual -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 <= v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) <= numberToFloat(v2)))
-                            else -> throw Exception("Can't use lessEqual operation on [${v1::class} <= ${v2::class}]")
+                            else -> throw Exception("Can't use lessEqual operation on [${v1?.let { v1::class }} <= ${v2?.let { v2::class }}]")
                         }
                         Operator.Greater -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 > v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) > numberToFloat(v2)))
-                            else -> throw Exception("Can't use less operation on [${v1::class} > ${v2::class}]")
+                            else -> throw Exception("Can't use less operation on [${v1?.let { v1::class }} > ${v2?.let { v2::class }}]")
                         }
                         Operator.GreaterEquals -> when{
                             v1 is Int && v2 is Int -> Expression.Value(ConstantValue.Boolean(v1 >= v2))
                             v1 is Float || v1 is Int && v2 is Float || v2 is Int -> Expression.Value(ConstantValue.Boolean(numberToFloat(v1) >= numberToFloat(v2)))
-                            else -> throw Exception("Can't use lessEqual operation on [${v1::class} >= ${v2::class}]")
+                            else -> throw Exception("Can't use lessEqual operation on [${v1?.let { v1::class }} >= ${v2?.let { v2::class }}]")
                         }
                         Operator.Not -> throw OperationRuntimeException(expression.LineOfCode, file.name, "Needs only one Argument", expression.operator)
                         Operator.Equals -> throw OperationRuntimeException(expression.LineOfCode, file.name, "In this position operator isn't allowed", expression.operator)
@@ -432,7 +435,7 @@ class Evaluator {
         return (environment["array"]?.value as? DynamicValue.Array)!!.value[index.value]
     }
 
-    private fun negateNumber(v1: Expression.Value, file: File): Expression.Value{
+    private fun negateNumber(v1: Expression.Value, file: File) : Expression.Value{
         return when (val v1n = v1.value){
             is ConstantValue.Integer -> Expression.Value(ConstantValue.Integer(-v1n.value))
             is ConstantValue.Float -> Expression.Value(ConstantValue.Float(-v1n.value))
@@ -440,11 +443,11 @@ class Evaluator {
         }
     }
 
-    private fun evalBinaryBoolean(v1: Any, v2: Any, f: (Boolean, Boolean) -> Boolean): Expression.Value {
+    private fun evalBinaryBoolean(v1: Any?, v2: Any?, f : (Boolean, Boolean) -> Boolean) : Expression.Value {
         val v1n = v1 as? Boolean ?: throw Exception("Can't use a binary operation on $v1, it's not a boolean")
         val v2n = v2 as? Boolean ?: throw Exception("Can't use a binary operation on $v2, it's not a boolean")
         return Expression.Value( ConstantValue.Boolean(f(v1n, v2n)))
     }
 
-    private fun numberToFloat(number : Any) : Float = number as? Float ?: (number as Int).toFloat()
+    private fun numberToFloat(number : Any?) : Float = number as? Float ?: (number as Int).toFloat()
 }

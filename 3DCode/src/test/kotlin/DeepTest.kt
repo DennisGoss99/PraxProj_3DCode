@@ -1637,6 +1637,14 @@ class DeepTest {
                     size += 1
                     addPosition += 1
                 }
+                
+                T Get(Int index){
+                    values.Get(index)
+                }
+                
+                Void Remove(Int index){
+                    values.Set(index, null)
+                }
             }
         """.trimIndent()
 
@@ -1644,24 +1652,39 @@ class DeepTest {
             "App" to """ include "List"
             
             Int Main(){
-                List a<Int> = List<Int>(5)     
+                List a<String> = List<String>(5)     
                 
-                a.Add(0)
-                a.Add(1)
-                a.Add(2)
-                a.Add(3)
-                a.Add(4)
-                a.Add(5)
-                a.Add(6)
-                a.Add(7)
-                a.Add(8)
-                a.Add(9)
-                a.Add(10)
-                    
+                a.Add("A")
+                a.Add("B")
+                a.Add("C")
+                a.Add("D")
+                                
+                                
                 return a.values.size
             }
         """.trimIndent()
 
         assertEquals(ConstantValue.Integer(20) ,executeCode(mutableListOf(code,listFile)))
     }
+
+    @Test
+    fun isNullTest(){
+
+        val code = """   
+            
+            Int Main(){
+                Int a = null  
+                Bool b = 5 != null
+                
+                if(a == null && b){
+                    a = 5
+                }
+                                
+                return a    
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(5), executeCode(code))
+    }
+
 }

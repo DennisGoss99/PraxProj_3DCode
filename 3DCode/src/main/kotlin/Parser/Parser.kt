@@ -71,7 +71,7 @@ class Parser(val lexer: Lexer, val fileName : String)
                 val type = typeParse()
                 when(val nextToken2 = lexer.peek())
                 {
-                    is LexerToken.NameIdent -> variableDeclaration(isPrivate, type)
+                    is LexerToken.NameIdent -> variableDeclarationParse(isPrivate, type)
                     is LexerToken.FunctionIdent -> functionParse(isPrivate, type)
 
                     else -> throw ParserDeclarationTokenInvalid(nextToken2, fileName)
@@ -160,7 +160,7 @@ class Parser(val lexer: Lexer, val fileName : String)
             }
 
             val isPrivate = isPrivateParse()
-            val variableDeclaration = variableDeclaration(isPrivate, typeParse())
+            val variableDeclaration = variableDeclarationParse(isPrivate, typeParse())
 
             localVariableList.add(variableDeclaration)
         }
@@ -723,6 +723,27 @@ class Parser(val lexer: Lexer, val fileName : String)
         return Statement.Block(body, currentLineOfCode)
     }
 
+    private fun forParse() : Statement.Block{
+        val forToken = fetchNextExpectedToken<LexerToken.For>("for")
+        fetchNextExpectedToken<LexerToken.Lparen>("(")
+
+        var variable : Declaration.VariableDeclaration? = null
+
+        if(lexer.peek() is LexerToken.Semicolon)
+            fetchNextExpectedToken<LexerToken.Semicolon>(";")
+        else
+            variable = variableDeclarationParse(false, typeParse())
+
+        val condition = conditionParse()
+
+        val statement = statementParse()
+        fetchNextExpectedToken<LexerToken.Rparen>(")")
+        val tempBody = bodyParse()
+        val body = Body(tempBody.functionBody.union(listOf(statement)).toList(), tempBody.localVariables)
+
+        return Statement.Block(Body(listOf(Statement.While(condition,body)), if(variable == null) null else listOf(variable)), forToken.LineOfCode)
+    }
+
     private fun whileParse() : Statement.While
     {
         fetchNextExpectedToken<LexerToken.While>("While")
@@ -752,7 +773,9 @@ class Parser(val lexer: Lexer, val fileName : String)
 
     private fun conditionParse() : Expression
     {
-        fetchNextExpectedToken<LexerToken.Lparen>("LexerToken.TypeIdent")
+        if(lexer.peek() is LexerToken.Lparen)
+            fetchNextExpectedToken<LexerToken.Lparen>("(")
+
         val nextToken = lexer.peek()
 
         if(nextToken is LexerToken.Rparen)
@@ -762,7 +785,8 @@ class Parser(val lexer: Lexer, val fileName : String)
 
         val expression = expressionParse()
 
-        fetchNextExpectedToken<LexerToken.Rparen>("Rparen")
+        if(lexer.peek() is LexerToken.Rparen)
+            fetchNextExpectedToken<LexerToken.Rparen>(")")
 
         return expression
     }
@@ -775,6 +799,7 @@ class Parser(val lexer: Lexer, val fileName : String)
             is LexerToken.AssignMinusEquals -> Expression.Operation(Operator.Minus, useVariable, expressionParse())
             is LexerToken.AssignMulEquals -> Expression.Operation(Operator.Multiply, useVariable, expressionParse())
             is LexerToken.AssignDivEquals -> Expression.Operation(Operator.Divide, useVariable, expressionParse())
+
             else -> throw ParserUnsupportedAssignment(tokenEquals, fileName)
         }
 
@@ -799,6 +824,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         {
             is LexerToken.If -> ifParse()
             is LexerToken.While -> whileParse()
+            is LexerToken.For -> forParse()
             is LexerToken.LCurlyBrace ->  blockParse()
             is LexerToken.Return -> assignmentParse()
             is LexerToken.NameIdent ->{
@@ -807,8 +833,11 @@ class Parser(val lexer: Lexer, val fileName : String)
                     fetchNextExpectedToken<LexerToken.Dot>("'.'")
                     val statement = Statement.UseClass(name, dotStatementParse(Expression.UseDotVariable(name, Expression.Value(ConstantValue.Null()),currentLineOfCode)), currentLineOfCode)
                     statement
-                }else
+                }else{
+                    // lowerCase check?? Type
                     assignParse(name, Expression.UseVariable(name, currentLineOfCode))
+                }
+
             }
             is LexerToken.FunctionIdent -> procedureCallParse()
 
@@ -864,7 +893,7 @@ class Parser(val lexer: Lexer, val fileName : String)
         }
     }
 
-    private fun variableDeclaration(isPrivate : Boolean, typeUpper: Type) : Declaration.VariableDeclaration
+    private fun variableDeclarationParse(isPrivate : Boolean, typeUpper: Type) : Declaration.VariableDeclaration
     {
         var type = typeUpper
         val variableName = nameParse()

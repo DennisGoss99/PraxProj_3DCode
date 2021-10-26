@@ -1712,4 +1712,70 @@ class DeepTest {
         assertEquals(ConstantValue.Integer(5), executeCode(code))
     }
 
+    @Test
+    fun forLoopTest(){
+
+        val code = """   
+            
+            Int Main(){
+                Int a = 0  
+
+                for(Int i = 0 ; i<5 ; i+= 1){
+                    a += 1
+                }
+                                
+                return a    
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(5), executeCode(code))
+    }
+
+    @Test
+    fun forLoop2Test(){
+
+        val code = """   
+            
+            Int Main(){
+                Int a = 0  
+
+                for(Int i = 0; i<5 ; i+=1){
+                    a = i
+                }
+                                
+                return a    
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(4), executeCode(code))
+
+        val code2 = """   
+            
+            Int Main(){
+                Int a = 0  
+
+                for(; a<5 ; a+=1){
+                }
+                                
+                return a    
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(5), executeCode(code2))
+
+        val code3 = """   
+            
+            Int Main(){
+                Int a = 0  
+
+                for(; a<5 ; a+=1){
+                    a+=1
+                }
+                                
+                return a    
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(6), executeCode(code3))
+    }
 }

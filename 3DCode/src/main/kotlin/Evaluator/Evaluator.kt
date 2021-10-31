@@ -76,16 +76,6 @@ class Evaluator {
             classEnvironment[it.name] = evalExpression(it.expression, combineEnvironments(file.globalEnvironment,classEnvironment, file), classDefinition, file)
         }
 
-//        if(classDefinition.className == "Array"){
-//            if(parameter.isNullOrEmpty() || parameter.size != 1 || parameter[0].value !is ConstantValue.Integer)
-//                throw EvaluatorBaseException(parameter?.getOrNull(0)?.LineOfCode ?: -1, file.name, "Array constructor must look like: Array<TYPE>(INT)")
-//
-//            classDefinition.classBody.variables!!.forEach {
-//                if(it.name == "array")
-//                        (it.expression as Expression.Value).value = DynamicValue.Array(Array( parameter[0].value.value as Int){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf())) }
-//            return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))
-//        }
-
         evalMethod(classDefinition, classDefinition.className, parameter, classEnvironment, file)
 
         return Expression.Value(DynamicValue.Class(classEnvironment, Type.Custom(classDefinition.className)))

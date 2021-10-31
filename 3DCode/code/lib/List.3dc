@@ -1,0 +1,38 @@
+include "Array"
+            
+class <T> List{
+	private Array values<T> = null
+	
+	Int addPosition = 0
+	Int size = 0
+	
+	List(Int initialSize){
+		values = Array<T>(initialSize)
+	}
+
+	Void Add(T value){
+		if(addPosition >= values.size){
+			Array tempValues<T> = Array<T>(size * 2)
+			Int i = values.size - 1
+			
+			while(i >=0){
+				tempValues.Set(i,values.Get(i))
+				i -= 1
+			}
+			
+			values = tempValues
+		}
+	   
+		values.Set(addPosition, value)
+		size += 1
+		addPosition += 1
+	}
+	
+	T Get(Int index){
+		return values.Get(index)
+	}
+	
+	Void Remove(Int index){
+		values.Set(index, null)
+	}
+}

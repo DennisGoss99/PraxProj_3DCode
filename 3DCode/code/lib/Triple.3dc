@@ -1,0 +1,29 @@
+class <A,B,C> Triple{
+
+	A x = null
+	B y = null
+	C z = null
+				
+	Triple(A tempX, B tempY, C tempZ){
+		x = tempX
+		y = tempY
+		z = tempZ
+	}
+	
+	A GetFirst(){
+		return x
+	}
+	
+	B GetSecond(){
+		return y
+	}
+	
+	B GetThird(){
+		return z
+	}
+	
+	String ToString(){
+		return x.ToString() + y.ToString() + z.ToString()
+	}	
+   
+}

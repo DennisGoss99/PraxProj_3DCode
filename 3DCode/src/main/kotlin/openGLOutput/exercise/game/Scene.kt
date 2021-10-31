@@ -1,5 +1,8 @@
 package openGLOutput.exercise.game
 
+import Evaluator.Evaluator
+import Parser.ParserManager
+import TypeChecker.TypeChecker
 import openGLOutput.exercise.components.camera.Camera
 import openGLOutput.exercise.components.light.*
 import openGLOutput.exercise.components.shader.ShaderProgram
@@ -10,6 +13,7 @@ import org.joml.Math.toRadians
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL11.*
+import java.io.File
 
 class Scene(private val window: GameWindow) {
 
@@ -73,6 +77,13 @@ class Scene(private val window: GameWindow) {
         glDepthFunc(GL_LESS); GLError.checkThrow()
 
         camera.translateLocal(Vector3f(0f,1f,4f))
+
+        val mainFile = ParserManager.loadFromDisk("code/App.3dc")
+        TypeChecker().check(mainFile, null)
+
+        println( Evaluator().eval(mainFile,null)?.value)
+
+
 
     }
 

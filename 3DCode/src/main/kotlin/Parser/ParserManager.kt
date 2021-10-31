@@ -66,6 +66,7 @@ class ParserManager{
 
         fun loadFromDisk(path: String): File {
             loadedFiles = HashMap<String, File?>()
+            loadedFiles["Array"] = ArrayImplementation.file
 
             val file = loadImportsFile(path)
             loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file
@@ -97,7 +98,7 @@ class ParserManager{
             rawImports.forEach {
                 val name = it.substringAfterLast('.')
                 if(!loadedFiles.containsKey(name)){
-                    val loadedFile = loadImportsFile(file.path.substringBeforeLast('\\') + '\\' + it.replace('.','/') +".c3d")
+                    val loadedFile = loadImportsFile(file.path.substringBeforeLast('\\') + '\\' + it.replace('.','/') +".3dc")
                     includes[name] = loadedFile
                     loadedFiles[name] = loadedFile
                 }else{

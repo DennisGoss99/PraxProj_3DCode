@@ -1,0 +1,23 @@
+class <A,B> Pair{
+
+	A x = null
+	B y = null
+		
+	Pair(A tempX, B tempY){
+		x = tempX
+		y = tempY
+	}
+	
+	A GetFirst(){
+		return x
+	}
+	
+	B GetSecond(){
+		return y
+	}
+	
+	String ToString(){
+		return x.ToString() + y.ToString()
+	}	
+   
+}

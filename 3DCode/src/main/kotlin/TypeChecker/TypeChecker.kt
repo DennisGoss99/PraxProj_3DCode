@@ -2,14 +2,12 @@ package TypeChecker
 
 import Parser.ParserToken.*
 import TypeChecker.Exceptions.*
-import java.lang.reflect.Method
 
 class TypeChecker {
 
     private val checkedFiles = mutableListOf<String>()
 
     fun check(mainFile : File, args : List<Expression.Value>?) {
-
 
         if(mainFile.functionDeclarations["Main"].isNullOrEmpty())
             throw TypeCheckerFunctionNotFoundException(-1, mainFile.name, "Main")
@@ -48,12 +46,10 @@ class TypeChecker {
 
         file.functionDeclarations.forEach { (_, functions) ->
             functions.forEach{ function ->
-                //if(function.functionName != "Main"){
-                    checkFunctionDeclaration(function,globalVariables, file)
+                checkFunctionDeclaration(function,globalVariables, file)
 
-                    if(functions.count { functionLocal -> checkForDuplicateFunction(function, functionLocal) } >= 2)
-                        throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
-                //}
+                if(functions.count { functionLocal -> checkForDuplicateFunction(function, functionLocal) } >= 2)
+                    throw TypeCheckerDuplicateFunctionException(function.LineOfCode, file.name, function)
             }
         }
 
@@ -230,7 +226,7 @@ class TypeChecker {
                 }
                 is Statement.ProcedureCall -> {
                     val functionList = classObj.classBody.functions[statement2.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement2.LineOfCode, importFile.name, statement2.procedureName)
-                    val parameterTypes = statement2.parameterList?.map{ getExpressionType(it, localVariables, currentClass, importFile)}
+                    val parameterTypes = statement2.parameterList?.map{ getExpressionType(it, localVariables, currentClass, file)}
 
                     val function = functionList.firstOrNull { checkParameter(
                         it.parameters,

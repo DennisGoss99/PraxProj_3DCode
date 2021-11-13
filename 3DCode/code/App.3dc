@@ -1,24 +1,15 @@
 include "lib.List"
 include "lib.Triple"
-            
-Int Main(){
-	List a<String> = List<String>(5)     
+include "Cube"
+include "Object"            
+			
+
+List objects<Object> = List<Object>(1)			
+			
+Void Main(){    
 	
-	a.Add("A")
-	a.Add("B")
-	a.Add("C")
-	a.Add("D")
-	
-	{
-		Triple x<String,String,String> = Triple<String,String,String>(a.Get(0),a.Get(1),a.Get(3))
-		
-		Println(x.ToString())
-	}
-	
-	for(Int n = 0; n < 1000; n += 1){
-		Println(n)
-	}
-	
-					
-	return a.values.size
+	objects.Add(Object("assets/objects/cube.obj"))
+	objects.Add(Object("C:/Users/Merdo/Desktop/-- PraxPro/PraxProj_3DCode/3DCode/assets/models/ground.obj"))
+	objects.Add(Object("assets/objects/cube.obj"))
+	Println("-- End --")	
 }

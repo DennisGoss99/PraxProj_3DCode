@@ -1778,4 +1778,140 @@ class DeepTest {
 
         assertEquals(ConstantValue.Integer(6), executeCode(code3))
     }
+
+    @Test
+    fun bugFixTestTest(){
+        val code = """   
+            
+            class A{
+                
+                String a = null
+                
+                A(String aa){
+                    a = aa
+                }
+                
+                A(){}
+            
+            }
+            
+            String Main(){
+                A a1 = A("BBB")
+                A a2 = A()
+                
+                return a2.a
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Null(), executeCode(code))
+
+    }
+
+    @Test
+    fun constructorInFunctionCallTest(){
+
+        val a =
+            "A" to """
+                class A{
+                
+                    String a = null
+                    
+                    A(String aa){
+                        a = aa
+                    }            
+                }    
+            """.trimIndent()
+
+        val code = "App" to """     
+            include "A"
+            
+            String Fun(A a){
+                return a.a
+            }
+            
+            String Main(){               
+                return Fun(A("BBB"))
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("BBB"), executeCode(mutableListOf(code,a)))
+
+    }
+
+    @Test
+    fun list1Test() {
+        val codeList = "List" to """
+        include "Array"
+            
+        class <T> List{
+            Array values<T> = null
+            
+            Int addPosition = 0
+            Int size = 0
+            
+            List(Int initialSize){
+                values = Array<T>(initialSize)
+            }
+        
+            Void Add(T value){
+                if(size != 0){
+                    //Println("Test:" + ToString(values.Get(0)))
+                }
+                
+                if(addPosition >= values.size){
+                    if(size == 0){
+                        values = Array<T>(1)
+                    }else{
+                        //Println("Test2:" + ToString(values.Get(0)))
+                        {
+                            Array tempValues<T> = Array<T>(size  * 2)
+                            Int i = values.size - 1
+                            //Println("Test3:" + ToString(values.Get(0)))
+                            
+                            while(i >=0){
+                            //Println(ToString(i) + " " + ToString(values.Get(i)))
+                                tempValues.Set(i,values.Get(i))
+                                i -= 1
+                            }
+                            
+                            values = tempValues
+                        }
+                    }
+                }
+               
+                values.Set(addPosition, value)
+                //Println("AA:" + ToString(values.Get(addPosition)))
+                size += 1
+                addPosition += 1
+            }
+            
+            T Get(Int index){
+                return values.Get(index)
+            }
+            
+            Void Remove(Int index){
+                values.Set(index, null)
+            }
+        }
+        """.trimIndent()
+
+        val code = "App" to """
+            include "List"
+            include "Array"
+                        
+            List a<Int> = List<Int>(0)
+                        
+            Int Main(){        
+                   
+                a.Add(5)
+                //Println("Main:" + ToString(a.values.Get(0)))
+                a.Add(10)
+                a.Add(100)
+                   
+                return a.Get(0) + a.Get(1) + a.Get(2)
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(115), executeCode(mutableListOf(code,codeList)))
+    }
 }

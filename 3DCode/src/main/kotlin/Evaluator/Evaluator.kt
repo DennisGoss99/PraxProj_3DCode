@@ -5,10 +5,11 @@ import Evaluator.Exceptions.NotFound.*
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
+import openGLOutput.framework.ModelLoader
 
 class Evaluator {
 
-    fun eval(file: File, args : List<Expression.Value>? = null) : Expression.Value? {
+    fun eval(file: File, args : List<Expression.Value>? = null, environment: HashMap<String, Expression.Value> = hashMapOf()) : Expression.Value? {
 
         fun action(fileImport : File)
         {
@@ -23,6 +24,7 @@ class Evaluator {
         }
 
         action(file)
+
 
         return evalFunction(file.functionDeclarations["Main"], "Main",args, HashMap(), null, file)
     }
@@ -146,6 +148,8 @@ class Evaluator {
                         }
                         "_integratedFunctionSetArray" -> arraySetProcedureCall(statement, localEnvironment, currentClass, file)
                         "_integratedFunctionInitializeArray" -> arrayInitializeProcedureCall(statement, localEnvironment, currentClass, file)
+                        "_integratedSpawnCube" -> spawnCubeCall(statement, localEnvironment, currentClass, file)
+                        "_integratedLoadObjectCube" -> loadObjectCall(statement, localEnvironment, currentClass, file)
                         else ->{
                             currentClass?.classBody?.functions?.get(statement.procedureName)?.let { _ ->
                                 evalMethod(currentClass, statement.procedureName, statement.parameterList,localEnvironment, file)
@@ -387,6 +391,24 @@ class Evaluator {
         }
     }
 
+    private fun negateNumber(v1: Expression.Value, file: File) : Expression.Value{
+        return when (val v1n = v1.value){
+            is ConstantValue.Integer -> Expression.Value(ConstantValue.Integer(-v1n.value))
+            is ConstantValue.Float -> Expression.Value(ConstantValue.Float(-v1n.value))
+                else -> throw TypeMismatchRuntimeException(v1.LineOfCode, file.name, "This type can't be negated",v1.value.getType())
+        }
+    }
+
+    private fun evalBinaryBoolean(v1: Any?, v2: Any?, f : (Boolean, Boolean) -> Boolean) : Expression.Value {
+        val v1n = v1 as? Boolean ?: throw Exception("Can't use a binary operation on $v1, it's not a boolean")
+        val v2n = v2 as? Boolean ?: throw Exception("Can't use a binary operation on $v2, it's not a boolean")
+        return Expression.Value( ConstantValue.Boolean(f(v1n, v2n)))
+    }
+
+    private fun numberToFloat(number : Any?) : Float = number as? Float ?: (number as Int).toFloat()
+
+
+
     private fun toStringImplementation(expression: Expression.Value): Expression.Value{
         return Expression.Value(ConstantValue.String(expression.value.getValueAsString()))
     }
@@ -416,7 +438,7 @@ class Evaluator {
         val parameter = statement.parameterList?.map { evalExpression(it, localEnvironment, currentClass, file) }
         val size = parameter?.get(0)?.value as? ConstantValue.Integer ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "First parameter of Set must be an Integer. 'Array<T>(Int size)'")
 
-        localEnvironment["array"]?.value  = DynamicValue.Array(Array( size.value){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf()))
+        localEnvironment["array"] = Expression.Value(DynamicValue.Array(Array( size.value){Expression.Value(ConstantValue.Null())},Type.CustomWithGenerics("T", listOf())))
     }
 
     private fun arrayGetFunctionCall( expression: Expression.FunctionCall, environment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File): Expression.Value {
@@ -425,19 +447,17 @@ class Evaluator {
         return (environment["array"]?.value as? DynamicValue.Array)!!.value[index.value]
     }
 
-    private fun negateNumber(v1: Expression.Value, file: File) : Expression.Value{
-        return when (val v1n = v1.value){
-            is ConstantValue.Integer -> Expression.Value(ConstantValue.Integer(-v1n.value))
-            is ConstantValue.Float -> Expression.Value(ConstantValue.Float(-v1n.value))
-                else -> throw TypeMismatchRuntimeException(v1.LineOfCode, file.name, "This type can't be negated",v1.value.getType())
-        }
-    }
 
-    private fun evalBinaryBoolean(v1: Any?, v2: Any?, f : (Boolean, Boolean) -> Boolean) : Expression.Value {
-        val v1n = v1 as? Boolean ?: throw Exception("Can't use a binary operation on $v1, it's not a boolean")
-        val v2n = v2 as? Boolean ?: throw Exception("Can't use a binary operation on $v2, it's not a boolean")
-        return Expression.Value( ConstantValue.Boolean(f(v1n, v2n)))
-    }
+    private fun loadObjectCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
+        val parameter = statement.parameterList?.map { evalExpression(it, localEnvironment, currentClass, file) }
+        val path = parameter?.get(0)?.value as? ConstantValue.String ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "First parameter must be of type String. 'Object(String path)'")
+        val finalPath = if(path.value[1] == ':') path.value else "code/${path.value}"
 
-    private fun numberToFloat(number : Any?) : Float = number as? Float ?: (number as Int).toFloat()
+        val renderObject = ModelLoader.loadModel(finalPath,0f, 0f,0f) ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "Couldn't find objectFile path:'${path.value}'")
+
+        localEnvironment["_object"] = Expression.Value(DynamicValue.Object(renderObject, Type.Custom("_Object")))
+    }
+    private fun spawnCubeCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
+
+    }
 }

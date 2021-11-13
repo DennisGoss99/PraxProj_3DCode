@@ -3,6 +3,7 @@ package Parser.ParserToken.Values
 import Parser.ParserToken.ClassBody
 import Parser.ParserToken.Expression
 import Parser.ParserToken.Type
+import openGLOutput.exercise.components.geometry.mesh.RenderableBase
 
 sealed class DynamicValue : IValue  {
 
@@ -25,7 +26,7 @@ sealed class DynamicValue : IValue  {
         override fun getType(): Type = type
     }
 
-    data class Array(override val value: kotlin.Array<Expression.Value>, val type: Type.CustomWithGenerics): DynamicValue(){
+    data class Array(override val value : kotlin.Array<Expression.Value>, val type: Type.CustomWithGenerics) : DynamicValue(){
         override fun getValueAsString(): String {
             return "[" + value.fold(""){acc, value ->  acc + value.value.getValueAsString() } + "]"
         }
@@ -49,5 +50,19 @@ sealed class DynamicValue : IValue  {
             result = 31 * result + type.hashCode()
             return result
         }
+    }
+
+    data class Object(override val value : RenderableBase, val type: Type.Custom) : DynamicValue(){
+
+        override fun toString(): kotlin.String
+        {
+            return "$value : $type"
+        }
+
+        override fun getValueAsString() : kotlin.String {
+            return value.toString()
+        }
+
+        override fun getType(): Type = type
     }
 }

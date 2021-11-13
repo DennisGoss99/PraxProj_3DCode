@@ -12,17 +12,21 @@ class <T> List{
 
 	Void Add(T value){
 		if(addPosition >= values.size){
-			Array tempValues<T> = Array<T>(size * 2)
-			Int i = values.size - 1
-			
-			while(i >=0){
-				tempValues.Set(i,values.Get(i))
-				i -= 1
+			if(size == 0){
+				values = Array<T>(1)
+			}else{
+				Array tempValues<T> = Array<T>(size  * 2)
+				Int i = values.size - 1
+				
+				while(i >=0){
+					tempValues.Set(i,values.Get(i))
+					i -= 1
+				}
+				
+				values = tempValues
 			}
-			
-			values = tempValues
 		}
-	   
+
 		values.Set(addPosition, value)
 		size += 1
 		addPosition += 1

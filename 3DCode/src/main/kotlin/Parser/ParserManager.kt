@@ -5,6 +5,8 @@ import Lexer.LexerToken
 import Parser.ParserToken.Declaration
 import Parser.ParserToken.File
 import TypeChecker.Exceptions.TypeCheckerDuplicateClassException
+import openGLOutput.exercise.codeObjects.Cube
+import openGLOutput.exercise.codeObjects.Object
 import java.util.HashMap
 
 class ParserManager{
@@ -12,10 +14,17 @@ class ParserManager{
 
         private var loadedFiles = HashMap<String,File?>()
 
-        fun loadFromString(list: MutableList<Pair<String , String>>) : File {
+        fun beforeLoad(){
             loadedFiles = HashMap<String, File?>()
 
             loadedFiles["Array"] = ArrayImplementation.file
+            loadedFiles["Cube"] = Cube.file
+            loadedFiles["Object"] = Object.file
+        }
+
+
+        fun loadFromString(list: MutableList<Pair<String , String>>) : File {
+            beforeLoad()
 
             if(list.size == 0)
                 throw Exception("No code files found")
@@ -65,8 +74,7 @@ class ParserManager{
 
 
         fun loadFromDisk(path: String): File {
-            loadedFiles = HashMap<String, File?>()
-            loadedFiles["Array"] = ArrayImplementation.file
+            beforeLoad()
 
             val file = loadImportsFile(path)
             loadedFiles[path.substringAfterLast('/').substringBeforeLast('.')] = file

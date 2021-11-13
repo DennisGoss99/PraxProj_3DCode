@@ -2,8 +2,11 @@ package openGLOutput.exercise.game
 
 import Evaluator.Evaluator
 import Parser.ParserManager
+import Parser.ParserToken.Type
+import Parser.ParserToken.Values.DynamicValue
 import TypeChecker.TypeChecker
 import openGLOutput.exercise.components.camera.Camera
+import openGLOutput.exercise.components.geometry.mesh.RenderableBase
 import openGLOutput.exercise.components.light.*
 import openGLOutput.exercise.components.shader.ShaderProgram
 import openGLOutput.framework.GLError
@@ -13,12 +16,15 @@ import org.joml.Math.toRadians
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL11.*
+import java.beans.Expression
 import java.io.File
 
 class Scene(private val window: GameWindow) {
 
     //Shader
     private val mainShader: ShaderProgram = ShaderProgram("assets/shaders/main_vert.glsl", "assets/shaders/main_frag.glsl")
+
+    private val renderables : MutableList<RenderableBase> = mutableListOf()
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
     private val pointLightHolder = PointLightHolder( mutableListOf(
@@ -61,7 +67,7 @@ class Scene(private val window: GameWindow) {
 //
 //    val cube = RenderableBase(mutableListOf(mesh))
 
-    val cube = ModelLoader.loadModel("assets/textures/untitled.obj",0f,toRadians(180f),0f)!!
+    //val cube = ModelLoader.loadModel("assets/textures/untitled.obj",0f,toRadians(180f),0f)!!
 
     //scene setup
     init {
@@ -78,10 +84,31 @@ class Scene(private val window: GameWindow) {
 
         camera.translateLocal(Vector3f(0f,1f,4f))
 
+
+
         val mainFile = ParserManager.loadFromDisk("code/App.3dc")
         TypeChecker().check(mainFile, null)
 
-        println( Evaluator().eval(mainFile,null)?.value)
+        Evaluator().eval(mainFile,null)
+
+        val environment = mainFile.globalEnvironment
+
+        val renderablesObjects = environment["objects"]?.value
+
+        if (renderablesObjects != null && renderablesObjects is DynamicValue.Class){
+            if(renderablesObjects.type.name != "List")
+                throw Exception("objects must be of type 'List'")
+
+            val a = renderablesObjects.value["values"]?.value as DynamicValue.Class
+            val b = a.value["array"]?.value as DynamicValue.Array
+            b.value.forEach {
+                val tempObject = it.value
+                if(tempObject is DynamicValue.Class)
+                    renderables.add((tempObject.value["_object"]?.value as DynamicValue.Object).value)
+            }
+
+            print("")
+        }
 
 
 
@@ -103,7 +130,10 @@ class Scene(private val window: GameWindow) {
         if(t-lastTime > 0.01f)
             mainShader.setUniform("time", t)
 
-        cube.render(mainShader)
+        renderables.forEach {
+            it.render(mainShader)
+
+        }
 
         camera.bind(mainShader, camera.getCalculateProjectionMatrix(), camera.getCalculateViewMatrix())
 

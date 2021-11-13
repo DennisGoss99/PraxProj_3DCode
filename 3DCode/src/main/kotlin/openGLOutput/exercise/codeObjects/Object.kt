@@ -2,6 +2,7 @@ package openGLOutput.exercise.codeObjects
 
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
+import Parser.ParserToken.Values.DynamicValue
 
 class Object {
 
@@ -9,7 +10,7 @@ class Object {
 
         val file = File(
             "Object",
-            hashMapOf(),
+            hashMapOf("Vector3f" to null),
             hashMapOf(
                 "Object" to Declaration.ClassDeclare(
                     "Object",
@@ -21,9 +22,6 @@ class Object {
                                     Body(
                                         listOf(
                                             Statement.ProcedureCall(
-                                                "Println", listOf(Expression.Value(ConstantValue.String("SpawnObject"))),null
-                                            ),
-                                            Statement.ProcedureCall(
                                                 "_integratedLoadObjectCube",
                                                 listOf(Expression.UseVariable("pathToObject")),
                                                 null
@@ -33,12 +31,35 @@ class Object {
                                     ),
                                     listOf(Parameter("pathToObject", Type.String)),
                                     null
-                                )
+                                ),
+                                Declaration.FunctionDeclare(
+                                    Type.Void, "Object",
+                                    Body(
+                                        listOf(
+                                            Statement.ProcedureCall(
+                                                "_integratedLoadObjectCube",
+                                                listOf(Expression.UseVariable("pathToObject")),
+                                                null
+                                            ),
+                                            Statement.AssignValue("path", Expression.UseVariable("pathToObject")),
+                                            Statement.AssignValue("position", Expression.UseVariable("tempPosition"))
+                                        )
+                                    ),
+                                    listOf(Parameter("pathToObject", Type.String),Parameter("tempPosition", Type.Custom("Vector3f"))),
+                                    null
+                                ),
                             )
                         ),
                         listOf(
-                            Declaration.VariableDeclaration( Type.Custom("_Object"),"_object", Expression.Value(ConstantValue.Null())),
-                            Declaration.VariableDeclaration( Type.String,"path", Expression.Value(ConstantValue.Null()))
+                            Declaration.VariableDeclaration( Type.Custom("_Object"),"_object", Expression.Value(ConstantValue.Null()), true),
+                            Declaration.VariableDeclaration( Type.String,"path", Expression.Value(ConstantValue.Null())),
+                            Declaration.VariableDeclaration( Type.Custom("Vector3f"),"position", Expression.Value(DynamicValue.Class(
+                                hashMapOf(
+                                    "x" to Expression.Value(ConstantValue.Float(0f)),
+                                    "y" to Expression.Value(ConstantValue.Float(0f)),
+                                    "z" to Expression.Value(ConstantValue.Float(0f))
+                                )
+                                , Type.Custom("Vector3f"))))
                         )
                     ), null
                 )

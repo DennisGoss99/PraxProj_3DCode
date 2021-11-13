@@ -1,15 +1,17 @@
 include "lib.List"
 include "lib.Triple"
+include "lib.Vector3f"  
 include "Cube"
-include "Object"            
+include "Object"      
+     
 			
 
 List objects<Object> = List<Object>(1)			
 			
-Void Main(){    
-	
-	objects.Add(Object("assets/objects/cube.obj"))
+Void Main(){    	
+	objects.Add(Object("assets/objects/cube.obj", Vector3f(0.0, 3.0, 0.0)))
 	objects.Add(Object("C:/Users/Merdo/Desktop/-- PraxPro/PraxProj_3DCode/3DCode/assets/models/ground.obj"))
-	objects.Add(Object("assets/objects/cube.obj"))
+	objects.Add(Object("assets/objects/cube.obj", Vector3f(3.0, 0.0, 0.0)))
+	
 	Println("-- End --")	
 }

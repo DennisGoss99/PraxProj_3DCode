@@ -1,0 +1,17 @@
+class Vector3f{
+
+	Float x = null
+	Float y = null
+	Float z = null
+				
+	Vector3f(Float tempX, Float tempY, Float tempZ){
+		x = tempX
+		y = tempY
+		z = tempZ
+	}
+		
+	String ToString(){
+		return x.ToString() + y.ToString() + z.ToString()
+	}	
+   
+}

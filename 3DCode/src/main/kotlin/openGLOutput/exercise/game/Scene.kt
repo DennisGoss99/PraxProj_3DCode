@@ -103,8 +103,13 @@ class Scene(private val window: GameWindow) {
             val b = a.value["array"]?.value as DynamicValue.Array
             b.value.forEach {
                 val tempObject = it.value
-                if(tempObject is DynamicValue.Class)
-                    renderables.add((tempObject.value["_object"]?.value as DynamicValue.Object).value)
+                if(tempObject is DynamicValue.Class){
+                    val renderable = (tempObject.value["_object"]?.value as DynamicValue.Object).value
+                    val position = (tempObject.value["position"]?.value as DynamicValue.Class).value
+                    renderable.setPosition(Vector3f(position["x"]!!.value.value as Float,position["y"]!!.value.value as Float,position["z"]!!.value.value as Float))
+                    renderables.add(renderable)
+                }
+
             }
 
             print("")

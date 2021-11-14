@@ -6,12 +6,23 @@ include "Object"
      
 			
 
-List objects<Object> = List<Object>(1)			
+List objects<Object> = List<Object>(10000)			
 			
 Void Main(){    	
-	objects.Add(Object("assets/objects/cube.obj", Vector3f(0.0, 3.0, 0.0)))
-	objects.Add(Object("C:/Users/Merdo/Desktop/-- PraxPro/PraxProj_3DCode/3DCode/assets/models/ground.obj"))
-	objects.Add(Object("assets/objects/cube.obj", Vector3f(3.0, 0.0, 0.0)))
+	
+	for(Int i = -10 ; i < 10 ; i += 1)
+	{
+		for(Int j = -10 ; j < 10 ; j += 1)
+		{
+			for(Int z = -10 ; z < 10 ; z += 1)
+			{
+				objects.Add(Object("assets/objects/cube.obj", Vector3f(i * 3.0, z * 3.0, j * 3.0)))	
+			}
+		}
+	}
 	
 	Println("-- End --")	
 }
+
+
+

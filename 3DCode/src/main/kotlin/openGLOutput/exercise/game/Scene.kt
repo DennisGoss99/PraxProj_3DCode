@@ -2,6 +2,7 @@ package openGLOutput.exercise.game
 
 import Evaluator.Evaluator
 import Parser.ParserManager
+import Parser.ParserToken.File
 import Parser.ParserToken.Type
 import Parser.ParserToken.Values.DynamicValue
 import TypeChecker.TypeChecker
@@ -16,8 +17,7 @@ import org.joml.Math.toRadians
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL11.*
-import java.beans.Expression
-import java.io.File
+import kotlin.system.measureTimeMillis
 
 class Scene(private val window: GameWindow) {
 
@@ -84,12 +84,25 @@ class Scene(private val window: GameWindow) {
 
         camera.translateLocal(Vector3f(0f,1f,4f))
 
+        //load and parse
+        val mainFile : File
+        val loadAndParseTime = measureTimeMillis {
+            mainFile = ParserManager.loadFromDisk("code/App.3dc")
+        }
+        println("-- Loading and Parsing took $loadAndParseTime ms--")
 
+        //type check
+        val typeCheckTime = measureTimeMillis {
+            TypeChecker().check(mainFile, null)
+        }
+        println("-- Typechecking took $typeCheckTime ms--")
 
-        val mainFile = ParserManager.loadFromDisk("code/App.3dc")
-        TypeChecker().check(mainFile, null)
+        //eval
+        val evalTime = measureTimeMillis {
+            Evaluator().eval(mainFile,null)
+        }
+        println("-- Eval took $evalTime ms--")
 
-        Evaluator().eval(mainFile,null)
 
         val environment = mainFile.globalEnvironment
 
@@ -104,18 +117,16 @@ class Scene(private val window: GameWindow) {
             b.value.forEach {
                 val tempObject = it.value
                 if(tempObject is DynamicValue.Class){
-                    val renderable = (tempObject.value["_object"]?.value as DynamicValue.Object).value
+                    val renderable = RenderableBase((tempObject.value["_object"]?.value as DynamicValue.Object).value.meshes)
                     val position = (tempObject.value["position"]?.value as DynamicValue.Class).value
                     renderable.setPosition(Vector3f(position["x"]!!.value.value as Float,position["y"]!!.value.value as Float,position["z"]!!.value.value as Float))
                     renderables.add(renderable)
                 }
 
             }
-
-            print("")
         }
 
-
+        println(renderables.size)
 
     }
 

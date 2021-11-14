@@ -5,6 +5,7 @@ import Evaluator.Exceptions.NotFound.*
 import Parser.ParserToken.*
 import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
+import openGLOutput.exercise.components.geometry.mesh.RenderableBase
 import openGLOutput.framework.ModelLoader
 
 class Evaluator {
@@ -447,13 +448,18 @@ class Evaluator {
         return (environment["array"]?.value as? DynamicValue.Array)!!.value[index.value]
     }
 
+    val loadedObjects = hashMapOf<String, RenderableBase>()
 
     private fun loadObjectCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
         val parameter = statement.parameterList?.map { evalExpression(it, localEnvironment, currentClass, file) }
         val path = parameter?.get(0)?.value as? ConstantValue.String ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "First parameter must be of type String. 'Object(String path)'")
         val finalPath = if(path.value[1] == ':') path.value else "code/${path.value}"
 
-        val renderObject = ModelLoader.loadModel(finalPath,0f, 0f,0f) ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "Couldn't find objectFile path:'${path.value}'")
+        val renderObject = if(!loadedObjects.containsKey(finalPath)){
+            loadedObjects[finalPath] = ModelLoader.loadModel(finalPath,0f, 0f,0f) ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "Couldn't find objectFile path:'${path.value}'")
+            loadedObjects[finalPath]!!
+        }else
+            loadedObjects[finalPath]!!
 
         localEnvironment["_object"] = Expression.Value(DynamicValue.Object(renderObject, Type.Custom("_Object")))
     }

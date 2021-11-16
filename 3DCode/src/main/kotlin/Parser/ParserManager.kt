@@ -5,7 +5,6 @@ import Lexer.LexerToken
 import Parser.ParserToken.Declaration
 import Parser.ParserToken.File
 import TypeChecker.Exceptions.TypeCheckerDuplicateClassException
-import openGLOutput.exercise.codeObjects.Cube
 import openGLOutput.exercise.codeObjects.Object
 import java.util.HashMap
 
@@ -18,7 +17,6 @@ class ParserManager{
             loadedFiles = HashMap<String, File?>()
 
             loadedFiles["Array"] = ArrayImplementation.file
-            loadedFiles["Cube"] = Cube.file
             loadedFiles["Object"] = Object.file
         }
 

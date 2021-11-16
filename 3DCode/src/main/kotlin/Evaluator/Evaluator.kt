@@ -149,7 +149,6 @@ class Evaluator {
                         }
                         "_integratedFunctionSetArray" -> arraySetProcedureCall(statement, localEnvironment, currentClass, file)
                         "_integratedFunctionInitializeArray" -> arrayInitializeProcedureCall(statement, localEnvironment, currentClass, file)
-                        "_integratedSpawnCube" -> spawnCubeCall(statement, localEnvironment, currentClass, file)
                         "_integratedLoadObjectCube" -> loadObjectCall(statement, localEnvironment, currentClass, file)
                         else ->{
                             currentClass?.classBody?.functions?.get(statement.procedureName)?.let { _ ->
@@ -462,8 +461,5 @@ class Evaluator {
             loadedObjects[finalPath]!!
 
         localEnvironment["_object"] = Expression.Value(DynamicValue.Object(renderObject, Type.Custom("_Object")))
-    }
-    private fun spawnCubeCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
-
     }
 }

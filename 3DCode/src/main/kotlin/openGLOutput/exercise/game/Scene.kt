@@ -7,6 +7,7 @@ import Parser.ParserToken.Type
 import Parser.ParserToken.Values.DynamicValue
 import TypeChecker.TypeChecker
 import openGLOutput.exercise.components.camera.Camera
+import openGLOutput.exercise.components.geometry.material.Material
 import openGLOutput.exercise.components.geometry.mesh.RenderableBase
 import openGLOutput.exercise.components.light.*
 import openGLOutput.exercise.components.shader.ShaderProgram
@@ -73,7 +74,7 @@ class Scene(private val window: GameWindow) {
     init {
         
         //initial opengl state
-        glClearColor(1f, 0f, 1f, 1.0f); GLError.checkThrow()
+        glClearColor(0f, 0f, 0f, 1.0f); GLError.checkThrow()
 
         glEnable(GL_CULL_FACE); GLError.checkThrow()
         glFrontFace(GL_CCW); GLError.checkThrow()
@@ -117,17 +118,20 @@ class Scene(private val window: GameWindow) {
             b.value.forEach {
                 val tempObject = it.value
                 if(tempObject is DynamicValue.Class){
-                    val renderable = RenderableBase((tempObject.value["_object"]?.value as DynamicValue.Object).value.meshes)
+                    val meshes = (tempObject.value["_object"]?.value as DynamicValue.Object).value.meshes
+                    val renderable = RenderableBase(meshes)
                     val position = (tempObject.value["position"]?.value as DynamicValue.Class).value
+                    val scale =  (tempObject.value["scale"]?.value as DynamicValue.Class).value
+                    val rotation =  (tempObject.value["rotation"]?.value as DynamicValue.Class).value
+                    val color =  (tempObject.value["color"]?.value as DynamicValue.Class).value
                     renderable.setPosition(Vector3f(position["x"]!!.value.value as Float,position["y"]!!.value.value as Float,position["z"]!!.value.value as Float))
+                    renderable.rotateLocal(rotation["x"]!!.value.value as Float,rotation["y"]!!.value.value as Float,rotation["z"]!!.value.value as Float)
+                    renderable.scaleLocal(Vector3f(scale["x"]!!.value.value as Float,scale["y"]!!.value.value as Float,scale["z"]!!.value.value as Float))
+                    renderable.emitColor = Vector3f(color["x"]!!.value.value as Float, color["y"]!!.value.value as Float, color["z"]!!.value.value as Float)
                     renderables.add(renderable)
                 }
-
             }
         }
-
-        println(renderables.size)
-
     }
 
 
@@ -141,14 +145,13 @@ class Scene(private val window: GameWindow) {
         pointLightHolder.bind(mainShader,"pointLight")
         spotLightHolder.bind(mainShader,"spotLight", camera.getCalculateViewMatrix())
 
-        mainShader.setUniform("emitColor", Vector3f(0f,0.5f,1f))
+        //mainShader.setUniform("emitColor", Vector3f(0f,0.5f,1f))
 
         if(t-lastTime > 0.01f)
             mainShader.setUniform("time", t)
 
         renderables.forEach {
             it.render(mainShader)
-
         }
 
         camera.bind(mainShader, camera.getCalculateProjectionMatrix(), camera.getCalculateViewMatrix())

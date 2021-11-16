@@ -57,7 +57,7 @@ void main(){
     vec4 specTexture = texture(spec, vertexData.texcoord);
 
     // set emmitColor
-    //emitTexture = emitTexture * vec4(emitColor,0.0f);
+    emitTexture = emitTexture * vec4(emitColor,0.0f);
 
     // normalize everything necessary //
     vec3 n = normalize(vertexData.normal);

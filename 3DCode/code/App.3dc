@@ -1,14 +1,15 @@
 include "lib.List"
 include "lib.Triple"
-include "lib.Vector3f"  
+include "lib.Vector3f" 
+include "lib.Math" 
 include "Object"      
-     
+   
 			
 
 List objects<Object> = List<Object>(10000)			
 			
 Void Main(){    	
-	
+		
 	for(Int i = -20 ; i < 20 ; i += 1)
 	{
 		for(Int j = -20 ; j < 20 ; j += 1)
@@ -25,12 +26,12 @@ Void Main(){
 			}			
 			if(i< 0 && j <= 0){
 				o1.color = Vector3f(j/-20.0, 0.0, i/-20.0)
-			}			
+			}
 			if(i> 0 && j >= 0){
 				o1.color = Vector3f(i/20.0, j/20.0, 0.0)
 			}
 			
-			objects.Add(o1)	
+			objects.Add(o1)
 		}
 	}
 	

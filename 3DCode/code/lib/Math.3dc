@@ -1,0 +1,60 @@
+class Math{
+            
+	Math(){
+	}
+
+	Int Abs(Int value){
+		if(value >= 0){ return value }else{ return value * -1 }
+	}
+	
+	Float Abs(Float value){
+		if(value >= 0){ return value }else{ return value * -1.0 }
+	}
+	
+	Float Pow(Float value, Int power){
+		Float returnValue = 0.0
+		
+		if(power == 0){return 1.0}else{
+			if(power > 0){
+				power -= 2
+				returnValue = value
+				while(power >= 0){
+					returnValue *= value
+					power -= 1 
+				}
+			}else{
+				returnValue = value
+				while(power <= 0){
+					returnValue /= value
+					power += 1 
+				}
+			}
+		}
+		return returnValue
+	}
+	
+	Float Pow(Int value, Int power){
+		return Pow(value + 0.0, power)
+	}
+	
+	Int Mod(Int value, Int divider){
+		if(divider == 0){
+			return value
+		}
+		while(value >= divider){
+			value -= divider
+		}
+		return value
+	}
+	
+	Float Mod(Float value, Float divider){
+		if(divider == 0){
+			return value
+		}
+		while(value >= divider){
+			value -= divider
+		}
+		return value
+	}
+        
+}

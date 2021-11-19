@@ -52,12 +52,13 @@ out vec4 color;
 
 void main(){
 
-    vec4 diffTexture = texture(diff, vertexData.texcoord);
+    //vec4 diffTexture = texture(diff, vertexData.texcoord);
     vec4 emitTexture = texture(emit, vertexData.texcoord);
-    vec4 specTexture = texture(spec, vertexData.texcoord);
-
-    // set emmitColor
+    //vec4 specTexture = texture(spec, vertexData.texcoord);
     emitTexture = emitTexture * vec4(emitColor,0.0f);
+    /*
+    // set emmitColor
+
 
     // normalize everything necessary //
     vec3 n = normalize(vertexData.normal);
@@ -141,8 +142,8 @@ void main(){
 
 
     vec4 ambiantLight = diffTexture * min(1.0f, max(0.2f,vertexData.originAngle));
-
-    color = emitTexture + ambiantLight + diffusePointsSum + diffuseSpotSum ;
+    */
+    color = emitTexture; //+ ambiantLight + diffusePointsSum + diffuseSpotSum ;
 
 }
 

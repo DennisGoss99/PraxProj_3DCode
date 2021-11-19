@@ -39,22 +39,22 @@ void main(){
     mat4 modelView = view_matrix * model_matrix;
     gl_Position =  projection_matrix * modelView * vec4(position, 1.0f);
 
-    vertexData.position = -(modelView * vec4(position, 1.0f)).xyz;
-    vertexData.normal = (transpose(inverse(modelView)) * vec4(normal, 0.0f)).xyz;
-    vertexData.texcoord = texcoords * tcMultiplier;
-
-
-    for(int i = 0; i < spotLightSize; i++)
-    {
-        vertexData.spotLightDir[i] = (( view_matrix * vec4(spotLightPositions[i], 1.0f)) - (modelView * vec4(position, 1.0f))).xyz;
-    }
-
-    for(int i = 0; i < pointLightSize; i++)
-    {
-        vertexData.pointLightDir[i] = (( view_matrix * vec4(pointLightPositions[i], 1.0f)) - (modelView * vec4(position, 1.0f) )).xyz;
-    }
-
-    vec3 cosMidpoint = (( view_matrix * vec4(0.0f, 0.0f, 0.0f, 1.0f)) - (modelView * vec4(position, 1.0f) )).xyz;
-    vertexData.originAngle = max(0.0, dot(normalize(vertexData.normal), normalize(cosMidpoint)) + 0.70f);
+//    vertexData.position = -(modelView * vec4(position, 1.0f)).xyz;
+//    vertexData.normal = (transpose(inverse(modelView)) * vec4(normal, 0.0f)).xyz;
+//    vertexData.texcoord = texcoords * tcMultiplier;
+//
+//
+//    for(int i = 0; i < spotLightSize; i++)
+//    {
+//        vertexData.spotLightDir[i] = (( view_matrix * vec4(spotLightPositions[i], 1.0f)) - (modelView * vec4(position, 1.0f))).xyz;
+//    }
+//
+//    for(int i = 0; i < pointLightSize; i++)
+//    {
+//        vertexData.pointLightDir[i] = (( view_matrix * vec4(pointLightPositions[i], 1.0f)) - (modelView * vec4(position, 1.0f) )).xyz;
+//    }
+//
+//    vec3 cosMidpoint = (( view_matrix * vec4(0.0f, 0.0f, 0.0f, 1.0f)) - (modelView * vec4(position, 1.0f) )).xyz;
+//    vertexData.originAngle = max(0.0, dot(normalize(vertexData.normal), normalize(cosMidpoint)) + 0.70f);
 
 }

@@ -1523,63 +1523,7 @@ class DeepTest {
 
     }
 
-    @Test
-    fun linkedListTest(){
-        val code = """   
-            class <T> A{
-                
-                A a<T> = null
-                T value = null
-                
-                A(T tempValue){
-                    value = tempValue
-                }
-                       
-                Void Add(T tempValue){
-                    if(a != null){
-                        a.Add(tempValue)
-                    } else {
-                    a = A<T>(tempValue)
-                    }
-                }
-                
-                T Get(Int index){
-                    if(index == 0){
-                        return value
-                    }
-                    index -= 1
-                    return a.Get(index)
-                }
-                
-                Void InsertAt(Int index, T tempValue){
-                    if(index == 0){
-                        A newA<T> = A<T>(value)
-                        newA.a = a
-                        value = tempValue
-                        a = newA
-                    }
-                    else
-                    {
-                    index -= 1
-                    a.InsertAt(index, tempValue)
-                    }
-                }
-            }              
-                             
-            Int Main(){
-                A a<Int> = A<Int>(5)
-                a.Add(10)
-                a.Add(100)
-                a.Add(1000)
-                a.InsertAt(0,0)
-                a.InsertAt(2,1)
-                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3) + a.Get(4) + a.Get(5)
-            }
-            
-        """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(1116) , executeCode(code))
-    }
 
     @Test
     fun procedureClassTest(){
@@ -1607,26 +1551,7 @@ class DeepTest {
 
     }
 
-    @Test
-    fun arrayTest(){
 
-        val code = """   
-            include "Array"
-            
-            Int Main(){
-                Array a<Int> = Array<Int>(5)
-                a.Set(0,5)
-                a.Set(1,6)
-                a.Set(2,7)
-                a.Set(3,8)
-                a.Set(4,9)
-                
-                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3) + a.Get(4) + a.size          
-            }
-        """.trimIndent()
-
-        assertEquals(ConstantValue.Integer(40) , executeCode(code))
-    }
 
     @Test
     fun listTest(){
@@ -1838,80 +1763,5 @@ class DeepTest {
 
     }
 
-    @Test
-    fun list1Test() {
-        val codeList = "List" to """
-        include "Array"
-            
-        class <T> List{
-            Array values<T> = null
-            
-            Int addPosition = 0
-            Int size = 0
-            
-            List(Int initialSize){
-                values = Array<T>(initialSize)
-            }
-        
-            Void Add(T value){
-                if(size != 0){
-                    //Println("Test:" + ToString(values.Get(0)))
-                }
-                
-                if(addPosition >= values.size){
-                    if(size == 0){
-                        values = Array<T>(1)
-                    }else{
-                        //Println("Test2:" + ToString(values.Get(0)))
-                        {
-                            Array tempValues<T> = Array<T>(size  * 2)
-                            Int i = values.size - 1
-                            //Println("Test3:" + ToString(values.Get(0)))
-                            
-                            while(i >=0){
-                            //Println(ToString(i) + " " + ToString(values.Get(i)))
-                                tempValues.Set(i,values.Get(i))
-                                i -= 1
-                            }
-                            
-                            values = tempValues
-                        }
-                    }
-                }
-               
-                values.Set(addPosition, value)
-                //Println("AA:" + ToString(values.Get(addPosition)))
-                size += 1
-                addPosition += 1
-            }
-            
-            T Get(Int index){
-                return values.Get(index)
-            }
-            
-            Void Remove(Int index){
-                values.Set(index, null)
-            }
-        }
-        """.trimIndent()
 
-        val code = "App" to """
-            include "List"
-            include "Array"
-                        
-            List a<Int> = List<Int>(0)
-                        
-            Int Main(){        
-                   
-                a.Add(5)
-                //Println("Main:" + ToString(a.values.Get(0)))
-                a.Add(10)
-                a.Add(100)
-                   
-                return a.Get(0) + a.Get(1) + a.Get(2)
-            }
-        """.trimIndent()
-
-        assertEquals(ConstantValue.Integer(115), executeCode(mutableListOf(code,codeList)))
-    }
 }

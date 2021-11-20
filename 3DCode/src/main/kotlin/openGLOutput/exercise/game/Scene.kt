@@ -92,13 +92,13 @@ class Scene(private val window: GameWindow) {
 
         //type check
         val typeCheckTime = measureTimeMillis {
-            TypeChecker().check(mainFile, null)
+            TypeChecker().check(mainFile, null, "Init")
         }
         println("-- Typechecking took $typeCheckTime ms--")
 
         //eval
         val evalTime = measureTimeMillis {
-            Evaluator().eval(mainFile,null)
+            Evaluator().eval(mainFile,null, "Init")
         }
         println("-- Eval took $evalTime ms--")
 
@@ -167,6 +167,8 @@ class Scene(private val window: GameWindow) {
             lastTime = t
     }
 
+    var codeDt = 0.0f
+    var updateCount = 0
     fun update(dt: Float, t: Float) {
         val rotationMultiplier = 30f
         val translationMultiplier = 35.0f
@@ -178,7 +180,6 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_E)) {
             camera.rotateLocal(-rotationMultiplier  * dt, 0.0f, 0.0f)
         }
-
 
         if (window.getKeyState ( GLFW_KEY_W)) {
             camera.translateLocal(Vector3f(0.0f, 0.0f, -translationMultiplier * dt))
@@ -198,8 +199,23 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState ( GLFW_KEY_D))
             camera.rotateLocal(0.0f, 0.0f, -rotationMultiplier* dt)
 
+        codeDt += dt
+        updateCount++
 
+        if(updateCount >= 25)
+            if(environment != null){
 
+                val args = listOf( Expression.Value(ConstantValue.Float(codeDt)), Expression.Value(ConstantValue.Float(t)))
+                Evaluator().eval(mainFile,args, "Update", environment!!)
+
+                val renderablesObjects = environment!!["objects"]?.value
+
+                if (renderablesObjects != null && renderablesObjects is DynamicValue.Class) {
+                    renderables = get3dCodeObjectsAsRenderObj(renderablesObjects)
+                }
+                codeDt = 0.0f
+                updateCount = 0
+            }
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {

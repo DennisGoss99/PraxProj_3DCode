@@ -7,12 +7,12 @@ class TypeChecker {
 
     private val checkedFiles = mutableListOf<String>()
 
-    fun check(mainFile : File, args : List<Expression.Value>?) {
+    fun check(mainFile : File, args : List<Expression.Value>?, startFunctionName : String = "Main") {
 
-        if(mainFile.functionDeclarations["Main"].isNullOrEmpty())
-            throw TypeCheckerFunctionNotFoundException(-1, mainFile.name, "Main")
+        if(mainFile.functionDeclarations[startFunctionName].isNullOrEmpty())
+            throw TypeCheckerFunctionNotFoundException(-1, mainFile.name, startFunctionName)
 
-        mainFile.functionDeclarations["Main"]?.let { mainFunctionList ->
+        mainFile.functionDeclarations[startFunctionName]?.let { mainFunctionList ->
 
             if(mainFunctionList.count() != 1)
                 throw TypeCheckerOnlyOneMainException(mainFunctionList.first().LineOfCode, mainFile.name)

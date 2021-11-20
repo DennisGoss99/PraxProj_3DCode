@@ -28,6 +28,9 @@ class Evaluator {
             action(file)
         }
 
+        if(!file.functionDeclarations.containsKey(functionName))
+            return null
+
         return evalFunction(file.functionDeclarations[functionName], functionName, args, environment, null, file)
     }
 

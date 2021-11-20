@@ -3,17 +3,16 @@ include "lib.Triple"
 include "lib.Vector3f" 
 include "lib.Math" 
 include "Object"      
-   
-			
 
-List objects<Object> = List<Object>(100)			
-		
+
+List objects<Object> = List<Object>(1000)			
+
 Math m = Math()
-		
-Void Main(){    	
+
+Void Init(){    	
 		
 	objects.Add(Object("assets/objects/cube.obj"))
-	
+		
 	Println("-- End --")	
 }
 
@@ -23,9 +22,14 @@ Void OnKey(Int key, Int action){
 	if(key == 257){
 		Object o = objects.Get(0)
 		
-		o.color = Vector3f(m.Mod(o.color.x + 1.0, 256.0), 0.0, 0.0)
+		o.color = Vector3f(o.color.x, m.Mod(o.color.y + 1.0, 256.0), o.color.z)
 	}
-	
 }
 
-
+Void Update(Float deltaTime, Float time){
+	
+	//Println(deltaTime)
+	Object o = objects.Get(0)
+	
+	o.color = Vector3f(m.Mod(o.color.x + 4.0, 256.0), o.color.y, o.color.z)
+}

@@ -214,7 +214,7 @@ class TypeChecker {
                 is Statement.AssignValue -> {
                     val variableDef = classObj.classBody.variables?.firstOrNull{it.name == statement2.variableName} ?: throw TypeCheckerVariableNotFoundException(statement2.LineOfCode, importFile.name, statement2.variableName)
 
-                    val type1 = getExpressionType(statement2.expression, localVariables, currentClass, importFile)
+                    val type1 = getExpressionType(statement2.expression, localVariables, currentClass, file)
                     var type2 = variableDef.type
 
                     if(type2 != type1 && classType is Type.CustomWithGenerics && variableDef.type is Type.AbstractCustom)

@@ -191,7 +191,7 @@ class LibTest {
                     return y
                 }
                 
-                B GetThird(){
+                C GetThird(){
                     return z
                 }
                 

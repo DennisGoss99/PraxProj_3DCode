@@ -10,24 +10,25 @@ import openGLOutput.framework.ModelLoader
 
 class Evaluator {
 
-    fun eval(file: File, args : List<Expression.Value>? = null, environment: HashMap<String, Expression.Value> = hashMapOf()) : Expression.Value? {
+    fun eval(file: File, args : List<Expression.Value>? = null, functionName: String = "Main", environment: HashMap<String, Expression.Value> = hashMapOf()) : Expression.Value? {
 
-        fun action(fileImport : File)
-        {
-            fileImport.variableDeclaration.forEach { (n, v) ->
-                fileImport.globalEnvironment[n] = evalExpression(v.expression, fileImport.globalEnvironment,null, fileImport)
+        if (environment.isEmpty()){
+            fun action(fileImport : File)
+            {
+                fileImport.variableDeclaration.forEach { (n, v) ->
+                    fileImport.globalEnvironment[n] = evalExpression(v.expression, environment,null, fileImport)
+                }
+
+                fileImport.includes.forEach { (_, u) ->
+                    if(u != null && u.variablesEventuated)
+                        action(u)
+                }
             }
 
-            fileImport.includes.forEach { (_, u) ->
-                if(u != null && u.variablesEventuated)
-                    action(u)
-            }
+            action(file)
         }
 
-        action(file)
-
-
-        return evalFunction(file.functionDeclarations["Main"], "Main",args, HashMap(), null, file)
+        return evalFunction(file.functionDeclarations[functionName], functionName, args, environment, null, file)
     }
 
     private fun evalFunction(functions : MutableList<Declaration.FunctionDeclare>?, functionName : String, rawParameter: List<Expression>?, environment: HashMap<String, Expression.Value>, currentClass : Declaration.ClassDeclare?, file : File) : Expression.Value? {

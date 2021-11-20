@@ -2,8 +2,10 @@ package openGLOutput.exercise.game
 
 import Evaluator.Evaluator
 import Parser.ParserManager
+import Parser.ParserToken.Expression
 import Parser.ParserToken.File
 import Parser.ParserToken.Type
+import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
 import TypeChecker.TypeChecker
 import openGLOutput.exercise.components.camera.Camera
@@ -18,6 +20,7 @@ import org.joml.Math.toRadians
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL11.*
+import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
 class Scene(private val window: GameWindow) {
@@ -25,7 +28,7 @@ class Scene(private val window: GameWindow) {
     //Shader
     private val mainShader: ShaderProgram = ShaderProgram("assets/shaders/main_vert.glsl", "assets/shaders/main_frag.glsl")
 
-    private val renderables : MutableList<RenderableBase> = mutableListOf()
+    private var renderables : List<RenderableBase> = listOf()
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
     private val pointLightHolder = PointLightHolder( mutableListOf(
@@ -68,7 +71,9 @@ class Scene(private val window: GameWindow) {
 //
 //    val cube = RenderableBase(mutableListOf(mesh))
 
-    //val cube = ModelLoader.loadModel("assets/textures/untitled.obj",0f,toRadians(180f),0f)!!
+    private var environment : HashMap<String, Expression.Value>? = null
+
+    private val mainFile : File = ParserManager.loadFromDisk("code/App.3dc")
 
     //scene setup
     init {
@@ -83,14 +88,7 @@ class Scene(private val window: GameWindow) {
         glEnable(GL_DEPTH_TEST); GLError.checkThrow()
         glDepthFunc(GL_LESS); GLError.checkThrow()
 
-        camera.translateLocal(Vector3f(0f,1f,4f))
-
-        //load and parse
-        val mainFile : File
-        val loadAndParseTime = measureTimeMillis {
-            mainFile = ParserManager.loadFromDisk("code/App.3dc")
-        }
-        println("-- Loading and Parsing took $loadAndParseTime ms--")
+        camera.translateLocal(Vector3f(0f,0f,4f))
 
         //type check
         val typeCheckTime = measureTimeMillis {
@@ -105,35 +103,44 @@ class Scene(private val window: GameWindow) {
         println("-- Eval took $evalTime ms--")
 
 
-        val environment = mainFile.globalEnvironment
+        environment = mainFile.globalEnvironment
 
-        val renderablesObjects = environment["objects"]?.value
+        val evalEnvironmentTime = measureTimeMillis {
+            val renderablesObjects = environment!!["objects"]?.value
 
-        if (renderablesObjects != null && renderablesObjects is DynamicValue.Class){
-            if(renderablesObjects.type.name != "List")
-                throw Exception("objects must be of type 'List'")
-
-            val a = renderablesObjects.value["values"]?.value as DynamicValue.Class
-            val b = a.value["array"]?.value as DynamicValue.Array
-            b.value.forEach {
-                val tempObject = it.value
-                if(tempObject is DynamicValue.Class){
-                    val meshes = (tempObject.value["_object"]?.value as DynamicValue.Object).value.meshes
-                    val renderable = RenderableBase(meshes)
-                    val position = (tempObject.value["position"]?.value as DynamicValue.Class).value
-                    val scale =  (tempObject.value["scale"]?.value as DynamicValue.Class).value
-                    val rotation =  (tempObject.value["rotation"]?.value as DynamicValue.Class).value
-                    val color =  (tempObject.value["color"]?.value as DynamicValue.Class).value
-                    renderable.setPosition(Vector3f(position["x"]!!.value.value as Float,position["y"]!!.value.value as Float,position["z"]!!.value.value as Float))
-                    renderable.rotateLocal(rotation["x"]!!.value.value as Float,rotation["y"]!!.value.value as Float,rotation["z"]!!.value.value as Float)
-                    renderable.scaleLocal(Vector3f(scale["x"]!!.value.value as Float,scale["y"]!!.value.value as Float,scale["z"]!!.value.value as Float))
-                    renderable.emitColor = Vector3f(color["x"]!!.value.value as Float, color["y"]!!.value.value as Float, color["z"]!!.value.value as Float)
-                    renderables.add(renderable)
-                }
+            if (renderablesObjects != null && renderablesObjects is DynamicValue.Class) {
+                renderables = get3dCodeObjectsAsRenderObj(renderablesObjects)
             }
         }
+        println("-- Eval Environment took $evalEnvironmentTime ms--")
     }
 
+    fun get3dCodeObjectsAsRenderObj(listObj : DynamicValue.Class ) : List<RenderableBase>{
+        if(listObj.type.name != "List")
+            throw Exception("objects must be of type 'List'")
+
+        val returnValue = mutableListOf<RenderableBase>()
+
+        val a = listObj.value["values"]!!.value as DynamicValue.Class
+        val b = a.value["array"]!!.value as DynamicValue.Array
+        b.value.forEach {
+            val tempObject = it.value
+            if(tempObject is DynamicValue.Class){
+                val meshes = (tempObject.value["_object"]!!.value as DynamicValue.Object).value.meshes
+                val renderable = RenderableBase(meshes)
+                val position = (tempObject.value["position"]!!.value as DynamicValue.Class).value
+                val scale =  (tempObject.value["scale"]!!.value as DynamicValue.Class).value
+                val rotation =  (tempObject.value["rotation"]!!.value as DynamicValue.Class).value
+                val color =  (tempObject.value["color"]!!.value as DynamicValue.Class).value
+                renderable.setPosition(Vector3f(position["x"]!!.value.value as Float,position["y"]!!.value.value as Float,position["z"]!!.value.value as Float))
+                renderable.rotateLocal(rotation["x"]!!.value.value as Float,rotation["y"]!!.value.value as Float,rotation["z"]!!.value.value as Float)
+                renderable.scaleLocal(Vector3f(scale["x"]!!.value.value as Float,scale["y"]!!.value.value as Float,scale["z"]!!.value.value as Float))
+                renderable.emitColor = Vector3f(color["x"]!!.value.value as Float / 255f, color["y"]!!.value.value as Float / 255f, color["z"]!!.value.value as Float / 255f)
+                returnValue.add(renderable)
+            }
+        }
+        return returnValue
+    }
 
     var lastTime = 0.5f
 
@@ -159,8 +166,6 @@ class Scene(private val window: GameWindow) {
         if(t-lastTime > 0.01f)
             lastTime = t
     }
-
-
 
     fun update(dt: Float, t: Float) {
         val rotationMultiplier = 30f
@@ -198,7 +203,17 @@ class Scene(private val window: GameWindow) {
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {
+        if(environment != null){
 
+            val args = listOf( Expression.Value(ConstantValue.Integer(key)), Expression.Value(ConstantValue.Integer(action)))
+            Evaluator().eval(mainFile,args, "OnKey", environment!!)
+
+            val renderablesObjects = environment!!["objects"]?.value
+
+            if (renderablesObjects != null && renderablesObjects is DynamicValue.Class) {
+                renderables = get3dCodeObjectsAsRenderObj(renderablesObjects)
+            }
+        }
     }
 
 

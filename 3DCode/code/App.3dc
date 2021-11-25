@@ -32,4 +32,7 @@ Void Update(Float deltaTime, Float time){
 	Object o = objects.Get(0)
 	
 	o.color = Vector3f(m.Mod(o.color.x + 4.0, 256.0), o.color.y, o.color.z)
+	
+	Println(GetRandomInt(0,101)/100.0)
+	
 }

@@ -271,6 +271,12 @@ class TypeChecker {
                             throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, "Function: 'ToString' must have one or more transfer parameters")
                         Type.String
                     }
+                    "GetRandomInt" -> {
+                        if(expression.parameterList == null || expression.parameterList!!.isEmpty() ||  expression.parameterList!!.size > 2)
+                            throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, "Function: 'GetRandomInt' must have one or more parameters. GetRandomInt([Int from,] Int until)")
+
+                        Type.Integer
+                    }
                     else -> {
 
                         val action = { classDec : Declaration.ClassDeclare, _: File ->

@@ -8,6 +8,7 @@ import TypeChecker.TypeChecker
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class DeepTest {
 
@@ -1763,5 +1764,21 @@ class DeepTest {
 
     }
 
+    @Test
+    fun randomTest(){
+
+        val code = """   
+            
+            Void Main(){
+                for(Int i = 0 ; i < 100 ; i += 1){
+                    Int a = GetRandomInt(0,10)                                  
+                    //Println(a)  
+                }
+            }
+        """.trimIndent()
+
+        executeCode(code)
+
+    }
 
 }

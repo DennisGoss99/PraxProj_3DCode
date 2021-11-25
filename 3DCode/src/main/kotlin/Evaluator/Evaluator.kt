@@ -7,6 +7,7 @@ import Parser.ParserToken.Values.ConstantValue
 import Parser.ParserToken.Values.DynamicValue
 import openGLOutput.exercise.components.geometry.mesh.RenderableBase
 import openGLOutput.framework.ModelLoader
+import kotlin.random.Random
 
 class Evaluator {
 
@@ -306,6 +307,7 @@ class Evaluator {
             }
             is Expression.FunctionCall ->{
                 return when(expression.functionName){
+                    "GetRandomInt" -> getRandomIntImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) }, file)
                     "ToString" -> toStringImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) } )
                     "_integratedFunctionGetArray" -> arrayGetFunctionCall(expression, environment, currentClass, file)
                     else -> {
@@ -411,7 +413,21 @@ class Evaluator {
 
     private fun numberToFloat(number : Any?) : Float = number as? Float ?: (number as Int).toFloat()
 
+    private fun getRandomIntImplementation(parameterList: List<Expression>?,file: File) : Expression.Value{
+        parameterList ?: throw EvaluatorBaseException(-1,file.name,"Function GetRandomInt needs one or two parameters. GetRandomInt(Int from, Int until)")
+        if(parameterList.size == 1)
+            return Expression.Value(ConstantValue.Integer(Random.nextInt(((parameterList[0] as Expression.Value).value as? ConstantValue.Integer)?.value ?:
+            throw EvaluatorBaseException(-1,file.name,"Function GetRandomInt needs one or two parameters. GetRandomInt([Int from,] Int until)"))))
 
+        if(parameterList.size == 2)
+            return Expression.Value(ConstantValue.Integer(Random.nextInt(
+                ((parameterList[0] as Expression.Value).value as? ConstantValue.Integer)?.value ?:
+            throw EvaluatorBaseException(-1,file.name,"Function GetRandomInt needs one or two parameters. GetRandomInt([Int from,] Int until)"),
+                ((parameterList[1] as Expression.Value).value as? ConstantValue.Integer)?.value ?:
+                throw EvaluatorBaseException(-1,file.name,"Function GetRandomInt needs one or two parameters. GetRandomInt([Int from,] Int until)"))))
+
+        throw EvaluatorBaseException(-1,file.name,"Function GetRandomInt needs one or two parameters. GetRandomInt([Int from,] Int until)")
+    }
 
     private fun toStringImplementation(expression: Expression.Value): Expression.Value{
         return Expression.Value(ConstantValue.String(expression.value.getValueAsString()))

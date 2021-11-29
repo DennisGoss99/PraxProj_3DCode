@@ -450,8 +450,14 @@ class Evaluator {
         val index = parameter?.get(0)?.value as? ConstantValue.Integer ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "First parameter of Set must be an Integer. 'Set(Int index, T Value)'")
         val value = parameter[1].value
 
-        (localEnvironment["array"]?.value as? DynamicValue.Array)!!.value[index.value] =
-            Expression.Value(value, statement.LineOfCode)
+        try {
+            (localEnvironment["array"]?.value as? DynamicValue.Array)!!.value[index.value] =
+                Expression.Value(value, statement.LineOfCode)
+        }catch (e : Exception ){
+            throw EvaluatorBaseException(statement.LineOfCode,file.name,e.message ?: "")
+        }
+
+
     }
 
     private fun arrayInitializeProcedureCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
@@ -464,7 +470,11 @@ class Evaluator {
     private fun arrayGetFunctionCall( expression: Expression.FunctionCall, environment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File): Expression.Value {
         val parameter = expression.parameterList?.map { evalExpression(it, environment, currentClass, file) }
         val index = parameter?.get(0)?.value as? ConstantValue.Integer ?: throw EvaluatorBaseException( expression.LineOfCode, file.name, "First parameter of Get must be an Integer. 'Get(Int index)'")
-        return (environment["array"]?.value as? DynamicValue.Array)!!.value[index.value]
+        try {
+            return (environment["array"]?.value as? DynamicValue.Array)!!.value[index.value]
+        }catch (e : Exception ){
+            throw EvaluatorBaseException(expression.LineOfCode,file.name,e.message ?: "")
+        }
     }
 
     val loadedObjects = hashMapOf<String, RenderableBase>()

@@ -169,6 +169,7 @@ class Scene(private val window: GameWindow) {
 
     var codeDt = 0.0f
     var updateCount = 0
+    var updateSpeed = 0
     fun update(dt: Float, t: Float) {
         val rotationMultiplier = 30f
         val translationMultiplier = 35.0f
@@ -202,7 +203,7 @@ class Scene(private val window: GameWindow) {
         codeDt += dt
         updateCount++
 
-        if(updateCount >= 25)
+        if(updateCount >= updateSpeed)
             if(environment != null){
 
                 val args = listOf( Expression.Value(ConstantValue.Float(codeDt)), Expression.Value(ConstantValue.Float(t)))

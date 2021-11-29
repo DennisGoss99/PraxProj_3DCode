@@ -5,3 +5,7 @@ include https://en.wikipedia.org/wiki/Include_directive
 
 https://d1wqtxts1xzle7.cloudfront.net/41630582/Adding_Generics_to_the_Java_Programming_20160127-10948-1k76frk-with-cover-page-v2.pdf?Expires=1634850029&Signature=Ut9VWEbjxj9qEnWIxalgH--921jsiLBP7vXQJg~ULDGwrhbkMzy6zPzDjyYZEvk65fVDOeONff5ttxoPqBtli2KdHDXoJhqmsfjsxGgQA138ng-wmp-F2XJTQONMGGgQS5mXtKukMooJ3AgMJUZBFYq~wzY9xb5dUTDtJmVgVkwGBxskg-Tap-HGkb-n6k~byVQjRxVmcEWncAzbq09OHrli1IQm2Qa0zO3Rf4LUQZoNccBWAhVbtqdhFmG60e7N4iD5WinNUhqiOV6dfSWv4KX8RL1n-giJxonAlzMQuHvbqH~T3OoKzyWH4bdt~Gw8VETzkhbf9xzZsvwhLOBEHg__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA
 Bracha, Gilad, et al. "Adding generics to the Java programming language: Participant draft specification." (2001).
+
+
+Inseration (Sort algos)
+https://www.youtube.com/watch?v=kPRA0W1kECg&ab_channel=TimoBingmann

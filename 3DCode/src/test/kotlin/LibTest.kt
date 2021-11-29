@@ -79,6 +79,10 @@ class LibTest {
                 addPosition += 1
             }
             
+            Void InsertAt(Int index, T value){
+                values.Set(index, value)
+            }
+            
             T Get(Int index){
                 return values.Get(index)
             }
@@ -101,12 +105,14 @@ class LibTest {
                 //Println("Main:" + ToString(a.values.Get(0)))
                 a.Add(10)
                 a.Add(100)
+                a.Add(1000)
+                a.InsertAt(2,200)
                    
-                return a.Get(0) + a.Get(1) + a.Get(2)
+                return a.Get(0) + a.Get(1) + a.Get(2) + a.Get(3)
             }
         """.trimIndent()
 
-        assertEquals(ConstantValue.Integer(115), executeCode(mutableListOf(code,codeList)))
+        assertEquals(ConstantValue.Integer(1215), executeCode(mutableListOf(code,codeList)))
     }
 
     @Test

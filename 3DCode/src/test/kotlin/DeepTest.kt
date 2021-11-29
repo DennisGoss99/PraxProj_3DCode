@@ -1781,4 +1781,36 @@ class DeepTest {
 
     }
 
+    @Test
+    fun bugFixTest2(){
+        val code = """   
+            include "Array"
+            
+            class A{
+                
+                Int s = null
+                
+                A(Int ss){
+                    s = ss
+                }
+                
+                A(){}
+            
+            }
+            
+            Int Main(){
+                Array a<A> = Array<A>(2)
+                a.Set(0,A(4))
+                a.Set(1,A(5))
+                {
+                    A b = a.Get(1)                
+                    return b.s
+                }
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Integer(5), executeCode(code))
+
+    }
+
 }

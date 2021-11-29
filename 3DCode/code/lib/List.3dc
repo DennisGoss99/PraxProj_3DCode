@@ -1,5 +1,5 @@
 include "Array"
-            
+			
 class <T> List{
 	private Array values<T> = null
 	
@@ -30,6 +30,10 @@ class <T> List{
 		values.Set(addPosition, value)
 		size += 1
 		addPosition += 1
+	}
+	
+	Void InsertAt(Int index, T value){
+		values.Set(index, value)
 	}
 	
 	T Get(Int index){

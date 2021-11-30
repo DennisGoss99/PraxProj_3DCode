@@ -277,6 +277,11 @@ class TypeChecker {
 
                         Type.Integer
                     }
+                    "ToInt" -> {
+                        if(expression.parameterList == null)
+                            throw TypeCheckerFunctionParameterException(expression.LineOfCode, file.name, "Function: 'ToInt' must have one parameter type Float")
+                        Type.Integer
+                    }
                     else -> {
 
                         val action = { classDec : Declaration.ClassDeclare, _: File ->

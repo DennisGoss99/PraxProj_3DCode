@@ -309,6 +309,9 @@ class Evaluator {
                 return when(expression.functionName){
                     "GetRandomInt" -> getRandomIntImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) }, file)
                     "ToString" -> toStringImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) } )
+                    "BitAnd" -> bitAndImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) } )
+                    "BitXor" -> bitXorImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) } )
+                    "ToInt" -> toIntImplementation(expression.parameterList?.map { evalExpression(it,environment, currentClass, file) } )
                     "_integratedFunctionGetArray" -> arrayGetFunctionCall(expression, environment, currentClass, file)
                     else -> {
                         file.classDeclarations[expression.functionName]?.let { classDec ->
@@ -444,6 +447,47 @@ class Evaluator {
 
         return Expression.Value(ConstantValue.String(value.value.getValueAsString()))
     }
+
+    private fun toIntImplementation(parameterList: List<Expression>?): Expression.Value {
+        parameterList ?: throw Exception("Function ToInt need one parameter")
+
+        if (parameterList.size > 1)
+            throw Exception("Function ToInt only accepts one Parameter")
+
+        val value = (parameterList[0] as? Expression.Value )?.value?.value as? Float
+            ?: throw Exception("Can't ToInt Expression: ${parameterList[0]}")
+
+        return Expression.Value(ConstantValue.Integer(value.toInt()))
+    }
+
+    private fun bitAndImplementation(parameterList: List<Expression>?): Expression.Value {
+        parameterList ?: throw Exception("Function BitAnd need two parameter")
+
+        if (parameterList.size != 2)
+            throw Exception("Function BitAnd need two parameter")
+
+        val value = (parameterList[0] as? Expression.Value )?.value?.value as? Int
+            ?: throw Exception("Can't BitAnd Expression: ${parameterList[0]}")
+        val value1 = (parameterList[1] as? Expression.Value )?.value?.value as? Int
+            ?: throw Exception("Can't BitAnd Expression: ${parameterList[1]}")
+
+        return Expression.Value(ConstantValue.Integer(value and value1))
+    }
+
+    private fun bitXorImplementation(parameterList: List<Expression>?): Expression.Value {
+        parameterList ?: throw Exception("Function BitXor need two parameter")
+
+        if (parameterList.size != 2)
+            throw Exception("Function BitXor need two parameter")
+
+        val value = (parameterList[0] as? Expression.Value )?.value?.value as? Int
+            ?: throw Exception("Can't BitXor Expression: ${parameterList[0]}")
+        val value1 = (parameterList[1] as? Expression.Value )?.value?.value as? Int
+            ?: throw Exception("Can't BitXor Expression: ${parameterList[1]}")
+
+        return Expression.Value(ConstantValue.Integer(value xor value1))
+    }
+
 
     private fun arraySetProcedureCall(statement: Statement.ProcedureCall, localEnvironment: HashMap<String, Expression.Value>, currentClass: Declaration.ClassDeclare?, file: File) {
         val parameter = statement.parameterList?.map { evalExpression(it, localEnvironment, currentClass, file) }

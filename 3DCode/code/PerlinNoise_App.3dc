@@ -1,0 +1,148 @@
+include "lib.List"
+include "lib.Triple"
+include "lib.Vector3f" 
+include "lib.Math" 
+include "Object"      
+
+List objects<Object> = List<Object>(256)	
+
+Math m = Math()
+
+Float Noise(Int x, Int y){
+	Int n = x + y * 57
+	Int nn = m.Xor(m.Shift(n,13), n)
+	return ( 1.0 - (( m.And((nn * ((nn * nn * 15731) + 789221) + 1376312589), 2147483647)) / 1073741824.0))
+}
+
+Float SmoothedNoise(Int x, Int y){
+    Float corners = ( Noise(x-1, y-1) + Noise(x+1, y-1) + Noise(x-1, y+1) + Noise(x+1, y+1) ) / 16.0
+    Float sides   = ( Noise(x-1, y)   + Noise(x+1, y)   + Noise(x, y-1)   + Noise(x, y+1) ) /  8.0
+    Float center  =  Noise(x, y) / 4.0
+    return corners + sides + center
+}
+
+Float Interpolate(Float a, Float b, Float x){
+	return  (a*(1.0-x)) + (b*x)
+}
+
+Float InterpolatedNoise(Float x, Float y){
+	
+	Int integer_X    = ToInt(x)
+	Float fractional_X = x - integer_X
+
+	Int integer_Y    = ToInt(y)
+	Float fractional_Y = y - integer_Y
+
+	Float v1 = SmoothedNoise(integer_X, integer_Y)
+	Float v2 = SmoothedNoise(integer_X + 1, integer_Y)
+	Float v3 = SmoothedNoise(integer_X, integer_Y + 1)
+	Float v4 = SmoothedNoise(integer_X + 1, integer_Y + 1)
+
+	Float i1 = Interpolate(v1 , v2 , fractional_X)
+	Float i2 = Interpolate(v3 , v4 , fractional_X)
+	
+	return Interpolate(i1 , i2 , fractional_Y)
+}
+
+Float PerlinNoise_2D(Float persistence, Float x, Float y){
+
+  Float total = 0.0
+  // persistence
+  Float p = persistence
+  // Number_Of_Octaves
+  Float n = 7.0 - 1.0
+
+  for( Int i = 0 ; n > i ; i+= 1) {
+
+	  Float frequency = m.Pow(2.0, i) 
+	  Float amplitude = m.Pow(p, i)
+
+	  total += InterpolatedNoise(x * frequency, y * frequency) * amplitude
+  }
+
+  return total
+}
+
+
+Void Init(){    	
+		
+	Float persistence = 1.0 / 4.0
+		
+	for(Float i = -15.0 ; i < 15 ; i += 1){
+		for(Float j = -15.0 ; j < 15 ; j += 1){
+			Float rawNoise = PerlinNoise_2D(persistence,i,j)
+			Float noise = m.Abs((rawNoise + 2) * 10)	
+			Float color = (rawNoise + 2) * 100		
+			
+			Object o = Object("assets/objects/cube.obj",Vector3f(i*2.0 - 65.0, noise, j*2.0 ),Vector3f(1.0, noise, 1.0))
+			
+			
+			o.color = Vector3f(color, color, color)
+			
+			
+			objects.Add(o)
+		}	
+	}
+	
+	persistence = 1.0 / 2.0
+	
+	for(Float i = -15.0 ; i < 15 ; i += 1){
+		for(Float j = -15.0 ; j < 15 ; j += 1){
+			Float rawNoise = PerlinNoise_2D(persistence,i,j)
+			Float noise = m.Abs((rawNoise + 2) * 10)	
+			Float color = (rawNoise + 2) * 100		
+			
+			Object o = Object("assets/objects/cube.obj",Vector3f(i*2.0, noise, j*2.0 ),Vector3f(1.0, noise, 1.0))
+			
+			
+			o.color = Vector3f(color, color, color)
+			
+			
+			objects.Add(o)
+		}	
+	}
+	
+	persistence = 1.0
+	
+	for(Float i = -15.0 ; i < 15 ; i += 1){
+		for(Float j = -15.0 ; j < 15 ; j += 1){
+			Float rawNoise = PerlinNoise_2D(persistence,i,j)
+			Float noise = m.Abs((rawNoise + 2) * 10)	
+			Float color = (rawNoise + 2) * 100		
+			
+			Object o = Object("assets/objects/cube.obj",Vector3f(i*2.0 + 65.0, noise, j*2.0 ),Vector3f(1.0, noise, 1.0))
+			
+			
+			o.color = Vector3f(color, color, color)
+			
+			
+			objects.Add(o)
+		}	
+	}
+	
+	persistence = 1.5
+	
+	for(Float i = -15.0 ; i < 15 ; i += 1){
+		for(Float j = -15.0 ; j < 15 ; j += 1){
+			Float rawNoise = PerlinNoise_2D(persistence,i,j)
+			Float noise = m.Abs((rawNoise + 2) * 10)	
+			Float color = (rawNoise + 2) * 100		
+			
+			Object o = Object("assets/objects/cube.obj",Vector3f(i*2.0 + 130.0, noise, j*2.0 ),Vector3f(1.0, noise, 1.0))
+			
+			
+			o.color = Vector3f(color, color, color)
+			
+			
+			objects.Add(o)
+		}	
+	}
+		
+	Println("-- End Init --")	
+}
+
+Void OnKey(Int key, Int action){
+}
+
+Void Update(Float deltaTime, Float time){
+}

@@ -231,6 +231,7 @@ class Scene(private val window: GameWindow) {
                 renderables = get3dCodeObjectsAsRenderObj(renderablesObjects)
             }
         }
+
     }
 
 

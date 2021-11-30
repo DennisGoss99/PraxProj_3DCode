@@ -307,6 +307,21 @@ class LibTest {
                 }
                 return value
             }
+            
+            Int Shift(Int value, Int shift){
+                for(Int i = 0 ; shift > i ; i += 1){
+                    value *= 2
+                }
+                return value
+            }	
+            
+            Int And(Int value, Int value1){
+                return BitAnd(value, value1)
+           	}
+            	
+            Int Xor(Int value, Int value1){
+                return BitXor(value, value1)
+            }
         
         }
         """.trimIndent()
@@ -338,9 +353,47 @@ class LibTest {
             }
         """.trimIndent()
 
+        val codeShift = "App" to """
+            include "Math" 
+            Math m = Math()
+            
+            Float Main(){               
+                return m.Shift(4,0) + m.Shift(4,1) + m.Shift(4,20) + 0.0
+            }
+        """.trimIndent()
+
+
+
         assertEquals(ConstantValue.Float(20f), executeCode(mutableListOf(codeAbs,codeMath)))
         assertEquals(ConstantValue.Float(19.0625f), executeCode(mutableListOf(codePow,codeMath)))
         assertEquals(ConstantValue.Float(19.308338f), executeCode(mutableListOf(codeMod,codeMath)))
+        assertEquals(ConstantValue.Float(4194304 + 12f), executeCode(mutableListOf(codeShift,codeMath)))
+
+
+        fun Noise( x : Int, y : Int) : Float {
+            var n = x + y * 57
+            n = (n shl 13) xor n
+            println("k: $n")
+            return (1.0f - ((n * (n * n * 15731 + 789221) + 1376312589) and 2147483647) / 1073741824.0f)
+        }
+
+        val code1 = "App" to """
+            include "Math" 
+            Math m = Math()
+
+            Float Noise(Int x, Int y){
+                Int n = x + y * 57
+                Int nn = m.Xor(m.Shift(n,13), n)
+                Println(nn)
+                return ( 1.0 - (( m.And((nn * ((nn * nn * 15731) + 789221) + 1376312589), 2147483647)) / 1073741824.0))
+            }
+            
+            Float Main(){               
+                return Noise(1,0)
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float(Noise(1,0)), executeCode(mutableListOf(code1,codeMath)))
     }
 
 }

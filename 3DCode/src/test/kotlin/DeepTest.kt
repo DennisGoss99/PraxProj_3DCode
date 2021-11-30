@@ -1812,5 +1812,4 @@ class DeepTest {
         assertEquals(ConstantValue.Integer(5), executeCode(code))
 
     }
-
 }

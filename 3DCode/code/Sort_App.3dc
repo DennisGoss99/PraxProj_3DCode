@@ -1,0 +1,283 @@
+include "lib.List"
+include "lib.Triple"
+include "lib.Vector3f" 
+include "lib.Math" 
+include "Object"      
+include "Array"
+
+Math m = Math()
+
+List objects<Object> = List<Object>(256)	
+List sortObjects<SortObj> = List<SortObj>(256)		
+
+Bool finished = false
+Int sortPos = 0
+
+class SortObj{
+	
+	Int score = 0
+	
+	Int r = GetRandomInt(0,9)
+	Int g = GetRandomInt(0,9)
+	Int b = GetRandomInt(0,9)
+
+	Object o = null
+
+	Vector3f color = null
+	Vector3f pos = null
+
+	SortObj(String path, Vector3f tempPos){
+		
+		score = GetRandomInt(0,elementCount +1)
+		color = CalcScore(score / (elementCount * 1.0))
+		
+		pos = tempPos
+		pos.y += (score + 1.0)
+		pos.x -= (elementCount / 2.0) * 3
+		pos.z -= (elementCount / 2.0) * 5
+		
+		o = Object(path, pos, Vector3f(1.0, (score + 1.0), 1.0))
+		o.color = color
+		objects.Add(o)
+	}
+
+	Move(Vector3f v){
+		pos.x += v.x
+		pos.y += v.y
+		pos.z += v.z
+	}
+	
+	SetMove(Vector3f v){
+		pos.x = v.x
+		pos.y = v.y
+		pos.z = v.z
+	}
+	
+	Vector3f CalcScore(Float progress){
+		
+	    Float div = m.Abs(m.Mod(progress, 1.0)) * 6.0
+		Float ascending = (m.Mod(div, 1.0) * 255)
+		Float descending = 255.0 - ascending;
+
+		if(div >= 0 && div < 1){
+			return Vector3f(255.0, ascending, 0.0)
+		}
+		if(div >= 1 && div < 2){
+			return Vector3f(descending, 255.0, 0.0)
+		}
+		if(div >= 2 && div < 3){
+			return Vector3f(0.0, 255.0, ascending)
+		}
+		if(div >= 3 && div < 4){
+			return Vector3f(0.0, descending, 255.0)
+		}
+		if(div >= 4 && div < 5){
+			return Vector3f(ascending, 0.0, 255.0)
+		}
+		return Vector3f(255.0, 0.0, descending)
+	}
+
+}
+
+Int sortSize = 0
+
+Void BubbleSortStep(){
+	if(!finished){
+		if(sortPos < sortSize){
+			SortObj x = sortObjects.Get(sortPos)
+			SortObj x1 = sortObjects.Get(sortPos + 1)
+						
+			//Swap Position
+			if(x.score > x1.score){
+				sortObjects.InsertAt(sortPos, x1)
+				sortObjects.InsertAt(sortPos + 1, x)
+				
+				x.Move(Vector3f( 3.0, 0.0, 0.0))
+				x1.Move(Vector3f( -3.0, 0.0, 0.0))
+			}
+			
+			sortPos += 1
+			
+		}else{
+		
+			if(sortSize <= 1){
+				finished = true
+				Println("Finished sorting: BubbleSort")
+			}
+		
+			sortSize -= 1
+			sortPos = 0
+		}
+	}
+}
+
+Void MergeSortStep(){
+	if(!finished){
+		if(sortPos < sortSize){
+			SortObj x = sortObjects.Get(sortPos)
+			SortObj x1 = sortObjects.Get(sortPos + 1)
+			
+			if(x.score > x1.score){
+				sortObjects.InsertAt(sortPos, x1)
+				sortObjects.InsertAt(sortPos + 1, x)
+				
+				x.Move(Vector3f( 3.0, 0.0, 0.0))
+				x1.Move(Vector3f( -3.0, 0.0, 0.0))
+			}
+			
+			sortPos += 2
+			
+			for(Int i = 4 ; i <= elementCount ; i *= 2){
+				
+				if(m.Mod(sortPos,i) == 0){
+					Int pos1 = sortPos - 1
+					Int pos2 = (sortPos - (i/2)) - 1
+					Int pos1L = i / 2
+					Int pos2L = i / 2
+					Int count = i - 1
+					
+					Array tempArray<SortObj> = Array<SortObj>(i)	
+					
+					SortObj x = sortObjects.Get(pos1)
+					SortObj x1 = sortObjects.Get(pos2)
+					
+					while(pos1L >= 1 || pos2L >= 1){
+						if(pos1L >= 1){
+							x = sortObjects.Get(pos1)
+						}
+						if(pos2L >= 1){
+							x1 = sortObjects.Get(pos2)
+						}
+					
+						if(pos1L >= 1 && (pos2L < 1 || x.score > x1.score)){ 
+							tempArray.Set(count,x)
+							pos1 -= 1
+							pos1L -= 1
+						}
+						else{
+							if(pos2L >= 1 && (pos1L < 1 || x.score <= x1.score)){
+								tempArray.Set(count,x1)
+								pos2 -= 1
+								pos2L -= 1
+							}
+						}
+
+						count -= 1
+					}
+
+					for(Int j = 0 ; j < tempArray.size ; j += 1){
+						SortObj sObj = tempArray.Get((tempArray.size - 1) - j)
+						sObj.SetMove( Vector3f((((sortPos - 1) - j) * 3) - ((elementCount / 2.0) * 3), sObj.pos.y, sObj.pos.z)) 
+						sortObjects.InsertAt((sortPos - 1) - j, sObj)
+					}
+					
+				}
+			}
+		}else{
+			finished = true
+			Println("Finished sorting: MergeSort")
+		}
+		
+	}
+}
+
+Bool combSortSortet = true
+Void CombSortStep(){
+	if(!finished){
+		if(sortPos < sortSize){
+			SortObj x = sortObjects.Get(sortPos)
+			SortObj x1 = sortObjects.Get(sortPos + 1)
+						
+			//Swap Position
+			if(x.score > x1.score){
+				sortObjects.InsertAt(sortPos, x1)
+				sortObjects.InsertAt(sortPos + 1, x)
+				
+				x.Move(Vector3f( 3.0, 0.0, 0.0))
+				x1.Move(Vector3f( -3.0, 0.0, 0.0))
+				combSortSortet = false
+				sortPos += 1
+			}
+			
+			sortPos += 1
+			
+		}else{
+		
+			if(combSortSortet){
+				finished = true
+				Println("Finished sorting: Comb Sort")
+			}
+		
+			combSortSortet = true
+			sortPos = 0
+		}
+	}
+}
+
+// [ 0 = "Bubble", 1 = "Merge", 2 = "Comb Sort"]
+Int sortAlgorithm = 1
+
+Int elementCount = 64
+
+Void Init(){    	
+				
+	for(Int i = 0 ; i < elementCount ; i += 1)	
+	{
+		sortObjects.Add(SortObj("assets/objects/cube.obj",Vector3f(i*3.0, -100.0, 0.0)))
+	}
+	sortPos = 0
+	sortSize = sortObjects.size - 1		
+					
+	Println("-- End Init --")	
+}
+
+
+
+Void OnKey(Int key, Int action){
+		
+	if( (key >= 49) && (key <= 51) && action == 0){
+	
+		List tempSortObjects<SortObj> = List<SortObj>(256)
+		objects = List<Object>(256)	
+		
+		for(Int i = 0 ; i < elementCount ; i += 1)	
+		{
+			tempSortObjects.Add(SortObj("assets/objects/cube.obj",Vector3f(i*3.0, -100.0, 0.0)))
+		}
+		
+		sortObjects = tempSortObjects
+		sortPos = 0
+		sortSize = tempSortObjects.size - 1	
+		finished = false
+	}
+	if(key == 49){
+		sortAlgorithm = 0
+	}
+	if(key == 50){
+		sortAlgorithm = 1
+	}
+	if(key == 51){
+		sortAlgorithm = 2
+	}
+}
+
+Float timePassed = 0.0
+
+Void Update(Float deltaTime, Float time){
+
+	if(sortAlgorithm == 0){
+		BubbleSortStep()	
+	}
+	
+	if(sortAlgorithm == 1){
+		if(timePassed > 0.15){
+			MergeSortStep()
+			timePassed = 0.0
+		}else{
+			timePassed += deltaTime
+		}	
+	}
+	if(sortAlgorithm == 2){
+		CombSortStep()
+	}
+}

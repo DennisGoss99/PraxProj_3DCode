@@ -1,0 +1,129 @@
+include "lib.List"
+include "lib.Triple"
+include "lib.Vector3f" 
+include "lib.Math" 
+include "Object" 
+     
+Math m = Math()
+
+List objects<Object> = List<Object>(256)	
+
+Vector3f GetColor(Int value){
+	
+	Float div = m.Abs(m.Mod(value + 0.0 , 500.0) / 500.0) * 6.0
+	Float ascending = (m.Mod(div, 1.0) * 255)
+	Float descending = 255.0 - ascending;
+
+	if(div >= 0 && div < 1){
+		return Vector3f(255.0, ascending, 0.0)
+	}
+	if(div >= 1 && div < 2){
+		return Vector3f(descending, 255.0, 0.0)
+	}
+	if(div >= 2 && div < 3){
+		return Vector3f(0.0, 255.0, ascending)
+	}
+	if(div >= 3 && div < 4){
+		return Vector3f(0.0, descending, 255.0)
+	}
+	if(div >= 4 && div < 5){
+		return Vector3f(ascending, 0.0, 255.0)
+	}
+	return Vector3f(255.0, 0.0, descending)
+}
+
+	Vector3f pos = Vector3f(0.0, 0.0, 0.0)
+	Int count = 1
+
+Void Init(){    			
+	Println("-- End Init --")	
+}
+
+Void OnKey(Int key, Int action){
+
+}
+
+Float timePassed = 0.0
+
+Void Update(Float deltaTime, Float time){
+
+	if(timePassed > 0.1){
+		
+		Int movement = GetRandomInt(0,14)
+		Object o = Object("assets/objects/cube.obj")
+		
+		
+		if(movement == 0){
+			pos.y -= 2.0
+		}else{
+			if(movement == 1){
+			pos.y -= 2.0
+			pos.x -= 2.0
+			}else{
+				if(movement == 2){
+					pos.y -= 2.0
+					pos.x += 2.0
+				}else{
+					if(movement == 3){
+						pos.y -= 2.0
+						pos.z -= 2.0
+					}else{
+						if(movement == 4){
+							pos.y -= 2.0
+							pos.z += 2.0
+						}else{
+							if(movement == 5){
+								pos.x += 2.0
+							}else{						
+								if(movement == 6){
+									pos.x -= 2.0
+								}else{
+									if(movement == 7){
+										pos.z += 2.0
+									}else{						
+										if(movement == 8){
+											pos.z -= 2.0
+										}else{						
+											if(movement == 9){
+												pos.y += 2.0
+											}else{						
+												if(movement == 10){
+													pos.y += 2.0
+													pos.x += 2.0
+												}else{						
+													if(movement == 11){
+														pos.y += 2.0
+														pos.x -= 2.0
+													}else{					
+														if(movement == 12){
+															pos.y += 2.0
+															pos.z += 2.0
+														}else{			
+															pos.y += 2.0														
+															pos.z -= 2.0
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		o.position = Vector3f(pos.x, pos.y, pos.z)
+		o.color = GetColor(count)
+		objects.Add(o)
+		count += 1
+		
+		Println("Spawned Cubes count:[" + count.ToString() + "]")
+		
+		timePassed = 0.0
+	}else{
+		timePassed += deltaTime
+	}	
+}

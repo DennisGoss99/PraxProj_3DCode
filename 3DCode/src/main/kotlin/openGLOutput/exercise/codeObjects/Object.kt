@@ -64,7 +64,7 @@ class Object {
                                     ),
                                     listOf(Parameter("pathToObject", Type.String),Parameter("tempPosition", Type.Custom("Vector3f")),Parameter("tempScale", Type.Custom("Vector3f"))),
                                     null
-                                ),
+                                )
                             )
                         ),
                         listOf(

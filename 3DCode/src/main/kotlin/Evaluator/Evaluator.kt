@@ -529,7 +529,7 @@ class Evaluator {
         val finalPath = if(path.value[1] == ':') path.value else "code/${path.value}"
 
         val renderObject = if(!loadedObjects.containsKey(finalPath)){
-            loadedObjects[finalPath] = ModelLoader.loadModel(finalPath,0f, 0f,0f) ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "Couldn't find objectFile path:'${path.value}'")
+            loadedObjects[finalPath] = ModelLoader.loadModel(finalPath,0f, 0f,0f) ?: throw EvaluatorBaseException(statement.LineOfCode, file.name, "Couldn't load objectFile path:'${path.value}'")
             loadedObjects[finalPath]!!
         }else
             loadedObjects[finalPath]!!

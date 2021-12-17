@@ -1782,7 +1782,7 @@ class DeepTest {
     }
 
     @Test
-    fun bugFixTest2(){
+    fun bugFix2Test(){
         val code = """   
             include "Array"
             
@@ -1811,5 +1811,104 @@ class DeepTest {
 
         assertEquals(ConstantValue.Integer(5), executeCode(code))
 
+    }
+
+    @Test
+    fun bugFix3Test1(){
+        val a =
+            "A" to """
+                class A{
+                
+                    String a = null
+                    
+                    A(String aa){
+                        a = aa
+                    }   
+                    
+                    Void X(Int x){
+                    
+                    }
+                    
+                }    
+            """.trimIndent()
+
+        val b =
+            "B" to """
+            include "A"
+                class B{
+                
+                    A c = null
+                    
+                    B(String bb){
+                        c = bb
+                    }            
+                }    
+            """.trimIndent()
+
+        val code = "App" to """     
+            include "B"
+                        
+            String Main(){               
+                B b = B("A")
+                //String d = b.c.a
+                //b.c.X(d+1)
+                
+                //b.c.a = b.c.a + "Test"
+                return b.c.a 
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.String("ATest"), executeCode(mutableListOf(code,a,b)))
+
+    }
+
+    @Test
+    fun bugFix3Test(){
+
+        val a =
+            "Vector3f" to """
+            class Vector3f{
+            
+                Float x = null
+                Float y = null
+                Float z = null
+                            
+                Vector3f(Float tempX, Float tempY, Float tempZ){
+                    x = tempX
+                    y = tempY
+                    z = tempZ
+                }
+                    
+                String ToString(){
+                    return x.ToString() + y.ToString() + z.ToString()
+                }	
+               
+            } 
+            """.trimIndent()
+
+        val b =
+            "Object" to """
+                include "Vector3f"
+                class Object{
+                
+                    Vector3f position = null
+                    
+                    Object(Float x, Float y, Float z){
+                        position = Vector3f(x,y,z)
+                    }            
+                }    
+            """.trimIndent()
+
+        val code = "App" to """     
+            include "Object"
+                       
+            Float Main(){               
+                Object o = Object(0.0, 0.0, 0.0)
+                o.position.y += 1.0
+                return o.position.y
+            }
+        """.trimIndent()
+
+        assertEquals(ConstantValue.Float(1.0f), executeCode(mutableListOf(code,a,b)))
     }
 }

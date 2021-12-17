@@ -183,7 +183,10 @@ class TypeChecker {
                         }
                     }
                 }
-                is Statement.UseClass -> statementUseClass(statement, combinedVariables, classDef, file)
+                is Statement.UseClass -> {
+                    val expressionType = getExpressionStatementUseType(statement, combinedVariables, classDef, file)
+                    statementUseClass(statement, expressionType, combinedVariables, classDef, file)
+                }
             }
         }
     }
@@ -202,7 +205,20 @@ class TypeChecker {
         return type
     }
 
-    private fun statementUseClass(statement : Statement.UseClass, localVariables : HashMap<String, Type>, currentClass: Declaration.ClassDeclare?, file : File){
+    private fun getExpressionStatementUseType(statement : Statement, localVariables : HashMap<String, Type>, currentClass: Declaration.ClassDeclare?, file : File) : List<Type>?{
+        return if(statement is Statement.UseClass)
+            getExpressionStatementUseType(statement.statement, localVariables, currentClass, file)
+        else
+            when(statement){
+                is Statement.AssignValue->
+                    listOf(getExpressionType(statement.expression, localVariables, currentClass, file))
+                is Statement.ProcedureCall->
+                    statement.parameterList?.map{ getExpressionType(it, localVariables, currentClass, file)}
+                else -> throw Exception("Can't use $statement in this context")
+            }
+    }
+
+    private fun statementUseClass(statement : Statement.UseClass, expressionType : List<Type>? ,localVariables : HashMap<String, Type>, currentClass: Declaration.ClassDeclare?, file : File){
 
         if(!(localVariables.containsKey(statement.variableName) || file.variableDeclaration.containsKey(statement.variableName)))
             throw TypeCheckerVariableNotFoundException(statement.LineOfCode,file.name, statement.variableName)
@@ -214,7 +230,7 @@ class TypeChecker {
                 is Statement.AssignValue -> {
                     val variableDef = classObj.classBody.variables?.firstOrNull{it.name == statement2.variableName} ?: throw TypeCheckerVariableNotFoundException(statement2.LineOfCode, importFile.name, statement2.variableName)
 
-                    val type1 = getExpressionType(statement2.expression, localVariables, currentClass, file)
+                    val type1 = expressionType?.firstOrNull() ?: throw TypeCheckerBaseException(statement.LineOfCode, file.name, "Couldn't get the assign Type")
                     var type2 = variableDef.type
 
                     if(type2 != type1 && classType is Type.CustomWithGenerics && variableDef.type is Type.AbstractCustom)
@@ -226,21 +242,20 @@ class TypeChecker {
                 }
                 is Statement.ProcedureCall -> {
                     val functionList = classObj.classBody.functions[statement2.procedureName] ?: throw TypeCheckerFunctionNotFoundException(statement2.LineOfCode, importFile.name, statement2.procedureName)
-                    val parameterTypes = statement2.parameterList?.map{ getExpressionType(it, localVariables, currentClass, file)}
 
                     val function = functionList.firstOrNull { checkParameter(
                         it.parameters,
                         combineGenerics(it.generics, classObj.generics),
-                        parameterTypes
-                    ) } ?: throw TypeCheckerFunctionParameterException(statement2.LineOfCode, importFile.name, statement2.procedureName, parameterTypes, "method")
+                        expressionType
+                    ) } ?: throw TypeCheckerFunctionParameterException(statement2.LineOfCode, importFile.name, statement2.procedureName, expressionType, "method")
 
                     if(function.isPrivate && classObj.className != currentClass?.className)
                         throw TypeCheckerCantAccessPrivate(statement.LineOfCode, file.name, "method", statement2.procedureName)
                 }
                 is Statement.UseClass ->{
-                    statementUseClass(statement2, classObj.classBody.variables?.associateTo(hashMapOf()) { it.name to it.type } ?: hashMapOf(), currentClass, importFile)
+                    statementUseClass(statement2, expressionType,classObj.classBody.variables?.associateTo(hashMapOf()) { it.name to it.type } ?: hashMapOf(), currentClass, importFile)
                 }
-                else -> throw Exception("Can't use $statement2 in this context")
+                else -> throw TypeCheckerBaseException(statement.LineOfCode, file.name, "Can't use $statement2 in this context")
             }
         }
 
@@ -425,7 +440,6 @@ class TypeChecker {
 
                         if(upperType != null && returnType is Type.Custom)
                             returnType = getClassGenericType(upperType, returnType, classObj) ?: throw TypeCheckerGenericsMissingException(expression.LineOfCode,file.name,"Class")
-
                     }
 
                     return returnType
